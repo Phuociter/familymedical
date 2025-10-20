@@ -1,0 +1,51 @@
+type User {
+  userID: ID!
+  fullName: String
+  email: String
+  role: String
+}
+
+type Member {
+  memberID: ID!
+  fullName: String
+  relation: String
+  cccd: String
+}
+
+type MedicalRecord {
+  recordID: ID!
+  memberID: ID!
+  symptoms: String
+  diagnosis: String
+  treatmentPlan: String
+  recordDate: String
+  fileLink: String
+}
+
+type DoctorRequest {
+  requestID: ID!
+  familyID: Int!
+  doctorID: Int!
+  message: String
+  status: String
+  requestDate: String
+}
+
+type Query {
+  membersByFamily(familyID: Int!): [Member]
+  medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+  doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
+}
+
+input CreateMedicalRecordInput {
+  memberID: Int!
+  symptoms: String
+  diagnosis: String
+  treatmentPlan: String
+  fileLink: String
+}
+
+type Mutation {
+  createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
+  requestDoctor(familyID: Int!, doctorID: Int!, message: String): DoctorRequest
+}
