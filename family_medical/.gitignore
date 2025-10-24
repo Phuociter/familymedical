@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 # dependencies
-/node_modules
+/node_modules/
 /.pnp
 .pnp.js
 ### STS ###
