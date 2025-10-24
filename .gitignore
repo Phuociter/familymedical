@@ -4,8 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 # dependencies
-/node_modules/
-/.pnp
+node_modules/
+.pnp/
 .pnp.js
 ### STS ###
 .apt_generated
