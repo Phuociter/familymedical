@@ -1,16 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import DoctorPage from "./pages/DoctorPage";
-import FamilyMedicalPage from "./pages/FamilyMedicalPage";
+//import DoctorPage from "./pages/DoctorPage";
+//import FamilyMedicalPage from "./pages/FamilyMedicalPage";
+import LoginPage from "./pages/Auth/LoginPage";
+import RegisterFamilyPage from "./pages/Auth/RegisterFamilyPage";
+import RegisterDoctorPage from "./pages/Auth/RegisterDoctorPage";
 
 export default function App() {
   const isLoggedIn = localStorage.getItem("token");
 
   return (
-    <Router>
+    //<Router>
       <Routes>
         {/* Login Page */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register/family" element={<RegisterFamilyPage />} />
+        <Route path="/register/doctor" element={<RegisterDoctorPage />} /> 
 
         {/* Protected routes */}
         {isLoggedIn ? (
@@ -23,6 +27,6 @@ export default function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         )}
       </Routes>
-    </Router>
+    //</Router>
   );
 }
