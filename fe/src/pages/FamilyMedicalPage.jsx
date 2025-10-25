@@ -1,24 +1,13 @@
 import { useEffect, useState } from "react";
-// import {
-//   getFamilies,
-//   createFamily,
-//   updateFamily,
-//   deleteFamily,
-// } from "../api/FamilyAPI";
-// import {
-//   createMember,
-//   updateMember,
-//   deleteMember,
-//   uploadFiles,
-//   assignDoctor,
-// } from "../api/MemberAPI";
+// import { getFamilies,createFamily,updateFamily,deleteFamily} from "../api/FamilyAPI";
+// import {createMember,updateMember,deleteMember,uploadFiles,assignDoctor} from "../api/MemberAPI";
 // import { getDoctors } from "../api/DoctorAPI";
 import Header from "../components/FamilyMedicalComponent/Header";
 import FamilyList from "../components/FamilyMedicalComponent/FamilyList";
 import MemberCard from "../components/FamilyMedicalComponent/MemberCard";
 import EditMemberModal from "../components/FamilyMedicalComponent/EditMemberModal";
 import DoctorList from "../components/FamilyMedicalComponent/DoctorList";
-
+import { fakeFamilies } from "../api/fakeData";
 export default function FamilyMedicalPage() {
   const [families, setFamilies] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -32,7 +21,7 @@ export default function FamilyMedicalPage() {
   }, []);
 
   async function loadFamilies() {
-    const res = await getFamilies();
+    // const res = await getFamilies();
     setFamilies(res);
     if (!selectedFamilyId && res.length > 0) setSelectedFamilyId(res[0].id);
   }
@@ -49,12 +38,12 @@ export default function FamilyMedicalPage() {
     setFamilies([...families, res]);
   }
 
-  async function renameFamily(id) {
-    const name = prompt("Tên mới:");
-    if (!name) return;
-    const res = await updateFamily(id, name);
-    setFamilies(families.map((f) => (f.id === id ? res : f)));
-  }
+  // async function renameFamily(id) {
+  //   const name = prompt("Tên mới:");
+  //   if (!name) return;
+  //   const res = await updateFamily(id, name);
+  //   setFamilies(families.map((f) => (f.id === id ? res : f)));
+  // }
 
   async function removeFamily(id) {
     if (!confirm("Xóa hộ này?")) return;
@@ -95,62 +84,22 @@ export default function FamilyMedicalPage() {
   }
 
   const selectedFamily = families.find((f) => f.id === selectedFamilyId);
-
   return (
     <div className="page">
-      <Header onAddFamily={addFamily} />
+      <Header />
       <div className="main-layout">
+        
         <FamilyList
-          families={families}
-          selectedFamilyId={selectedFamilyId}
-          onSelect={setSelectedFamilyId}
-          onAdd={addFamily}
-          onDelete={removeFamily}
-          onRename={renameFamily}
+          families={fakeFamilies}
+          selectedFamilyId={2}
+          onSelect={2}
+          // onAdd={addFamily}
+          // onDelete={removeFamily}
+          // onRename={renameFamily}
         />
 
-        <section className="content">
-          {selectedFamily && (
-            <>
-              <h2>{selectedFamily.name}</h2>
-              <button onClick={() => addMember(selectedFamily.id)}>+ Thêm hồ sơ</button>
-              <div className="records-grid">
-                {selectedFamily.members?.map((member) => (
-                  <MemberCard
-                    key={member.id}
-                    member={member}
-                    familyId={selectedFamily.id}
-                    onEdit={(m) => setEditingMember({ ...m, familyId: selectedFamily.id })}
-                    onDelete={removeMember}
-                    onUpload={(memberId, familyId) => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.multiple = true;
-                      input.accept = ".pdf";
-                      input.onchange = (e) =>
-                        uploadFiles(memberId, e.target.files);
-                      input.click();
-                    }}
-                    onAssignDoctor={assignDoctorToMember}
-                    doctors={doctors}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </section>
-
-        <DoctorList doctors={doctors} previewUrl={previewUrl} />
       </div>
 
-      {editingMember && (
-        <EditMemberModal
-          member={editingMember}
-          doctors={doctors}
-          onClose={() => setEditingMember(null)}
-          onSave={(m) => saveMember(m, editingMember.familyId)}
-        />
-      )}
     </div>
   );
 }
