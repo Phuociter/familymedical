@@ -9,18 +9,23 @@ export default function App() {
   return (
     <Routes>
       {/* Login Page */}
-      <Route path="/login" element={<Login />} />
+      {/* <Route path="/login" element={<Login />} /> */}
 
       {/* Protected routes */}
-      {isLoggedIn ? (
-        <>
-          {/* <Route path="/doctors" element={<DoctorPage />} /> */}
-          <Route path="/families" element={<FamilyMedicalPage />} />
-          <Route path="*" element={<Navigate to="/families" />} />
-        </>
-      ) : (
+      {/* {isLoggedIn ? ( */}
+        {/* // <> */}
+        //   {/* <Route path="/doctors" element={<DoctorPage />} /> */}
+        {/* //   <Route path="/families" element={<FamilyMedicalPage />} /> */}
+        {/* //   <Route path="*" element={<Navigate to="/families" />} /> */}
+        {/* // </> */}
+      {/* // )  */}
+      {/* : (
         <Route path="*" element={<Navigate to="/login" />} />
-      )}
+      ) */}
+      {/* } */}
+        {/* <Route path="/doctors" element={<DoctorPage />} /> */}
+        <Route path="/families" element={<FamilyMedicalPage />} />
+        <Route path="*" element={<Navigate to="/families" />} />
     </Routes>
   );
 }
