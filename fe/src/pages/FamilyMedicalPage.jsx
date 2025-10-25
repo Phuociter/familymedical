@@ -4,20 +4,20 @@ import {
   createFamily,
   updateFamily,
   deleteFamily,
-} from "../API/FamilyAPI";
+} from "../api/FamilyAPI";
 import {
   createMember,
   updateMember,
   deleteMember,
   uploadFiles,
   assignDoctor,
-} from "../API/MemberAPI";
-import { getDoctors } from "../API/DoctorAPI";
-import Header from "../components/Header";
-import FamilyList from "../components/FamilyList";
-import MemberCard from "../components/MemberCard";
-import EditMemberModal from "../components/EditMemberModal";
-import DoctorList from "../components/DoctorList";
+} from "../api/MemberAPI";
+import { getDoctors } from "../api/DoctorAPI";
+import Header from "../components/FamilyMedicalComponent/Header";
+import FamilyList from "../components/FamilyMedicalComponent/FamilyList";
+import MemberCard from "../components/FamilyMedicalComponent/MemberCard";
+import EditMemberModal from "../components/FamilyMedicalComponent/EditMemberModal";
+import DoctorList from "../components/FamilyMedicalComponent/DoctorList";
 
 export default function FamilyMedicalPage() {
   const [families, setFamilies] = useState([]);

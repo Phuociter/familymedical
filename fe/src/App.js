@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
+import Login from "./pages/Auth/LoginPage.jsx";
 import DoctorPage from "./pages/DoctorPage";
-import FamilyMedicalPage from "./pages/FamilyMedicalPage";
+import FamilyMedicalPage from "./pages/FamilyMedicalPage.jsx";
 
 export default function App() {
   const isLoggedIn = localStorage.getItem("token");
