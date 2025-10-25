@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Auth/LoginPage.jsx";
-import DoctorPage from "./pages/DoctorPage";
+// import DoctorPage from "./pages/DoctorPage";
 import FamilyMedicalPage from "./pages/FamilyMedicalPage.jsx";
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
         {/* Protected routes */}
         {isLoggedIn ? (
           <>
-            <Route path="/doctors" element={<DoctorPage />} />
+            {/* <Route path="/doctors" element={<DoctorPage />} /> */}
             <Route path="/families" element={<FamilyMedicalPage />} />
             <Route path="*" element={<Navigate to="/families" />} />
           </>
