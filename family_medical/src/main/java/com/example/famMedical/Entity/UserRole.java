@@ -1,4 +1,7 @@
 package com.example.famMedical.Entity;
 
-public class UserRole {
+public enum UserRole {
+    ChuHo,
+    BacSi,
+    Admin
 }

@@ -163,6 +163,9 @@ CREATE TABLE `users` (
   `Address` varchar(255) DEFAULT NULL,
   `CCCD` varchar(20) DEFAULT NULL,
   `DoctorCode` varchar(20) DEFAULT NULL,
+  `GoogleID` varchar(255) DEFAULT NULL,
+  `FacebookID` varchar(255) DEFAULT NULL,
+  `IsProfileComplete` tinyint(1) DEFAULT 0,
   `CreatedAt` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -170,10 +173,10 @@ CREATE TABLE `users` (
 -- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`UserID`, `FullName`, `Email`, `PasswordHash`, `Role`, `PhoneNumber`, `Address`, `CCCD`, `DoctorCode`, `CreatedAt`) VALUES
-(1, 'Nguyễn Văn A', 'nguyenvana@gmail.com', 'hashed_pass_1', 'ChuHo', NULL, NULL, '012345678901', NULL, '2025-10-20 07:45:20'),
-(2, 'Trần Thị B', 'tranthib@gmail.com', 'hashed_pass_2', 'BacSi', NULL, NULL, '098765432109', 'BS001', '2025-10-20 07:45:20'),
-(3, 'Admin', 'admin@system.com', 'hashed_admin', 'Admin', NULL, NULL, NULL, NULL, '2025-10-20 07:45:20');
+INSERT INTO `users` (`UserID`, `FullName`, `Email`, `PasswordHash`, `Role`, `PhoneNumber`, `Address`, `CCCD`, `DoctorCode`, `GoogleID`, `FacebookID`, `IsProfileComplete`, `CreatedAt`) VALUES
+(1, 'Nguyễn Văn A', 'nguyenvana@gmail.com', 'hashed_pass_1', 'ChuHo', NULL, NULL, '012345678901', NULL, NULL, NULL, 0, '2025-10-20 07:45:20'),
+(2, 'Trần Thị B', 'tranthib@gmail.com', 'hashed_pass_2', 'BacSi', NULL, NULL, '098765432109', 'BS001', NULL, NULL, 0, '2025-10-20 07:45:20'),
+(3, 'Admin', 'admin@system.com', 'hashed_admin', 'Admin', NULL, NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 07:45:20');
 
 --
 -- Chỉ mục cho các bảng đã đổ
