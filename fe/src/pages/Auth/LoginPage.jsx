@@ -1,29 +1,32 @@
-// src/pages/Auth/LoginPage.jsx
 import React from 'react';
-import LoginForm from '../../components/AuthComponent/LoginForm';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import LoginForm from '../../components/AuthComponent/LoginForm';
+import { loginSuccess } from '../../redux/userSlice';
 
 const LoginPage = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const handleLoginSuccess = (token, role) => {
-        localStorage.setItem('userToken', token);
-        localStorage.setItem('userRole', role);
-        
-        // Chuyển hướng sau khi đăng nhập thành công
-        if (role === 'BacSi') {
-            navigate('/doctor/dashboard');
-        } else if (role === 'ChuHo') {
-            navigate('/family/dashboard');
-        } else {
-            navigate('/admin/dashboard');
-        }
+    const handleLoginSuccess = (result) => {
+        // Dispatch action để lưu state vào Redux và localStorage
+        dispatch(loginSuccess(result));
+
+        // Chờ 1.5s để người dùng thấy thông báo rồi mới chuyển trang
+        setTimeout(() => {
+            if (result.role === 'BacSi') {
+                navigate('/doctor/dashboard');
+            } else if (result.role === 'ChuHo') {
+                navigate('/family/dashboard');
+            } else if (result.role === 'Admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
+        }, 1500);
     };
 
-    // LoginForm đã có đầy đủ layout Tailwind
-    return (
-        <LoginForm onLoginSuccess={handleLoginSuccess} />
-    );
+    return <LoginForm onLoginSuccess={handleLoginSuccess} />;
 };
 
 export default LoginPage;
