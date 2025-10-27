@@ -35,27 +35,26 @@ export default function FamilyList({
   };
 
   return (
-    <div className="flex w-full h-full bg-gray-50 justify-end">
-      {/* 🟩 Cột trái: danh sách hộ */}
-      {/* <h3>Hộ gia đình</h3> */}
-          
+    <div className="flex w-full h-full bg-[#f4f6f8] justify-end">
+        
 
       {/* danh sách hồ sơ bệnh nhân */}
-      <section className="flex-1 p-6 bg-[#ffffff] mr-3 pd-1 overflow-y-auto">
+      <section className="flex-1 p-6 bg-[#f4f6f8] mr-3 pd-1 overflow-y-auto">
         {/* sau đó sẽ sửa lại sau lấy tên hộ gđ từ db */}
         <h3 className="flex-1 flex justify-center text-lg font-semibold text-gray-800 mb-4">Hộ gia đình</h3> 
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Danh sách hồ sơ </h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 " >
           {families.map((m) => (
             <div
               key={m.id}
-              className={`p-4 bg-white shadow rounded-md border hover:shadow-lg cursor-pointer ${
+              className={`p-4 bg-white shadow rounded-md border border-[#ccc] hover:shadow-lg transform hover:scale-105 transition duration-200 cursor-pointer ${
                 selectedMemberId === m.id ? "border-blue-500" : "border-gray-200"
               }`}
               onClick={() => handleSelectMember(m)}
             >
               <div className="font-medium text-gray-800">{m.name}</div>
               <div className="text-sm text-gray-500">Số bệnh án: {m.caseNumber}</div>
+              <div className="text-sm text-gray-500">Hồ sơ được gửi đến bác sĩ: {m.caseNumber}</div>
             </div>
           ))}
             {/* 🟡 Thêm người thân */}
@@ -108,7 +107,7 @@ export default function FamilyList({
         )}
       </section>
         {/* tìm kiếm bác sĩ */}
-        <div className="relative w-[500px] border-l justify-end ">
+        <div className="relative w-[500px] border-l bg-white border-[#ccc] justify-end ">
           <div className="relative w-full max-w-md">
             <input
               type="text"

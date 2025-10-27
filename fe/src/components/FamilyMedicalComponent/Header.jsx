@@ -1,13 +1,42 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react"; 
+import { useState,useRef,useEffect } from "react";
 import doctorImage from "../../assets/images/doctor_consultation.png";
 import notiImage from "../../assets/images/notification.png";
 import notiImage2 from "../../assets/images/notification2.png";
 import searchIcon from "../../assets/images/search.png";
+import UserMenu from "./User";
+
 
 
 export default function Header({ onAddFamily }) {
   const [openNotify, setOpenNotify] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+
+
+
+  const handleClickOutside = (event) => {
+    // Nếu menu đang mở và người dùng click *bên ngoài* menu
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setIsOpen(false); // Đóng menu
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+
+
+
+
 
   return (
     <header className="w-full bg-blue shadow-md flex items-center justify-between px-6 py-3">
@@ -102,12 +131,14 @@ export default function Header({ onAddFamily }) {
 
         {/* User */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-white">USER</span>
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-            alt="user"
-            className="w-8 h-8 rounded-full border"
-          />
+          <button>
+            <span className="text-sm font-medium text-white">USER</span>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+              alt="user"
+              className="w-8 h-8 rounded-full border"
+            />
+          </button>
         </div>
       </div>
     </header>
