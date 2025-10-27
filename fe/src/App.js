@@ -20,16 +20,8 @@ export default function App() {
       <Route path="/register/doctor" element={<RegisterDoctorPage />} />
       <Route path="/oauth/complete-profile" element={<OAuth2CompleteProfilePage />} />
 
-      {/* Protected routes */}
-      {isLoggedIn ? (
-        <>
-          {/* <Route path="/doctors" element={<DoctorPage />} /> */}
-          <Route path="/families" element={<FamilyMedicalPage />} />
-          <Route path="*" element={<Navigate to="/families" />} />
-        </>
-      ) : (
-        <Route path="*" element={<Navigate to="/login" />} />
-      )}
+      <Route path="/families" element={<FamilyMedicalPage />} />
+      <Route path="*" element={<Navigate to="/families" />} />
     </Routes>
   );
 }
