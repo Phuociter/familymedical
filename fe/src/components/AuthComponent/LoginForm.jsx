@@ -1,118 +1,110 @@
-// src/components/Auth/LoginForm.jsx (Cập nhật với Tailwind CSS)
-import React, { useState } from 'react';
-import authApi from '../../api/authApi';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import authApi from '../../api/authApi';
+import useAuthForm from '../../hooks/auth/useAuthForm';
+import FormField from '../common/FormField';
+
+const GOOGLE_AUTH_URL = 'http://localhost:8080/oauth2/authorization/google';
+const FACEBOOK_AUTH_URL = 'http://localhost:8080/oauth2/authorization/facebook';
 
 const LoginForm = ({ onLoginSuccess }) => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError('');
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-
-        if (!formData.email || !formData.password) {
-            setError("Vui lòng nhập đầy đủ Email và Mật khẩu.");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const result = await authApi.login(formData);
-            if (result.success) {
-                alert(`Đăng nhập thành công! Vai trò: ${result.role}`);
-                onLoginSuccess(result.token, result.role);
-            } else {
-                setError(result.message);
-            }
-        } catch (err) {
-            setError("Đã xảy ra lỗi trong quá trình đăng nhập.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {
+        formData,
+        loading,
+        message,
+        isError,
+        handleChange,
+        handleSubmit,
+    } = useAuthForm({ email: '', password: '' }, authApi.login, onLoginSuccess);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+        <div className="min-h-screen flex items-center justify-center bg-bgColor py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8 bg-primary p-10 rounded-xl shadow-xl">
                 <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-ascent-1">
                         Đăng nhập
                     </h2>
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    {error && (
-                        <div className="p-3 mb-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
-                            {error}
+                <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+                    {message && (
+                        <div className={`p-3 mb-4 text-sm rounded-lg ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`} role="alert">
+                            {message}
                         </div>
                     )}
 
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        {/* Trường Email */}
-                        <div>
-                            <label htmlFor="email-address" className="sr-only">
-                                Email
-                            </label>
-                            <input
-                                id="email-address"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Địa chỉ Email"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        {/* Trường Mật khẩu */}
-                        <div>
-                            <label htmlFor="password" className="sr-only">
-                                Mật khẩu
-                            </label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm mt-3"
-                                placeholder="Mật khẩu"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-                    
-                    <div>
+                    <FormField
+                        label="Địa chỉ Email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="Email"
+                    />
+                    <FormField
+                        label="Mật khẩu"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="Mật khẩu"
+                    />
+
+                    <div className="pt-4">
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                            className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-lg text-white ${
                                 loading
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                    ? 'bg-secondary cursor-not-allowed text-ascent-2'
+                                    : 'bg-blue hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue'
                             }`}
                         >
                             {loading ? 'Đang xử lý...' : 'Đăng nhập'}
                         </button>
                     </div>
                 </form>
-                
-                <div className="text-center text-sm">
-                    <p className="font-medium text-gray-600">Chưa có tài khoản?</p>
-                    <Link to="/register/family" className="font-medium text-indigo-600 hover:text-indigo-500 mr-4">
+
+                <div className="mt-6">
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-ascent-2/30"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-primary text-ascent-2">
+                                Hoặc đăng nhập bằng
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                        <div>
+                            <a
+                                href={GOOGLE_AUTH_URL}
+                                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            >
+                                Google
+                            </a>
+                        </div>
+                        <div>
+                            <a
+                                href={FACEBOOK_AUTH_URL}
+                                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            >
+                                Facebook
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="text-center text-sm pt-4 border-t border-secondary mt-4">
+                    <p className="font-medium text-ascent-2 mb-2">Chưa có tài khoản?</p>
+                    <Link to="/register/family" className="font-medium text-blue hover:opacity-80 mr-4">
                         Đăng ký Hộ gia đình
                     </Link>
-                    <span className="text-gray-400">|</span>
-                    <Link to="/register/doctor" className="font-medium text-indigo-600 hover:text-indigo-500 ml-4">
+                    <span className="text-ascent-2">|</span>
+                    <Link to="/register/doctor" className="font-medium text-blue hover:opacity-80 ml-4">
                         Đăng ký Bác sĩ
                     </Link>
                 </div>
