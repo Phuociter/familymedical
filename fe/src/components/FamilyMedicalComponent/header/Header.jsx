@@ -1,42 +1,35 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState,useRef,useEffect } from "react";
-import { FaUser, FaUserMd, FaSignOutAlt } from "react-icons/fa";
-import doctorImage from "../../assets/images/doctor_consultation.png";
-import notiImage from "../../assets/images/notification.png";
-import notiImage2 from "../../assets/images/notification2.png";
-import searchIcon from "../../assets/images/search.png";
-import UserMenu from "./User";
-
+import { FaUser, FaUserMd, FaSignOutAlt,FaWallet, FaEdit, FaSav } from "react-icons/fa";
+import {FamilyHeadInfo,DoctorInfo,PaymentPlans} from "./index";
+import doctorImage from "../../../assets/images/doctor_consultation.png";
+import notiImage from "../../../assets/images/notification.png";
+import notiImage2 from "../../../assets/images/notification2.png";
+import searchIcon from "../../../assets/images/search.png";
+import { fakeFamilies } from "../../../api/fakeData";
 
 
 export default function Header({ onAddFamily }) {
   const [openNotify, setOpenNotify] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
-
-
-  const handleClickOutside = (event) => {
-    // Nếu menu đang mở và người dùng click *bên ngoài* menu
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setIsOpen(false); // Đóng menu
-    }
-  };
+  const [view, setView] = useState("none");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
+        setOpenNotify(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isOpen, openNotify]);
 
 
 
   return (
-    <header className="w-full bg-blue shadow-md flex items-center justify-between px-6 py-3">
+    <header className="relative w-full bg-blue shadow-md flex items-center justify-between px-6 py-3 " ref={menuRef}>
       {/* Logo */}
       <div className="flex items-center gap-2">
         <img
@@ -66,9 +59,9 @@ export default function Header({ onAddFamily }) {
       </div>
 
       {/*notification + user */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 ">
         {/* Notification */}
-        <button onClick={() => setOpenNotify(!openNotify)} className="relative transition-transform duration-200 hover:scale-110  hover:brightness-110">
+        <button onClick={() =>{ setOpenNotify(!openNotify); setIsOpen(false);}} className="relative transition-transform duration-200 hover:scale-110  hover:brightness-110">
           <img
             src={openNotify ? notiImage2 :notiImage}
             alt="bell"
@@ -81,7 +74,7 @@ export default function Header({ onAddFamily }) {
         </button>
         {/* Dropdown danh sách thông báo */}
           {openNotify && (
-          <div className='absolute right-0 border-b top-10 w-72 text-white rounded shadow-xl'>
+          <div className='absolute right-0 border-b top-10 w-72 mt-8 z-10 text-white rounded shadow-xl'>
             <div className='p-3 bg-[#1a1a1a] border-b font-semibold'>Thông báo</div>
             <ul className='max-h-64 overflow-y-auto'>
               {/* {notifications.map((item) => (
@@ -127,10 +120,10 @@ export default function Header({ onAddFamily }) {
         )}
 
         {/* User */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2  ">
           <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          onClick={() => {setIsOpen(!isOpen);setOpenNotify(false)}}
+          className="flex items-center mr-[-120px] space-x-2 p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             {/* <span className="text-sm font-medium text-white">USER</span> */}
             <img
@@ -142,28 +135,24 @@ export default function Header({ onAddFamily }) {
         </div>
       {/* Menu dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-20 ring-1 ring-black ring-opacity-5">
+        <div className="absolute mt-[190px] mr-[10px] right-0 w-64 bg-white rounded-md shadow-lg z-20 ring-1 ring-black ring-opacity-5">
           <div className="py-1">
-            <button
-              onClick={() => setView("chuho")}
-              href="#thong-tin-ca-nhan"
+            <button onClick={() => {setView("chuho");setOpenNotify(!openNotify); setIsOpen(false);}} href="#thong-tin-ca-nhan"
               className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               <FaUser className="mr-3 text-gray-500" />
               Thông tin cá nhân
-            </button
-              >
+            </button>
 
-            <a
-              href="#bac-si-gia-dinh"
-              className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >
+            <button onClick={() => {setView("bacsi");setOpenNotify(!openNotify); setIsOpen(false);}} href="#bac-si-gia-dinh" className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               <FaUserMd className="mr-3 text-gray-500" />
               Thông tin bác sĩ gia đình
-            </a>
+            </button>
 
-            <div className="border-t border-gray-100 my-1"></div>
-
+            <button onClick={() => {setView("thanhtoan");setOpenNotify(!openNotify); setIsOpen(false);}} href="#thanh-toan"  className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <FaWallet className="mr-3 text-gray-500"  />
+              Thông tin thanh toán
+            </button>
             <button
               onClick={() => alert("Đang đăng xuất...")}
               className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700"
@@ -174,7 +163,14 @@ export default function Header({ onAddFamily }) {
           </div>
         </div>
       )}
+        {/* chuyển trang nút user */}
+      <main className="p-6">
+        {view === "chuho" && <FamilyHeadInfo user={fakeFamilies} onClose={() => setView("none")} />}
+        {view === "bacsi" && <DoctorInfo user={fakeFamilies} onClose={() => setView("none")} />}
+        {view === "thanhtoan" && <PaymentPlans user={fakeFamilies} onClose={() => setView("none")} />}
+      </main>
       </div>
+
     </header>
   );
 }

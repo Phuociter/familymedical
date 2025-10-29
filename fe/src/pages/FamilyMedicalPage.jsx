@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 // import { getFamilies,createFamily,updateFamily,deleteFamily} from "../api/FamilyAPI";
 // import {createMember,updateMember,deleteMember,uploadFiles,assignDoctor} from "../api/MemberAPI";
 // import { getDoctors } from "../api/DoctorAPI";
-import Header from "../components/FamilyMedicalComponent/Header";
+import Header from "../components/FamilyMedicalComponent/header/Header";
 import FamilyList from "../components/FamilyMedicalComponent/FamilyList";
 import MemberCard from "../components/FamilyMedicalComponent/MemberCard";
 import EditMemberModal from "../components/FamilyMedicalComponent/EditMemberModal";
