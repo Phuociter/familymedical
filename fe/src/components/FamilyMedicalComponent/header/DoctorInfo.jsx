@@ -19,7 +19,7 @@ export default function DoctorInfo({ doctor, onClose }) {
         {/* Nút thoát */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition"
+          className="absolute top-3 right-3 text-[#9E9E9E] hover:text-[#F44336] transition"
         >
           <FaTimes className="w-5 h-5" />
         </button>

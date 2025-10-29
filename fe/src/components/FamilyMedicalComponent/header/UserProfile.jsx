@@ -38,7 +38,7 @@ export default function FamilyHeadInfo({ user, onClose }) {
               onClick={() =>
                 isEditing ? handleSave() : setIsEditing(true)
               }
-              className={`flex items-center gap-1 px-3 bg-[#000000] py-1.5 rounded-md text-sm font-medium transition
+              className={`flex items-center gap-1 px-3 bg-[#1E88E5] py-1.5 rounded-md text-sm font-medium transition
                 ${
                   isEditing
                     ? "bg-green-500 text-white hover:bg-green-600"
@@ -52,7 +52,7 @@ export default function FamilyHeadInfo({ user, onClose }) {
             {/* ❌ Nút thoát */}
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-red-500 transition"
+              className="text-gray-500 hover:text-[#F44336] transition"
             >
               <FaTimes className="w-5 h-5" />
             </button>
@@ -131,7 +131,7 @@ export default function FamilyHeadInfo({ user, onClose }) {
             )}
           </div>
           <div className="col-span-2">
-            <span className="font-semibold">Sô thành viên trong GĐ:</span>{" "}
+            <span className="font-semibold">Số thành viên trong GĐ:</span>{" "}
             {isEditing ? (
               <input
                 name="Address"

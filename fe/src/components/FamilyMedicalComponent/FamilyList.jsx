@@ -1,5 +1,7 @@
 import { useState } from "react";
 import searchIcon from "../../assets/images/search.png";
+import AddRelatives from "./header/AddRelatives";
+import { fakeFamilies } from "../../api/fakeData";
 
 export default function FamilyList({
   families,
@@ -14,6 +16,7 @@ export default function FamilyList({
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [showPDFs, setShowPDFs] = useState(false);
   const [pdfList, setPdfList] = useState([]);
+  const [view, setView] = useState("none");
 
   // 🟡 Khi click 1 hồ sơ bệnh nhân
   const handleSelectMember = (member) => {
@@ -59,10 +62,14 @@ export default function FamilyList({
           ))}
             {/* 🟡 Thêm người thân */}
           <div
-            onClick={() => alert("Thêm người thân mới!")} // bạn có thể thay alert = mở modal
+            // onClick={() => alert("Thêm người thân mới!")} // bạn có thể thay alert = mở modal
             className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-blue-400 rounded-md cursor-pointer hover:bg-blue-50 hover:border-blue-500 transition"
           >
-            <span className="text-blue-500 font-semibold text-lg">+ Thêm người thân</span>
+            <button onClick={() => {setView("themnguoithan");}} 
+            className="text-blue-500 font-semibold text-lg"
+            >
+              + Thêm người thân
+            </button>
           </div>
         </div>
 
@@ -100,7 +107,7 @@ export default function FamilyList({
               onClick={handleAddPDF}
               className="mt-4 w-full border-2 border-blue-400 text-blue-500 font-medium py-3 rounded-lg hover:bg-blue-50"
             >
-              + Thêm PDF
+              + Thêm PDF bệnh án mới
             </button>
 
           </div>
@@ -121,6 +128,9 @@ export default function FamilyList({
             </img>
           </div>
         </div>
+      <main className="p-6">
+        {view === "themnguoithan" && <AddRelatives user={fakeFamilies} onClose={() => setView("none")} />}
+      </main>
     </div>
   );
 }

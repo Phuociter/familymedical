@@ -68,15 +68,15 @@ export default function Header({ onAddFamily }) {
             className="w-6 h-6"
           />
           {/* Chấm đỏ hiển thị số thông báo */}
-          <span className="absolute -top-1 -right-1 bg-red-500 text-[#ff0000] text-sm w-4 h-4 flex items-center justify-center rounded-full">
+          <span className="absolute -top-1 -right-1 text-[#ff0000] text-sm w-4 h-4 flex items-center justify-center rounded-full">
             1
           </span>
         </button>
         {/* Dropdown danh sách thông báo */}
           {openNotify && (
           <div className='absolute right-0 border-b top-10 w-72 mt-8 z-10 text-white rounded shadow-xl'>
-            <div className='p-3 bg-[#1a1a1a] border-b font-semibold'>Thông báo</div>
-            <ul className='max-h-64 overflow-y-auto'>
+            <div className='p-3 bg-[#ffffff] text-[#1E88E5] border border-b font-semibold'>Thông báo</div>
+            <ul className='max-h-64 bg-[#ffffff] overflow-y-auto'>
               {/* {notifications.map((item) => (
                 <li
                   key={item.notificationId}
@@ -99,10 +99,10 @@ export default function Header({ onAddFamily }) {
               {
                 <li
                   key={1}
-                  className='flex justify-between items-center px-4 py-2 bg-[#1a1a1a] text-sm hover:text-[#65b0f6] hover:bg-[#2a2a2a]'
+                  className='flex justify-between border border-b items-center px-4 py-2 bg-[#ffffff] text-[#1E88E5]  hover:text-[#1976D2] hover:bg-[#EEEEEE]'
                 >
                   <span      
-                    className="cursor-pointer hover:underline"
+                    className="cursor-pointer"
                     // onClick={() => handleNotificationClick(item.type)}
                   >
                   demo
