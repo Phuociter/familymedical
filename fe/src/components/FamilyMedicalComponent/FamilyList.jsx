@@ -1,6 +1,7 @@
 import { useState } from "react";
 import searchIcon from "../../assets/images/search.png";
-import AddRelatives from "./header/AddRelatives";
+import AddRelatives from "./subFamilyList/AddRelatives";
+import FamilyPdfList from "./subFamilyList/FamilyPdfList";
 import { fakeFamilies } from "../../api/fakeData";
 
 export default function FamilyList({
@@ -130,6 +131,7 @@ export default function FamilyList({
         </div>
       <main className="p-6">
         {view === "themnguoithan" && <AddRelatives user={fakeFamilies} onClose={() => setView("none")} />}
+        {view === "pdfList" && <FamilyPdfList  member={fakeFamilies} onClose={() => setView("none")} />}
       </main>
     </div>
   );
