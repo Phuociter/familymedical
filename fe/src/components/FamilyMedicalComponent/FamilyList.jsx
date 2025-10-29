@@ -44,14 +44,14 @@ export default function FamilyList({
       {/* danh sách hồ sơ bệnh nhân */}
       <section className="flex-1 p-6 bg-[#f4f6f8] mr-3 pd-1 overflow-y-auto">
         {/* sau đó sẽ sửa lại sau lấy tên hộ gđ từ db */}
-        <h3 className="flex-1 flex justify-center text-lg font-semibold text-gray-800 mb-4">Hộ gia đình</h3> 
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Danh sách hồ sơ </h3>
+        <h3 className="flex-1 flex justify-center text-lg font-semibold text-[#424242] mb-4">Hộ gia đình</h3> 
+        <h3 className="text-lg font-semibold text-[#424242] mb-4">Danh sách hồ sơ </h3>
         <div className="grid grid-cols-2 gap-4 " >
           {families.map((m) => (
             <div
               key={m.id}
               className={`p-4 bg-white shadow rounded-md border border-[#ccc] hover:shadow-lg transform hover:scale-105 transition duration-200 cursor-pointer ${
-                selectedMemberId === m.id ? "border-blue-500" : "border-gray-200"
+                selectedMemberId === m.id ? "border-[#2196F3]" : "border-[#EEEEEE]"
               }`}
               onClick={() => handleSelectMember(m)}
             >
@@ -63,10 +63,10 @@ export default function FamilyList({
             {/* 🟡 Thêm người thân */}
           <div
             // onClick={() => alert("Thêm người thân mới!")} // bạn có thể thay alert = mở modal
-            className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-blue-400 rounded-md cursor-pointer hover:bg-blue-50 hover:border-blue-500 transition"
+            className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-[#42A5F5] rounded-md cursor-pointer hover:bg-[#E3F2FD] hover:border-[#42A5F5] transition"
           >
             <button onClick={() => {setView("themnguoithan");}} 
-            className="text-blue-500 font-semibold text-lg"
+            className="text-[#42A5F5] font-semibold text-lg"
             >
               + Thêm người thân
             </button>
@@ -80,7 +80,7 @@ export default function FamilyList({
 
             {/* Lọc bệnh án */}
             <div className="flex justify-between items-center mb-3">
-              <label className="text-sm text-gray-600">Lọc theo thời gian thêm:</label>
+              <label className="text-sm text-[#757575]">Lọc theo thời gian thêm:</label>
               <select className="border rounded px-2 py-1 text-sm">
                 <option>Tất cả</option>
                 <option>Mới nhất</option>
@@ -93,11 +93,11 @@ export default function FamilyList({
               {pdfList.map((pdf) => (
                 <li
                   key={pdf.id}
-                  className="p-3 bg-gray-100 rounded-md border border-gray-300 hover:bg-gray-200"
+                  className="p-3 bg-[#F5F5F5] rounded-md border border-[#E0E0E0] hover:bg-[#EEEEEE]"
                 >
-                  <div className="text-gray-700 font-medium">{pdf.note}</div>
-                  <div className="text-xs text-gray-500">{pdf.addedAt}</div>
-                  <div className="text-sm text-blue-600 mt-1">{pdf.name}</div>
+                  <div className="text-[#616161] font-medium">{pdf.note}</div>
+                  <div className="text-xs text-[#9E9E9E]">{pdf.addedAt}</div>
+                  <div className="text-sm text-[#1E88E5] mt-1">{pdf.name}</div>
                 </li>
               ))}
             </ul>
@@ -105,7 +105,7 @@ export default function FamilyList({
             {/* Thêm PDF mới */}
             <button
               onClick={handleAddPDF}
-              className="mt-4 w-full border-2 border-blue-400 text-blue-500 font-medium py-3 rounded-lg hover:bg-blue-50"
+              className="mt-4 w-full border-2 border-[#42A5F5] text-[#2196F3] font-medium py-3 rounded-lg hover:bg-[#E3F2FD]"
             >
               + Thêm PDF bệnh án mới
             </button>
@@ -119,11 +119,11 @@ export default function FamilyList({
             <input
               type="text"
               placeholder="Tìm kiếm bác sĩ..."
-              className="w-[390px] rounded-full px-4 py-2 pl-10 ml-1 mt-3 mr-150  bg-white border border-blue-500 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-[390px] rounded-full px-4 py-2 pl-10 ml-1 mt-3 mr-150  bg-white border border-blue-500 text-[#424242] placeholder-[#BDBDBD] focus:outline-none focus:ring-2 focus:ring-[#42A5F5]"
             />
             <img
               src={searchIcon}
-              className="absolute left-3 ml-1 top-6 w-5 h-5 text-gray-400"
+              className="absolute left-3 ml-1 top-6 w-5 h-5 text-[#BDBDBD]"
             >
             </img>
           </div>
