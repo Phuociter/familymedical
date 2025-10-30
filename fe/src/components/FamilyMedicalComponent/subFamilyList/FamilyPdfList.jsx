@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { FaTimes, FaFileUpload, FaPlus, FaSave } from "react-icons/fa";
-  const UPLOAD_PDF = gql` mutation UploadPdf($file: Upload!) { uploadPdf(file: $file) }`;
+import { gql } from '@apollo/client/core';
+import { useMutation } from '@apollo/client/react';
+
+const UPLOAD_PDF = gql` mutation UploadPdf($file: Upload!) { uploadPdf(file: $file) }`;
 export default function FamilyPdfList({ member, onClose }) {
   const [pdfList, setPdfList] = useState(member.pdfs || []);
   const [uploadPdf] = useMutation(UPLOAD_PDF);
