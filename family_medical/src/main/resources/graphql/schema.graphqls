@@ -141,3 +141,9 @@ type Mutation {
     requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
 }
+
+scalar Upload
+
+type Mutation {
+  uploadPdf(file: Upload!): String
+}

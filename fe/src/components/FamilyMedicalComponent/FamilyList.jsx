@@ -20,23 +20,23 @@ export default function FamilyList({
   const [view, setView] = useState("none");
 
   // 🟡 Khi click 1 hồ sơ bệnh nhân
-  const handleSelectMember = (member) => {
-    setSelectedMemberId(member.id);
-    setShowPDFs(true);
-    setPdfList(member.pdfs || []); // Dữ liệu bệnh án (PDF) của bệnh nhân
-    if (onSelectMember) onSelectMember(member.id);
-  };
+  // const handleSelectMember = (member) => {
+  //   setSelectedMemberId(member.id);
+  //   setShowPDFs(true);
+  //   setPdfList(member.pdfs || []); // Dữ liệu bệnh án (PDF) của bệnh nhân
+  //   if (onSelectMember) onSelectMember(member.id);
+  // };
 
   // 💗 Khi thêm file PDF
-  const handleAddPDF = () => {
-    const newPdf = {
-      id: Date.now(),
-      name: `BenhAn_${pdfList.length + 1}.pdf`,
-      addedAt: new Date().toLocaleString(),
-      note: "Bệnh án mới được thêm.",
-    };
-    setPdfList([...pdfList, newPdf]);
-  };
+  // const handleAddPDF = () => {
+  //   const newPdf = {
+  //     id: Date.now(),
+  //     name: `BenhAn_${pdfList.length + 1}.pdf`,
+  //     addedAt: new Date().toLocaleString(),
+  //     note: "Bệnh án mới được thêm.",
+  //   };
+  //   setPdfList([...pdfList, newPdf]);
+  // };
 
   return (
     <div className="flex w-full h-full bg-[#f4f6f8] justify-end">
@@ -54,7 +54,7 @@ export default function FamilyList({
               className={`p-4 bg-white shadow rounded-md border border-[#ccc] hover:shadow-lg transform hover:scale-105 transition duration-200 cursor-pointer ${
                 selectedMemberId === m.id ? "border-[#2196F3]" : "border-[#EEEEEE]"
               }`}
-              onClick={() => handleSelectMember(m)}
+              onClick={() => {setView("pdfList");}}
             >
               <div className="font-medium text-gray-800">{m.name}</div>
               <div className="text-sm text-gray-500">Số bệnh án: {m.caseNumber}</div>
@@ -74,45 +74,6 @@ export default function FamilyList({
           </div>
         </div>
 
-        {/* 🩷 Vùng PDF (hiện khi chọn bệnh nhân) */}
-        {showPDFs && (
-          <div className="mt-8 p-4 border-2 border-dashed border-pink-400 rounded-lg">
-            <h4 className="font-semibold text-gray-800 mb-3">Danh sách bệnh án</h4>
-
-            {/* Lọc bệnh án */}
-            <div className="flex justify-between items-center mb-3">
-              <label className="text-sm text-[#757575]">Lọc theo thời gian thêm:</label>
-              <select className="border rounded px-2 py-1 text-sm">
-                <option>Tất cả</option>
-                <option>Mới nhất</option>
-                <option>Cũ nhất</option>
-              </select>
-            </div>
-
-            {/* Danh sách PDF */}
-            <ul className="flex flex-col gap-2">
-              {pdfList.map((pdf) => (
-                <li
-                  key={pdf.id}
-                  className="p-3 bg-[#F5F5F5] rounded-md border border-[#E0E0E0] hover:bg-[#EEEEEE]"
-                >
-                  <div className="text-[#616161] font-medium">{pdf.note}</div>
-                  <div className="text-xs text-[#9E9E9E]">{pdf.addedAt}</div>
-                  <div className="text-sm text-[#1E88E5] mt-1">{pdf.name}</div>
-                </li>
-              ))}
-            </ul>
-
-            {/* Thêm PDF mới */}
-            <button
-              onClick={handleAddPDF}
-              className="mt-4 w-full border-2 border-[#42A5F5] text-[#2196F3] font-medium py-3 rounded-lg hover:bg-[#E3F2FD]"
-            >
-              + Thêm PDF bệnh án mới
-            </button>
-
-          </div>
-        )}
       </section>
         {/* tìm kiếm bác sĩ */}
         <div className="relative w-[400px] border-l bg-white border-[#ccc] justify-end ">
