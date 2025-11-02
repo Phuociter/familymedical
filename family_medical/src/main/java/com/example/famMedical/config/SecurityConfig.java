@@ -32,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable);
-
+        http.cors(cors -> {});
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/graphql", "/graphiql", "/login/oauth2/**", "/oauth2/**").permitAll()
                 .anyRequest().authenticated()

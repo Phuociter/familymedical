@@ -1,23 +1,28 @@
-package com.example.famMedical.utils;
+package com.example.famMedical.controller;
+
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
 
-@Component
-public class UploadResolver {
+@RestController
+@RequestMapping("/api/files")
+public class FileUploadController {
 
     @Autowired
     private Cloudinary cloudinary;
 
-    public String uploadPdf(MultipartFile file) throws IOException {
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadPdf(@RequestParam("file") MultipartFile file) throws IOException {
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("resource_type", "auto"));
-        return (String) uploadResult.get("secure_url");
+        return ResponseEntity.ok((String) uploadResult.get("secure_url"));
     }
 }
+

@@ -140,10 +140,7 @@ type Mutation {
     # SỬA: Sử dụng RequestDoctorInput
     requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
+    #Upload file
 }
 
-scalar Upload
 
-type Mutation {
-  uploadPdf(file: Upload!): String
-}
