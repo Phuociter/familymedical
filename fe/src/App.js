@@ -21,7 +21,7 @@ export default function App() {
       <Route path="/oauth/complete-profile" element={<OAuth2CompleteProfilePage />} />
 
       <Route path="/families" element={<FamilyMedicalPage />} />
-      <Route path="*" element={<Navigate to="/families" />} />
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 }
