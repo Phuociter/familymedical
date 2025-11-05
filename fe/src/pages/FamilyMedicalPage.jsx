@@ -1,105 +1,98 @@
-import { useEffect, useState } from "react";
-// import { getFamilies,createFamily,updateFamily,deleteFamily} from "../api/FamilyAPI";
-// import {createMember,updateMember,deleteMember,uploadFiles,assignDoctor} from "../api/MemberAPI";
-// import { getDoctors } from "../api/DoctorAPI";
-import Header from "../components/FamilyMedicalComponent/header/Header";
+import React, { useState } from "react";
+
+import Sidebar from "../components/FamilyMedicalComponent/Sidebar";
 import FamilyList from "../components/FamilyMedicalComponent/FamilyList";
-import MemberCard from "../components/FamilyMedicalComponent/MemberCard";
-import EditMemberModal from "../components/FamilyMedicalComponent/EditMemberModal";
 import DoctorList from "../components/FamilyMedicalComponent/DoctorList";
-import { fakeFamilies } from "../api/fakeData";
-export default function FamilyMedicalPage() {
-  const [families, setFamilies] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [selectedFamilyId, setSelectedFamilyId] = useState(null);
-  const [editingMember, setEditingMember] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+import Messages from "../components/FamilyMedicalComponent/Messages";
+import Header from "../components/FamilyMedicalComponent/Header";
+import UserProfileModal from "../components/FamilyMedicalComponent/UserProfileModal";
+import FamilyDoctorInfoModal from "../components/FamilyMedicalComponent/FamilyDoctorInfoModal";
+import SubscriptionModal from "../components/FamilyMedicalComponent/SubscriptionModal";
+import { View } from "../types"; // nếu bạn có file src/types.js
+import { DOCTORS, USER_PROFILE } from "../constants"; // nếu bạn có file src/constants.js
 
-  useEffect(() => {
-    loadFamilies();
-    loadDoctors();
-  }, []);
 
-  async function loadFamilies() {
-    // const res = await getFamilies();
-    setFamilies(res);
-    if (!selectedFamilyId && res.length > 0) setSelectedFamilyId(res[0].id);
-  }
 
-  async function loadDoctors() {
-    const res = await getDoctors();
-    setDoctors(res);
-  }
+const FamilyMedicalPage = () => {
+  const [activeView, setActiveView] = useState(View.Family);
+  // Let's assume the family already has a doctor with ID 2 for demonstration
+  const [familyDoctorId, setFamilyDoctorId] = useState(2);
+  
+  const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
+  const [isFamilyDoctorInfoOpen, setIsFamilyDoctorInfoOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState(USER_PROFILE);
 
-  async function addFamily() {
-    const name = prompt("Tên hộ gia đình:");
-    if (!name) return;
-    const res = await createFamily(name);
-    setFamilies([...families, res]);
-  }
 
-  // async function renameFamily(id) {
-  //   const name = prompt("Tên mới:");
-  //   if (!name) return;
-  //   const res = await updateFamily(id, name);
-  //   setFamilies(families.map((f) => (f.id === id ? res : f)));
-  // }
+  const familyDoctor = DOCTORS.find(d => d.id === familyDoctorId);
 
-  async function removeFamily(id) {
-    if (!confirm("Xóa hộ này?")) return;
-    await deleteFamily(id);
-    setFamilies(families.filter((f) => f.id !== id));
-  }
+  const handleSetFamilyDoctor = (doctorId) => {
+    setFamilyDoctorId(doctorId);
+  };
+  
+  const handleProfileUpdate = (updatedProfile) => {
+    setUserProfile(updatedProfile);
+  };
 
-  async function addMember(familyId) {
-    const newMember = await createMember(familyId);
-    setFamilies(families.map((f) =>
-      f.id === familyId ? { ...f, members: [newMember, ...f.members] } : f
-    ));
-  }
+  const handleTerminateContract = () => {
+    if (window.confirm('Bạn có chắc chắn muốn chấm dứt hợp đồng với bác sĩ này không?')) {
+      setFamilyDoctorId(null);
+      setIsFamilyDoctorInfoOpen(false); // Close modal after action
+      alert('Đã chấm dứt hợp đồng thành công.');
+    }
+  };
 
-  async function saveMember(member, familyId) {
-    const res = await updateMember(member);
-    setFamilies(families.map((f) =>
-      f.id === familyId ? {
-        ...f,
-        members: f.members.map((m) => (m.id === member.id ? res : m)),
-      } : f
-    ));
-    setEditingMember(null);
-  }
+  const renderContent = () => {
+    switch (activeView) {
+      case View.Family:
+        return <FamilyList />;
+      case View.Doctors:
+        return <DoctorList familyDoctorId={familyDoctorId} onSetFamilyDoctor={handleSetFamilyDoctor} />;
+      case View.Messages:
+        return <Messages />;
+      default:
+        return <FamilyList />;
+    }
+  };
 
-  async function removeMember(memberId, familyId) {
-    await deleteMember(memberId);
-    loadFamilies();
-  }
-
-  async function assignDoctorToMember(doctorId, memberId, familyId) {
-    const res = await assignDoctor(memberId, doctorId);
-    setFamilies(families.map((f) =>
-      f.id === familyId
-        ? { ...f, members: f.members.map((m) => (m.id === memberId ? res : m)) }
-        : f
-    ));
-  }
-
-  const selectedFamily = families.find((f) => f.id === selectedFamilyId);
   return (
-    <div className="page">
-      <Header />
-      <div className="main-layout">
-        
-        <FamilyList
-          families={fakeFamilies}
-          selectedFamilyId={2}
-          onSelect={2}
-          // onAdd={addFamily}
-          // onDelete={removeFamily}
-          // onRename={renameFamily}
-        />
-
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar 
+        activeView={activeView} 
+        setActiveView={setActiveView}
+        onOpenUserProfile={() => setIsUserProfileOpen(true)}
+        onOpenFamilyDoctorInfo={() => setIsFamilyDoctorInfoOpen(true)}
+        onOpenSubscription={() => setIsSubscriptionOpen(true)}
+        userAvatar={userProfile.avatar}
+        userName={userProfile.name}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header title={activeView} />
+        <main className="flex-1 overflow-y-auto">
+          {renderContent()}
+        </main>
       </div>
+      
+      <UserProfileModal 
+        isOpen={isUserProfileOpen}
+        onClose={() => setIsUserProfileOpen(false)}
+        profile={userProfile}
+        onSave={handleProfileUpdate}
+      />
 
+      <FamilyDoctorInfoModal
+        isOpen={isFamilyDoctorInfoOpen}
+        onClose={() => setIsFamilyDoctorInfoOpen(false)}
+        doctor={familyDoctor}
+        onTerminateContract={handleTerminateContract}
+      />
+
+      <SubscriptionModal 
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
+      />
     </div>
   );
-}
+};
+
+export default FamilyMedicalPage;

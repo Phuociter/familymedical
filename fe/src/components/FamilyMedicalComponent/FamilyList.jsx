@@ -1,108 +1,84 @@
-import { useState } from "react";
-import searchIcon from "../../assets/images/search.png";
-import { fakeFamilies } from "../../api/fakeData";
-import {AddRelatives, FamilyPdfList, DoctorDetail} from "./subFamilyList/";
-export default function FamilyList({families,}) {
-  const [selectedMemberId, setSelectedMemberId] = useState(null);
-  const [view, setView] = useState("none");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
+import React, { useState } from 'react';
+import { FAMILY_MEMBERS } from '../../constants.js';
+import MedicalRecordModal from './MedicalRecordModal.jsx';
 
-  const doctors = [
-    { id: 1, name: "Nguyễn Văn A", specialty: "Tim mạch", email: "vana@example.com", phone: "0123456789", experience: "10 năm", hospital: "BV Chợ Rẫy" },
-    { id: 2, name: "Trần Thị B", specialty: "Nhi khoa", email: "thib@example.com", phone: "0987654321", experience: "8 năm", hospital: "BV Nhi Đồng 1" },
-    { id: 3, name: "Phạm Ngọc C", specialty: "Da liễu", email: "ngocc@example.com", phone: "0912345678", experience: "12 năm", hospital: "BV Da Liễu" },
-    { id: 4, name: "Ngô Đức D", specialty: "Thần kinh", email: "ducd@example.com", phone: "0977123456", experience: "15 năm", hospital: "BV Nhân Dân 115" },
-  ];
+const FamilyMemberCard = ({ member, onViewDetails }) => {
+    const initials = member.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    return (
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between transition-shadow hover:shadow-md">
+            <div className="flex items-center">
+                <div className={`w-12 h-12 rounded-full ${member.avatarColor} flex items-center justify-center text-white font-bold text-xl mr-4`}>
+                    {initials}
+                </div>
+                <div>
+                    <p className="font-semibold text-gray-800">{member.name}</p>
+                    <p className="text-sm text-gray-500">{member.relationship}</p>
+                </div>
+            </div>
+            <button onClick={() => onViewDetails(member)} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                Xem chi tiết &gt;
+            </button>
+        </div>
+    );
+};
 
-// Lọc danh sách bác sĩ theo tên
-const filteredDoctors = doctors.filter((doctor) =>
-  doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+const FamilyList = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMember, setSelectedMember] = useState(null);
 
+  const filteredMembers = FAMILY_MEMBERS.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleViewDetails = (member) => {
+    setSelectedMember(member);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedMember(null);
+  };
 
   return (
-    <div className="flex w-full h-full bg-[#f4f6f8] justify-end">
-        
-
-      {/* danh sách hồ sơ bệnh nhân */}
-      <section className="flex-1 p-6 bg-[#f4f6f8] mr-3 pd-1 overflow-y-auto">
-        {/* sau đó sẽ sửa lại sau lấy tên hộ gđ từ db */}
-        <h3 className="flex-1 flex justify-center text-lg font-semibold text-[#424242] mb-4">Hộ gia đình</h3> 
-        <h3 className="text-lg font-semibold text-[#424242] mb-4">Danh sách hồ sơ </h3>
-        <div className="grid grid-cols-2 gap-4 " >
-          {families.map((m) => (
-            <div
-              key={m.id}
-              className={`p-4 bg-white shadow rounded-md border border-[#ccc] hover:shadow-lg transform hover:scale-105 transition duration-200 cursor-pointer ${
-                selectedMemberId === m.id ? "border-[#2196F3]" : "border-[#EEEEEE]"
-              }`}
-              onClick={() => {setView("pdfList");}}
-            >
-              <div className="font-medium text-gray-800">{m.name}</div>
-              <div className="text-sm text-gray-500">Số bệnh án: {m.caseNumber}</div>
-              <div className="text-sm text-gray-500">Hồ sơ được gửi đến bác sĩ: {m.caseNumber}</div>
-            </div>
-          ))}
-            {/* 🟡 Thêm người thân */}
-          <div
-            // onClick={() => alert("Thêm người thân mới!")} // bạn có thể thay alert = mở modal
-            className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-[#42A5F5] rounded-md cursor-pointer hover:bg-[#E3F2FD] hover:border-[#42A5F5] transition"
-          >
-            <button onClick={() => {setView("themnguoithan");}} 
-            className="text-[#42A5F5] font-semibold text-lg"
-            >
-              + Thêm người thân
-            </button>
+    <>
+      <div className="p-6 md:p-8">
+        <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                  </div>
+                  <input
+                      type="text"
+                      placeholder="Tìm kiếm theo tên chủ hộ hoặc bệnh nhân..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition"
+                  />
+              </div>
+              <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                  + Thêm thành viên
+              </button>
           </div>
         </div>
 
-      </section>
-        {/* tìm kiếm bác sĩ */}
-        <div className="relative w-[400px] border-l bg-white border-[#ccc] flex flex-col">
-          {/* Ô tìm kiếm */}
-          <div className="relative w-full max-w-md p-3">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm bác sĩ..."
-              className="w-full rounded-full px-4 py-2 pl-10 bg-white border border-[#42A5F5] text-[#424242] placeholder-[#BDBDBD] focus:outline-none focus:ring-2 focus:ring-[#42A5F5]"
-            />
-            <img
-              src={searchIcon}
-              alt="search"
-              className="absolute left-6 top-6 w-5 h-5 text-[#BDBDBD]"
-            />
-          </div>
-
-        {/* Danh sách bác sĩ được lọc */}
-        <div className="overflow-y-auto max-h-[500px] px-4 pb-4">
-          {filteredDoctors.length > 0 ? (
-            filteredDoctors.map((doctor) => (
-              <div
-                key={doctor.id}
-                onClick={() => {
-                  setSelectedDoctor(doctor);
-                  setView("doctorDetail");
-                }}
-                className="p-3 mb-2 bg-[#FAFAFA] border border-[#E0E0E0] rounded-md cursor-pointer hover:bg-[#E3F2FD] transition"
-              >
-                <p className="font-medium text-[#1E88E5]">{doctor.name}</p>
-                <p className="text-sm text-[#616161]">{doctor.specialty}</p>
-              </div>
-            ))
+        <div className="space-y-4">
+          {filteredMembers.length > 0 ? (
+            filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)
           ) : (
-            <p className="text-center text-gray-500">Không tìm thấy bác sĩ</p>
+            <div className="text-center py-10 bg-white rounded-lg shadow-sm border border-gray-200">
+              <p className="text-gray-500">Không tìm thấy thành viên nào.</p>
+            </div>
           )}
         </div>
       </div>
-
-      <main className="p-6">
-        {view === "themnguoithan" && <AddRelatives user={fakeFamilies} onClose={() => setView("none")} />}
-        {view === "pdfList" && <FamilyPdfList  member={fakeFamilies} onClose={() => setView("none")} />}
-        {view === "doctorDetail" && <DoctorDetail doctor={selectedDoctor} onClose={() => setView("none")} />}
-      </main>
-    </div>
+      {selectedMember && (
+        <MedicalRecordModal 
+          member={selectedMember} 
+          onClose={handleCloseModal} 
+        />
+      )}
+    </>
   );
-}
+};
+
+export default FamilyList;
