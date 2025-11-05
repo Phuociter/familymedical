@@ -1,0 +1,1 @@
+import {Dashbord, FamilyMedical} from './FamilyMedicalComponent';
