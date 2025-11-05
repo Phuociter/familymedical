@@ -22,7 +22,6 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
         if (familyDoctorId !== null) {
             alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
         } else {
-            // In a real application, this would be an API call.
             onSetFamilyDoctor(doctor.id);
             alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctor.name}.`);
             handleCloseModal();
@@ -32,37 +31,47 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
   return (
     <>
         <div className="p-6 md:p-8">
-        <div className="mb-6 relative">
+            <div className="mb-6 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg className="w-5 h-5 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </div>
                 <input
                     type="text"
                     placeholder="Tìm kiếm bác sĩ theo tên..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
+                    className="w-full pl-10 pr-4 py-2 border rounded-md transition bg-[#FFFFFF] border-[#D1D5DB] focus:ring-[#3B82F6] focus:border-[#3B82F6]"
                 />
             </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <ul className="divide-y divide-gray-200">
-                {filteredDoctors.length > 0 ? (
-                    filteredDoctors.map(doctor => (
-                        <li key={doctor.id} onClick={() => handleDoctorClick(doctor)} className="p-4 flex items-center space-x-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                            <img className="h-12 w-12 rounded-full object-cover" src={`https://picsum.photos/seed/${doctor.id}/100`} alt={`Bác sĩ ${doctor.name}`} />
-                            <div>
-                                <p className="font-semibold text-gray-900">{doctor.name}</p>
-                                <p className="text-sm text-gray-600">{doctor.specialty}</p>
-                            </div>
+            <div className="bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE] overflow-hidden">
+                <ul className="divide-y divide-[#EEEEEE]">
+                    {filteredDoctors.length > 0 ? (
+                        filteredDoctors.map(doctor => (
+                            <li
+                                key={doctor.id}
+                                onClick={() => handleDoctorClick(doctor)}
+                                className="p-4 flex items-center space-x-4 cursor-pointer hover:bg-[#F9FAFB] transition-colors"
+                            >
+                                <img
+                                    className="h-12 w-12 rounded-full object-cover"
+                                    src={`https://picsum.photos/seed/${doctor.id}/100`}
+                                    alt={`Bác sĩ ${doctor.name}`}
+                                />
+                                <div>
+                                    <p className="font-semibold text-[#111827]">{doctor.name}</p>
+                                    <p className="text-sm text-[#4B5563]">{doctor.specialty}</p>
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="p-4 text-center text-[#6B7280]">
+                            Không tìm thấy bác sĩ nào.
                         </li>
-                    ))
-                ) : (
-                    <li className="p-4 text-center text-gray-500">
-                        Không tìm thấy bác sĩ nào.
-                    </li>
-                )}
-            </ul>
-        </div>
+                    )}
+                </ul>
+            </div>
         </div>
         {selectedDoctor && (
             <DoctorDetailModal

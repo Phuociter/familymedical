@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-
-import Sidebar from "../components/FamilyMedicalComponent/Sidebar";
-import FamilyList from "../components/FamilyMedicalComponent/FamilyList";
-import DoctorList from "../components/FamilyMedicalComponent/DoctorList";
-import Messages from "../components/FamilyMedicalComponent/Messages";
-import Header from "../components/FamilyMedicalComponent/Header";
-import UserProfileModal from "../components/FamilyMedicalComponent/UserProfileModal";
-import FamilyDoctorInfoModal from "../components/FamilyMedicalComponent/FamilyDoctorInfoModal";
-import SubscriptionModal from "../components/FamilyMedicalComponent/SubscriptionModal";
-import { View } from "../types"; // nếu bạn có file src/types.js
-import { DOCTORS, USER_PROFILE } from "../constants"; // nếu bạn có file src/constants.js
-
-
+import React, { useState } from 'react';
+import Sidebar from '../components/FamilyMedicalComponent/Sidebar';
+import FamilyList from '../components/FamilyMedicalComponent/FamilyList';
+import DoctorList from '../components/FamilyMedicalComponent/DoctorList';
+import Messages from '../components/FamilyMedicalComponent/Messages';
+import Header from '../components/FamilyMedicalComponent/Header';
+import UserProfileModal from '../components/FamilyMedicalComponent/UserProfileModal';
+import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDoctorInfoModal';
+import SubscriptionModal from '../components/FamilyMedicalComponent/SubscriptionModal';
+import { View } from '../type';
+import { USER_PROFILE, DOCTORS } from '../constants';
 
 const FamilyMedicalPage = () => {
   const [activeView, setActiveView] = useState(View.Family);
