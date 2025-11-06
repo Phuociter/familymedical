@@ -17,7 +17,7 @@ const LoginPage = () => {
             if (result.role === 'BacSi') {
                 navigate('/doctor/dashboard');
             } else if (result.role === 'ChuHo') {
-                navigate('/family/dashboard');
+                navigate('/families');
             } else if (result.role === 'Admin') {
                 navigate('/admin/dashboard');
             } else {

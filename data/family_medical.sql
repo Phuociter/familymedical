@@ -182,7 +182,7 @@ DROP TABLE IF EXISTS `Payment`;
 CREATE TABLE `Payment` (
   `PaymentID` int NOT NULL AUTO_INCREMENT,
   `UserID` int NOT NULL,
-  `PackageType` enum('1 tháng','6 tháng','1 năm') COLLATE utf8mb4_general_ci NOT NULL,
+  `PackageType` enum('ONE_MONTH','SIX_MONTHS','ONE_YEAR') COLLATE utf8mb4_general_ci NOT NULL,
   `Amount` decimal(10,2) NOT NULL,
   `PaymentDate` datetime DEFAULT CURRENT_TIMESTAMP,
   `ExpiryDate` datetime NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE `Payment` (
 
 LOCK TABLES `Payment` WRITE;
 /*!40000 ALTER TABLE `Payment` DISABLE KEYS */;
-INSERT INTO `Payment` VALUES (1,1,'1 tháng',100000.00,'2025-10-20 07:45:21','2025-11-20 07:45:21','Momo','Completed','TXN001','2025-10-20 07:45:21','2025-10-20 07:45:21');
+INSERT INTO `Payment` VALUES (1,1,'ONE_MONTH',100000.00,'2025-10-20 07:45:21','2025-11-20 07:45:21','Momo','Completed','TXN001','2025-10-20 07:45:21','2025-10-20 07:45:21');
 /*!40000 ALTER TABLE `Payment` ENABLE KEYS */;
 UNLOCK TABLES;
 

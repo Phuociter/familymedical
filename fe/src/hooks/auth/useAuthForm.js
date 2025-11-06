@@ -44,7 +44,7 @@ const useAuthForm = (initialState, apiCall, onSuccess) => {
             const result = await apiCall(dataToSend);
 
             if (result.success) {
-                setMessage(result.message || 'Hành động thành công!');
+                setMessage(result.message || 'Đăng nhập thành công!');
                 setIsError(false);
                 // Thực thi callback khi thành công
                 if (onSuccess) {
