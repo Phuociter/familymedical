@@ -12,21 +12,18 @@ import { USER_PROFILE, DOCTORS } from '../constants';
 
 const FamilyMedicalPage = () => {
   const [activeView, setActiveView] = useState(View.Family);
-  // Let's assume the family already has a doctor with ID 2 for demonstration
   const [familyDoctorId, setFamilyDoctorId] = useState(2);
-  
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [isFamilyDoctorInfoOpen, setIsFamilyDoctorInfoOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(USER_PROFILE);
-
 
   const familyDoctor = DOCTORS.find(d => d.id === familyDoctorId);
 
   const handleSetFamilyDoctor = (doctorId) => {
     setFamilyDoctorId(doctorId);
   };
-  
+
   const handleProfileUpdate = (updatedProfile) => {
     setUserProfile(updatedProfile);
   };
@@ -34,7 +31,7 @@ const FamilyMedicalPage = () => {
   const handleTerminateContract = () => {
     if (window.confirm('Bạn có chắc chắn muốn chấm dứt hợp đồng với bác sĩ này không?')) {
       setFamilyDoctorId(null);
-      setIsFamilyDoctorInfoOpen(false); // Close modal after action
+      setIsFamilyDoctorInfoOpen(false);
       alert('Đã chấm dứt hợp đồng thành công.');
     }
   };
@@ -53,9 +50,9 @@ const FamilyMedicalPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar 
-        activeView={activeView} 
+    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#F3F4F6' }}>
+      <Sidebar
+        activeView={activeView}
         setActiveView={setActiveView}
         onOpenUserProfile={() => setIsUserProfileOpen(true)}
         onOpenFamilyDoctorInfo={() => setIsFamilyDoctorInfoOpen(true)}
@@ -63,14 +60,14 @@ const FamilyMedicalPage = () => {
         userAvatar={userProfile.avatar}
         userName={userProfile.name}
       />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Header title={activeView} />
-        <main className="flex-1 overflow-y-auto">
+        <main style={{ flex: 1, overflowY: 'auto' }}>
           {renderContent()}
         </main>
       </div>
-      
-      <UserProfileModal 
+
+      <UserProfileModal
         isOpen={isUserProfileOpen}
         onClose={() => setIsUserProfileOpen(false)}
         profile={userProfile}
@@ -84,7 +81,7 @@ const FamilyMedicalPage = () => {
         onTerminateContract={handleTerminateContract}
       />
 
-      <SubscriptionModal 
+      <SubscriptionModal
         isOpen={isSubscriptionOpen}
         onClose={() => setIsSubscriptionOpen(false)}
       />

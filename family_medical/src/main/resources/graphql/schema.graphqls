@@ -84,7 +84,7 @@ type AuthPayload {
     user: User!
 }
 
-type Member {
+type Member {#bổ sungg
     memberID: ID!
     fullName: String
     # SỬA: Đổi tên thành 'relationship' để khớp với Entity Java
