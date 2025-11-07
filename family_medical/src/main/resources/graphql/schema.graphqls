@@ -157,6 +157,7 @@ type Query {
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
     getPaymentsByUserId(userId: Int!): [Payment]
+    getPaymentOnByUserId(userId: Int!): [Payment]
 }
 
 # =======================================================

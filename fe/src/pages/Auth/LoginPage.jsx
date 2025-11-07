@@ -11,6 +11,7 @@ const LoginPage = () => {
     const handleLoginSuccess = (result) => {
         // Dispatch action để lưu state vào Redux và localStorage
         dispatch(loginSuccess(result));
+        console.log("LoginPage - Login successful:", result);
 
         // Chờ 1.5s để người dùng thấy thông báo rồi mới chuyển trang
         setTimeout(() => {

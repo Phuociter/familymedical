@@ -67,6 +67,30 @@ const paymentApi = {
         const data = await paymentApi.sendGraphQLRequest(UPDATE_MOMO_PAYMENT_STATUS_MUTATION, variables);
         return data?.updateMomoPaymentStatus;
     },
+
+    getPaymentsByUserId: async (userId) => {
+        const GET_PAYMENTS_QUERY = `
+            query GetPaymentOnByUserId($userId: Int!) {
+                getPaymentOnByUserId(userId: $userId) {
+                    paymentId
+                    user {
+                        userID
+                        fullName
+                        email
+                    }
+                    packageType
+                    amount
+                    paymentStatus
+                    expiryDate
+                    transactionCode
+                }
+            }
+        `;
+        const variables = { userId };
+        const data = await paymentApi.sendGraphQLRequest(GET_PAYMENTS_QUERY, variables);
+        console.log("getPaymentsByUserId - data:", data);
+        return data?.getPaymentOnByUserId || [];
+    }
 };
 
 export default paymentApi;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoginPage from './Auth/LoginPage';
 import Sidebar from '../components/FamilyMedicalComponent/Sidebar';
 import FamilyList from '../components/FamilyMedicalComponent/FamilyList';
 import DoctorList from '../components/FamilyMedicalComponent/DoctorList';
@@ -7,8 +8,9 @@ import Header from '../components/FamilyMedicalComponent/Header';
 import UserProfileModal from '../components/FamilyMedicalComponent/UserProfileModal';
 import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDoctorInfoModal';
 import SubscriptionModal from '../components/FamilyMedicalComponent/SubscriptionModal';
+import { useSelector } from "react-redux";
 import { View } from '../type';
-import { USER_PROFILE, DOCTORS } from '../constants';
+import {  DOCTORS } from '../constants';
 
 const FamilyMedicalPage = () => {
   const [activeView, setActiveView] = useState(View.Family);
@@ -16,12 +18,11 @@ const FamilyMedicalPage = () => {
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [isFamilyDoctorInfoOpen, setIsFamilyDoctorInfoOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState(USER_PROFILE);
-
+  const user = useSelector((state) => state.user.user);
   const familyDoctor = DOCTORS.find(d => d.id === familyDoctorId);
 
-  const handleSetFamilyDoctor = (doctorId) => {
-    setFamilyDoctorId(doctorId);
+  const handleSetFamilyDoctor = () => {
+    setFamilyDoctorId(user.doctorCode);
   };
 
   const handleProfileUpdate = (updatedProfile) => {
@@ -57,8 +58,8 @@ const FamilyMedicalPage = () => {
         onOpenUserProfile={() => setIsUserProfileOpen(true)}
         onOpenFamilyDoctorInfo={() => setIsFamilyDoctorInfoOpen(true)}
         onOpenSubscription={() => setIsSubscriptionOpen(true)}
-        userAvatar={userProfile.avatar}
-        userName={userProfile.name}
+        userAvatar={user.avatar}
+        userName={user.fullname}
       />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Header title={activeView} />
@@ -70,8 +71,9 @@ const FamilyMedicalPage = () => {
       <UserProfileModal
         isOpen={isUserProfileOpen}
         onClose={() => setIsUserProfileOpen(false)}
-        profile={userProfile}
+        profile={user}
         onSave={handleProfileUpdate}
+        userId = {user.userID}
       />
 
       <FamilyDoctorInfoModal

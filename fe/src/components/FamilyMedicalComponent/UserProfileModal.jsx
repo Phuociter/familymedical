@@ -1,15 +1,62 @@
-import React, { useState, useRef, useEffect } from 'react';
-
-const UserProfileModal = ({ isOpen, onClose, profile, onSave }) => {
+import React, { useState, useRef, useEffect, use } from 'react';
+import { useSelector } from "react-redux";
+import paymentApi from '../../api/paymentApi';
+const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
   if (!isOpen) return null;
-
+  // console.log("UserProfileModal props - isOpen:", isOpen, "userId:", userId);
+  // const userId = useSelector((state) => state.user.userID);
+  // console.log("User ID in UserProfileModal2:", userId);
+  const userID = +userId;
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(profile);
+  console.log("UserProfileModal - profileData:", profileData);
   const fileInputRef = useRef(null);
+  const [payments, setPayments] = useState([]);
+  const [PaymentType, setCheckPaymentType] = useState();
+  const [checkPaymentOn, setCheckPaymentOn] = useState(false);
+  const typeP = payments[0]?.packageType;
+  useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const data = await paymentApi.getPaymentsByUserId(userID);
+                setPayments(data);
+                
+                
+                if(data!=null){
+                    setCheckPaymentOn(true);
+                }
+                else{
+                    setCheckPaymentOn(false);
+                    
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy payments:', error);
+            } finally {
+                // setLoading(false);
+            }
+        };
+
+        fetchPayments();
+    }, [userID]);
+
+//in ra loại gói đang dùng
+  const changeckPaymenttypeP = (typeP) => {
+    switch(typeP) {
+      case "ONE_MONTH":
+        return "1 Tháng";
+      case "SIX_MONTHS":
+        return "6 Tháng";
+      case "ONE_YEAR":
+        return "1 Năm";
+      default:
+        return "Chưa có gói sử dụng";
+    }
+  };
 
   useEffect(() => {
-    setProfileData(profile);
-  }, [profile]);
+    const typeP = payments[0]?.packageType; // lấy gói đầu tiên
+    setCheckPaymentType(changeckPaymenttypeP(typeP));
+  }, [payments]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -105,34 +152,50 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave }) => {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 flex-grow w-full">
-              <InfoItem label="Họ và tên:" value={profileData.name} name="name" />
+              <InfoItem label="Họ và tên:" value={profileData.fullName} name="name" />
               <InfoItem label="Email:" value={profileData.email} name="email" />
-              <InfoItem label="Số điện thoại:" value={profileData.phone} name="phone" />
+              <InfoItem label="Số điện thoại:" value={profileData.phoneNumber} name="phone" />
               <InfoItem label="CCCD:" value={profileData.cccd} name="cccd" />
               <div className="sm:col-span-2">
                 <InfoItem label="Địa chỉ:" value={profileData.address} name="address" />
               </div>
+              {/* cần nghiên cứu lại phần dưới////////////////////////////////////////////// */}
               <InfoItem label="Số thành viên trong GĐ:" value={profileData.memberCount} name="" />
             </div>
           </div>
 
-          {!isEditing && (
+          {!isEditing && checkPaymentOn && payments[0]  && (
             <div className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]">
-              <h3 className="font-semibold text-lg text-[#1F2937] mb-3">Gói sử dụng</h3>
+              <h3 className="font-semibold text-lg text-[#1F2937] mb-3">Gói Đang sử dụng</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                     <p className="text-sm text-[#6B7280]">Loại gói:</p>
-                    <p className="font-medium text-[#1F2937]">{profileData.packageType}</p>
-                </div>
-                <div>
-                    <p className="text-sm text-[#6B7280]">Trạng thái:</p>
-                    <p className="font-medium text-[#1F2937]">{profileData.packageStatus}</p>
+                    <p className="font-medium text-[#1F2937]">{PaymentType}</p>
                 </div>
                 <div>
                     <p className="text-sm text-[#6B7280]">Ngày hết hạn:</p>
-                    <p className="font-medium text-[#1F2937]">{profileData.expiryDate}</p>
+                    <p className="font-medium text-[#1F2937]">{payments[0].expiryDate}</p>
                 </div>
               </div>
+            </div>
+          )}
+          {checkPaymentOn == false && (
+            <div className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]">
+              <h3 className="font-semibold text-lg text-[#1F2937] mb-3">Gói sử dụng: Chưa gia hạn</h3>
+              {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <p className="text-sm text-[#6B7280]">Loại gói:</p>
+                    <p className="font-medium text-[#1F2937]">{payments.packageType}</p>
+                </div>
+                <div>
+                    <p className="text-sm text-[#6B7280]">Trạng thái:</p>
+                    <p className="font-medium text-[#1F2937]">{payments.on}</p>
+                </div>
+                <div>
+                    <p className="text-sm text-[#6B7280]">Ngày hết hạn:</p>
+                    <p className="font-medium text-[#1F2937]">{payments.expiryDate}</p>
+                </div>
+              </div> */}
             </div>
           )}
         </div>

@@ -24,7 +24,7 @@ public class MemberService {
     }
 
     public List<Member> getMembersByFamilyId(Integer familyID) {
-        return memberRepository.findByFamilyID(familyID);///chưa có FamilyID trong MemberRepository
+        return memberRepository.findByFamily_FamilyID(familyID);
     }
 
     public Member createMember(Member member) {

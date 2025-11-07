@@ -52,6 +52,7 @@ const authApi = {
                     token
                     user {
                         userID
+                        email
                         fullName
                         role
                         phoneNumber

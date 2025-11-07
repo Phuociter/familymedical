@@ -14,5 +14,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByFacebookId(String facebookId);
     boolean existsByEmail(String email);
     boolean existsByDoctorCode(String doctorCode); // Kiểm tra trùng lặp DoctorCode
-    List<Member> findByFamilyFamilyID(Integer familyID);
+    // List<Member> findByMemberFamilyFamilyID(Integer familyID);
 }
