@@ -8,10 +8,10 @@ enum UserRole {
     Admin
 }
 
-enum Gender { # Thêm Gender nếu cần cho Entity Member
-    Nam
-    Nu
-    Khac
+enum Gender { # Gender cho Member
+    Male
+    Female
+    Other
 }
 
 # =======================================================
@@ -63,6 +63,59 @@ input RequestDoctorInput { # Input Object cho việc yêu cầu bác sĩ
     message: String
 }
 
+input CreateMemberInput {
+    familyID: Int!
+    fullName: String
+    dateOfBirth: String
+    gender: Gender
+    cccd: String
+    relationship: String
+    phoneNumber: String
+}
+
+input UpdateMemberInput {
+    memberID: Int!
+    fullName: String
+    dateOfBirth: String
+    gender: Gender
+    cccd: String
+    relationship: String
+    phoneNumber: String
+}
+
+input CreateUserInput {
+    fullName: String!
+    email: String!
+    password: String!
+    role: UserRole!
+    phoneNumber: String
+    address: String
+    cccd: String
+    doctorCode: String
+}
+
+input UpdateUserInput {
+    userID: Int!
+    fullName: String
+    phoneNumber: String
+    address: String
+    cccd: String
+    doctorCode: String
+    role: UserRole
+}
+
+input CreateFamilyInput {
+    familyName: String!
+    address: String
+    headOfFamilyID: Int
+}
+
+input UpdateFamilyInput {
+    familyID: Int!
+    familyName: String
+    address: String
+}
+
 
 # =======================================================
 # 3. TYPES (Dữ liệu trả về)
@@ -77,6 +130,8 @@ type User {
     address: String
     cccd: String
     doctorCode: String
+    isVerified: Boolean
+    isLocked: Boolean
 }
 
 type AuthPayload {
@@ -86,11 +141,22 @@ type AuthPayload {
 
 type Member {
     memberID: ID!
+    familyID: Int!
     fullName: String
-    # SỬA: Đổi tên thành 'relationship' để khớp với Entity Java
+    dateOfBirth: String
+    gender: String  # Changed from Gender enum to String to handle Java enum "Nữ" -> GraphQL "Nu"
     relationship: String
     cccd: String
-    # Thêm các trường khác của Member nếu cần (DateOfBirth, Gender)
+    phoneNumber: String
+    createdAt: String
+}
+
+type Family {
+    familyID: ID!
+    familyName: String!
+    address: String
+    headOfFamilyID: Int
+    createdAt: String
 }
 
 type MedicalRecord {
@@ -124,6 +190,15 @@ type Query {
     membersByFamily(familyID: Int!): [Member]
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
+    
+    # Admin Queries
+    allMembers: [Member!]!
+    allDoctors: [User!]!
+    allFamilies: [Family!]!
+    allUsers: [User!]!
+    memberById(memberID: Int!): Member
+    userById(userID: Int!): User
+    familyById(familyID: Int!): Family
 }
 
 # =======================================================
@@ -140,4 +215,30 @@ type Mutation {
     # SỬA: Sử dụng RequestDoctorInput
     requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
+    
+    # Admin Mutations - Members
+    createMember(input: CreateMemberInput!): Member!
+    updateMember(input: UpdateMemberInput!): Member!
+    deleteMember(memberID: Int!): Boolean!
+    
+    # Admin Mutations - Users/Doctors
+    createUser(input: CreateUserInput!): User!
+    updateUser(input: UpdateUserInput!): User!
+    deleteUser(userID: Int!): Boolean!
+    changeUserRole(userID: Int!, role: UserRole!): User!
+    resetPassword(userID: Int!, newPassword: String!): Boolean!
+    lockUser(userID: Int!): Boolean!
+    unlockUser(userID: Int!): Boolean!
+    
+    # Admin Mutations - Families
+    createFamily(input: CreateFamilyInput!): Family!
+    updateFamily(input: UpdateFamilyInput!): Family!
+    deleteFamily(familyID: Int!): Boolean!
+    
+    # Admin Mutations - Doctor Requests
+    approveDoctorRequest(requestID: Int!): User!
+    rejectDoctorRequest(requestID: Int!): Boolean!
+    
+    # Admin Mutations - Doctor Assignment
+    assignDoctorToMember(memberID: Int!, doctorID: Int!): Boolean!
 }

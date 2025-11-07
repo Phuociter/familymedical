@@ -9,16 +9,24 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     const handleLoginSuccess = (result) => {
-        // Dispatch action để lưu state vào Redux và localStorage
-        dispatch(loginSuccess(result));
+        // Chuẩn hóa dữ liệu theo userSlice: { token, role, userDetails }
+        const normalized = {
+            token: result.token,
+            role: result.role || result.user?.role || null,
+            userDetails: result.user || result.userDetails || null,
+        };
+
+        // Lưu state vào Redux và localStorage
+        dispatch(loginSuccess(normalized));
 
         // Chờ 1.5s để người dùng thấy thông báo rồi mới chuyển trang
         setTimeout(() => {
-            if (result.role === 'BacSi') {
+            const role = normalized.role;
+            if (role === 'BacSi') {
                 navigate('/doctor/dashboard');
-            } else if (result.role === 'ChuHo') {
+            } else if (role === 'ChuHo') {
                 navigate('/family/dashboard');
-            } else if (result.role === 'Admin') {
+            } else if (role === 'Admin') {
                 navigate('/admin/dashboard');
             } else {
                 navigate('/');
