@@ -14,6 +14,18 @@ enum Gender { # Thêm Gender nếu cần cho Entity Member
     Khac
 }
 
+enum PackageType {
+    ONE_MONTH
+    SIX_MONTHS
+    ONE_YEAR
+}
+
+enum PaymentStatus {
+    Completed
+    Failed
+    Pending
+}
+
 # =======================================================
 # 2. INPUTS (Dữ liệu gửi từ Frontend)
 # =======================================================
@@ -113,6 +125,26 @@ type DoctorRequest {
     requestDate: String
 }
 
+type Payment {
+    paymentId: ID!
+    user: User!
+    packageType: PackageType!
+    amount: Float!
+    paymentDate: String!
+    expiryDate: String!
+    paymentMethod: String
+    paymentStatus: PaymentStatus!
+    transactionCode: String
+    createdAt: String
+    updatedAt: String
+}
+
+type MomoPaymentResponse {
+    payUrl: String!
+    orderId: String!
+    message: String
+}
+
 
 # =======================================================
 # 4. QUERY
@@ -124,6 +156,7 @@ type Query {
     membersByFamily(familyID: Int!): [Member]
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
+    getPaymentsByUserId(userId: Int!): [Payment]
 }
 
 # =======================================================
@@ -140,7 +173,11 @@ type Mutation {
     # SỬA: Sử dụng RequestDoctorInput
     requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
-  
+
+    # MoMo Payment Mutations
+    createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
+    updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!
+
 }
 
 

@@ -7,6 +7,7 @@ import RegisterFamilyPage from "./pages/Auth/RegisterFamilyPage";
 import RegisterDoctorPage from "./pages/Auth/RegisterDoctorPage";
 import OAuth2CallbackPage from "./pages/Auth/OAuth2CallbackPage.jsx";
 import OAuth2CompleteProfilePage from "./pages/Auth/OAuth2CompleteProfilePage.jsx";
+import MomoCallbackPage from "./pages/MomoCallbackPage";
 
 export default function App() {
   const isLoggedIn = localStorage.getItem("token");
@@ -19,7 +20,7 @@ export default function App() {
       <Route path="/register/family" element={<RegisterFamilyPage />} />
       <Route path="/register/doctor" element={<RegisterDoctorPage />} />
       <Route path="/oauth/complete-profile" element={<OAuth2CompleteProfilePage />} />
-
+      <Route path="/payment/callback" element={<MomoCallbackPage />} />
       <Route path="/families" element={<FamilyMedicalPage />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

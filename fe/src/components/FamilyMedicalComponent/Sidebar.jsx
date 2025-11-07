@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View } from '../../type.js';
+import { useAuth } from '../../hooks/auth/useAuth.js';
 
 const NavItem = ({ view, activeView, setActiveView, icon, label }) => {
   const isActive = activeView === view;
@@ -36,6 +37,12 @@ const Logo = () => (
 const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoctorInfo, onOpenSubscription, userAvatar, userName }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -94,10 +101,10 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
                         <span className="ml-3">Đăng ký gói pro</span>
                     </button>
                     <div className="border-t border-[#E5E7EB] my-1"></div>
-                    <a href="#" className="flex items-center px-4 py-2 text-sm hover:bg-[#F3F4F6]">
+                    <button onClick={handleLogout} className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-[#F3F4F6]">
                         <LogoutIcon />
                         <span className="ml-3">Đăng xuất</span>
-                    </a>
+                    </button>
                 </div>
            </div>
         )}
