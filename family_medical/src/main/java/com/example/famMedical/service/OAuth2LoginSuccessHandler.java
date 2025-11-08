@@ -48,14 +48,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                     .queryParam("userId", user.getUserID())
                     .queryParam("email", user.getEmail())
                     .queryParam("role", user.getRole().name())
-                    .build().toUriString();
+                    .build().encode().toUriString();
         } else {
             // Redirect to the main callback page which then redirects to dashboard
             targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth/callback")
                     .queryParam("token", token)
+                    .queryParam("userId", user.getUserID())
+                    .queryParam("fullName", user.getFullName())
                     .queryParam("email", user.getEmail())
                     .queryParam("role", user.getRole().name())
-                    .build().toUriString();
+                    .build().encode().toUriString();
         }
 
         // Step 4: Redirect the user.

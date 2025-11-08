@@ -11,6 +11,7 @@ const OAuth2CompleteProfilePage = () => {
     const { login } = useAuth();
 
     const token = searchParams.get('token');
+    const userId = searchParams.get('userId'); // Lấy userId từ URL
     const email = searchParams.get('email');
     const role = searchParams.get('role');
 
@@ -18,6 +19,7 @@ const OAuth2CompleteProfilePage = () => {
     const completeProfileApiCall = (data) => {
         return authApi.completeOAuth2Profile(data, token);
     };
+
 
     const handleSuccess = (result) => {
         // On success, use the login function from useAuth
