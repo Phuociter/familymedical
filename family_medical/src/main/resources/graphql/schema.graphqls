@@ -84,6 +84,14 @@ type AuthPayload {
     user: User!
 }
 
+type Family {
+    familyID: Int!
+    familyName: String
+    address: String
+    headOfFamily: User
+    createdAt: String
+}
+
 type Member {
     memberID: ID!
     fullName: String
@@ -111,6 +119,12 @@ type DoctorRequest {
     message: String
     status: String
     requestDate: String
+}
+
+type FileDownload {
+    fileName: String!
+    fileUrl: String!
+    contentType: String
 }
 
 

@@ -1,0 +1,54 @@
+# Sample GraphQL queries for doctor endpoints
+
+# 1. Get patients family by family ID
+query GetMyPatientsFamily($familyId: Int!) {
+  getMyPatientsFamily(familyId: $familyId) {
+    familyID
+    familyName
+    address
+    headOfFamily {
+      userID
+      fullName
+      email
+    }
+    createdAt
+  }
+}
+
+# 2. Get detailed patient information
+query GetDetailPatient($memberId: Int!) {
+  getDetailPatient(memberId: $memberId) {
+    memberID
+    fullName
+    relationship
+    cccd
+  }
+}
+
+# 3. Get doctor requests
+query GetRequestForDoctor {
+  getRequestForDocter {
+    requestID
+    familyID
+    doctorID
+    message
+    status
+    requestDate
+  }
+}
+
+# 4. Download medical record file
+query DownloadMedicalRecordFile($recordId: ID!) {
+  downloadMedicalRecordFile(recordId: $recordId) {
+    fileName
+    fileUrl
+    contentType
+  }
+}
+
+# Example variables for testing:
+# {
+#   "familyId": 1,
+#   "memberId": 1,
+#   "recordId": "1"
+# }

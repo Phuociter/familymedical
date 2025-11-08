@@ -1,0 +1,6 @@
+type Query {
+    getMyPatientsFamily : [Family]
+    getDetailPatient(memberId: Int!) : Member!
+    getRequestForDocter : DoctorRequest
+    downloadMedicalRecordFile(recordId: ID!): FileDownload!
+}

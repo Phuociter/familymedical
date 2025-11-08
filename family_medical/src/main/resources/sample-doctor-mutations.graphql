@@ -1,0 +1,50 @@
+# Sample GraphQL mutations for doctor registration
+
+# Register a new doctor
+mutation RegisterDoctor($input: DoctorRegisterInput!) {
+  registerDoctor(input: $input) {
+    userID
+    email
+    fullName
+    role
+    phoneNumber
+    address
+    cccd
+    doctorCode
+  }
+}
+
+# Example variables for registerDoctor:
+# {
+#   "input": {
+#     "fullName": "Dr. Nguyễn Văn A",
+#     "email": "doctor@example.com",
+#     "password": "securepassword123",
+#     "doctorCode": "BS001",
+#     "phoneNumber": "0123456789",
+#     "address": "123 Đường ABC, Quận 1, TP.HCM",
+#     "cccd": "123456789012"
+#   }
+# }
+
+# Login mutation (for testing after registration)
+mutation Login($input: LoginInput!) {
+  login(input: $input) {
+    token
+    user {
+      userID
+      email
+      fullName
+      role
+      doctorCode
+    }
+  }
+}
+
+# Example variables for login:
+# {
+#   "input": {
+#     "email": "doctor@example.com",
+#     "password": "securepassword123"
+#   }
+# }
