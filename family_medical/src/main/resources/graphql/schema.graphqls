@@ -153,11 +153,15 @@ type MomoPaymentResponse {
 type Query {
     # Truy vấn kiểm tra sức khỏe
     status: String
-    membersByFamily(familyID: Int!): [Member]
-    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
     getPaymentsByUserId(userId: Int!): [Payment]
     getPaymentOnByUserId(userId: Int!): [Payment]
+
+    #Truy vấn gia đình
+    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+    membersByFamily(familyID: Int!): [Member]
+
+
 }
 
 # =======================================================
