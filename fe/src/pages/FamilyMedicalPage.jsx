@@ -58,8 +58,8 @@ const FamilyMedicalPage = () => {
         onOpenUserProfile={() => setIsUserProfileOpen(true)}
         onOpenFamilyDoctorInfo={() => setIsFamilyDoctorInfoOpen(true)}
         onOpenSubscription={() => setIsSubscriptionOpen(true)}
-        userAvatar={user.avatar}
-        userName={user.fullname}
+        userAvatar={user?.avatar}
+        userName={user?.fullname}
       />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Header title={activeView} />
@@ -73,7 +73,7 @@ const FamilyMedicalPage = () => {
         onClose={() => setIsUserProfileOpen(false)}
         profile={user}
         onSave={handleProfileUpdate}
-        userId = {user.userID}
+        userId = {user?.userID}
       />
 
       <FamilyDoctorInfoModal

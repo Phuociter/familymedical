@@ -27,8 +27,7 @@ const RegisterFamilyForm = () => {
     const {
         formData,
         loading,
-        message,
-        isError,
+        errors,
         handleChange,
         handleSubmit,
     } = useAuthForm(initialFamilyState, authApi.registerFamily, handleSuccess);
@@ -41,27 +40,27 @@ const RegisterFamilyForm = () => {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {message && (
-                        <div className={`p-3 text-sm rounded-lg ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`} role="alert">
-                            {message}
+                    {errors.general && (
+                        <div className="p-3 text-sm rounded-lg text-red-700 bg-red-100" role="alert">
+                            {errors.general}
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <h3 className="text-xl font-semibold text-ascent-1 mb-4 border-b border-secondary pb-2">Thông tin Chủ hộ</h3>
-                            <FormField label="Họ và Tên" name="fullName" value={formData.fullName} onChange={handleChange} required />
-                            <FormField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required />
-                            <FormField label="Mật khẩu" name="password" value={formData.password} onChange={handleChange} type="password" required />
-                            <FormField label="Nhập lại Mật khẩu" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} type="password" required />
-                            <FormField label="CCCD/CMND" name="cccd" value={formData.cccd} onChange={handleChange} />
+                            <FormField label="Họ và Tên" name="fullName" value={formData.fullName} onChange={handleChange} required error={errors.fullName} />
+                            <FormField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required error={errors.email} />
+                            <FormField label="Mật khẩu" name="password" value={formData.password} onChange={handleChange} type="password" required error={errors.password} />
+                            <FormField label="Nhập lại Mật khẩu" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} type="password" required error={errors.confirmPassword} />
+                            <FormField label="CCCD/CMND" name="cccd" value={formData.cccd} onChange={handleChange} error={errors.cccd} />
                         </div>
 
                         <div>
                             <h3 className="text-xl font-semibold text-ascent-1 mb-4 border-b border-secondary pb-2">Thông tin Hộ gia đình</h3>
-                            <FormField label="Tên Gia đình" name="familyName" value={formData.familyName} onChange={handleChange} required hint="Ví dụ: Gia đình Nguyễn Văn A" />
-                            <FormField label="Số điện thoại" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
-                            <FormField label="Địa chỉ" name="address" value={formData.address} onChange={handleChange} required isTextArea />
+                            <FormField label="Tên Gia đình" name="familyName" value={formData.familyName} onChange={handleChange} required hint="Ví dụ: Gia đình Nguyễn Văn A" error={errors.familyName} />
+                            <FormField label="Số điện thoại" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required error={errors.phoneNumber} />
+                            <FormField label="Địa chỉ" name="address" value={formData.address} onChange={handleChange} required isTextArea error={errors.address} />
                         </div>
                     </div>
 

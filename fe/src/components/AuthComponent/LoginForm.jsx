@@ -11,8 +11,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     const {
         formData,
         loading,
-        message,
-        isError,
+        errors, // Sử dụng errors object
         handleChange,
         handleSubmit,
     } = useAuthForm({ email: '', password: '' }, authApi.login, onLoginSuccess);
@@ -26,9 +25,10 @@ const LoginForm = ({ onLoginSuccess }) => {
                     </h2>
                 </div>
                 <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-                    {message && (
-                        <div className={`p-3 mb-4 text-sm rounded-lg ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`} role="alert">
-                            {message}
+                    {/* Hiển thị lỗi chung (nếu có) */}
+                    {errors.general && (
+                        <div className="p-3 mb-4 text-sm rounded-lg text-red-700 bg-red-100" role="alert">
+                            {errors.general}
                         </div>
                     )}
 
@@ -40,6 +40,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                         onChange={handleChange}
                         required
                         placeholder="Email"
+                        error={errors.email} // Truyền lỗi của trường email
                     />
                     <FormField
                         label="Mật khẩu"
@@ -49,6 +50,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                         onChange={handleChange}
                         required
                         placeholder="Mật khẩu"
+                        error={errors.password} // Truyền lỗi của trường password
                     />
 
                     <div className="pt-4">

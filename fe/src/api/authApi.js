@@ -1,10 +1,17 @@
 import axios from 'axios';
 
-
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 
-const authApi = {
+// Custom Error để chứa các lỗi validation chi tiết
+export class ValidationError extends Error {
+    constructor(errors) {
+        super("Validation failed");
+        this.name = "ValidationError";
+        this.errors = errors; // Đây là object dạng { field: 'message' }
+    }
+}
 
+const authApi = {
     /**
      * Hàm chung để gửi yêu cầu GraphQL (có xử lý lỗi Server)
      */
@@ -24,21 +31,38 @@ const authApi = {
             );
 
             if (response.data.errors) {
-                console.error("GraphQL Errors:", response.data.errors);
-                // Trích xuất thông báo lỗi rõ ràng nhất để hiển thị ở Frontend
-                const errorMessage = response.data.errors[0].message || "Lỗi GraphQL từ Server.";
+                const gqlError = response.data.errors[0];
+
+                // Ưu tiên tìm lỗi validation chi tiết
+                if (gqlError.extensions && gqlError.extensions.validationErrors) {
+                    throw new ValidationError(gqlError.extensions.validationErrors);
+                }
+
+                // Nếu không có, dùng message chung
+                const errorMessage = gqlError.message || "Lỗi GraphQL từ Server.";
                 throw new Error(errorMessage);
             }
 
             return response.data.data;
         } catch (error) {
-            console.error("API Call Error:", error);
-            // Xử lý lỗi mạng (CORS, Connection Refused) hoặc lỗi từ GraphQL
-            if (error.response && error.response.data && error.response.data.errors) {
-                 const errorMessage = error.response.data.errors[0].message || "Lỗi GraphQL từ Server.";
+            // Ném lại lỗi ValidationError nếu nó đã được tạo
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+
+            // Xử lý lỗi network hoặc lỗi GraphQL được trả về trong một response thất bại (status 4xx, 5xx)
+            if (error.response?.data?.errors) {
+                const gqlError = error.response.data.errors[0];
+                 // Ưu tiên tìm lỗi validation chi tiết
+                if (gqlError.extensions && gqlError.extensions.validationErrors) {
+                    throw new ValidationError(gqlError.extensions.validationErrors);
+                }
+                const errorMessage = gqlError.message || "Lỗi GraphQL từ Server.";
                 throw new Error(errorMessage);
             }
-            throw new Error(error.message || "Không thể kết nối đến server.");
+            
+            // Ném lại các lỗi khác
+            throw error;
         }
     },
 
