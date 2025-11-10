@@ -6,6 +6,7 @@ import com.example.famMedical.dto.CompleteProfileRequest;
 import com.example.famMedical.dto.DoctorRegisterInput;
 import com.example.famMedical.dto.FamilyRegisterInput;
 import com.example.famMedical.dto.LoginInput;
+import com.example.famMedical.dto.UpdateUserInput;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.famMedical.exception.InvalidCredentialsException;
 import com.example.famMedical.service.AuthService;
@@ -76,6 +77,21 @@ public class AuthGraphQLResolver {
                 user.getUserID(),
                 input.getFamilyName(),
                 input.getPhoneNumber(),
+                input.getAddress()
+        );
+    }
+    @MutationMapping
+    public User updateUserProfile(@Argument @Valid UpdateUserInput input) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = authService.findUserByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found."));
+
+        return authService.updateUserProfile(
+                user.getUserID(),
+                input.getFullName(),
+                input.getPhoneNumber(),
+                input.getCccd(),
+                input.getAvatarUrl(),
                 input.getAddress()
         );
     }

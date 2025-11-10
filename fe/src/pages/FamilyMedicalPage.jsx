@@ -8,6 +8,7 @@ import Header from '../components/FamilyMedicalComponent/Header';
 import UserProfileModal from '../components/FamilyMedicalComponent/UserProfileModal';
 import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDoctorInfoModal';
 import SubscriptionModal from '../components/FamilyMedicalComponent/SubscriptionModal';
+import authApi, { ValidationError }  from '../api/authApi';
 import { useSelector } from "react-redux";
 import { View } from '../type';
 import {  DOCTORS } from '../constants';
@@ -26,7 +27,20 @@ const FamilyMedicalPage = () => {
   };
 
   const handleProfileUpdate = (updatedProfile) => {
-    setUserProfile(updatedProfile);
+    console.log("id/////////////////////:", updatedProfile.userID);
+    // authApi.handleUpdateProfile(updatedProfile.userID, updatedProfile, updatedProfile.avatar);
+    try {
+        const result = authApi.handleUpdateProfile(updatedProfile.userID, updatedProfile, updatedProfile.avatar);
+        console.log("Update success:", result);
+    } catch (error) {
+        if (error instanceof ValidationError) {
+            console.log("Validation errors:", error.errors);
+            // show errors ra UI
+        } else {
+            console.error(error);
+        }
+    }
+
   };
 
   const handleTerminateContract = () => {

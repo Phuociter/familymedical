@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, use } from 'react';
 import { useSelector } from "react-redux";
 import paymentApi from '../../api/paymentApi';
+import authApi from '../../api/authApi';
 const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
   if (!isOpen) return null;
   // console.log("UserProfileModal props - isOpen:", isOpen, "userId:", userId);
@@ -150,7 +151,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
                 </>
               )}
             </div>
-            
+            {/* //sửa lại giao diện không cho sửa email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 flex-grow w-full">
               <InfoItem label="Họ và tên:" value={profileData.fullName} name="name" />
               <InfoItem label="Email:" value={profileData.email} name="email" />
@@ -179,7 +180,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
               </div>
             </div>
           )}
-          {checkPaymentOn == false && (
+          {payments[0]==null && (
             <div className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]">
               <h3 className="font-semibold text-lg text-[#1F2937] mb-3">Gói sử dụng: Chưa gia hạn</h3>
               {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

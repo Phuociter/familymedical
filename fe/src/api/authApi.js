@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
+import userSlice from '../redux/userSlice';
+import { useSelector } from "react-redux";
 
 // Custom Error để chứa các lỗi validation chi tiết
 export class ValidationError extends Error {
@@ -11,7 +13,9 @@ export class ValidationError extends Error {
     }
 }
 
+
 const authApi = {
+    
     /**
      * Hàm chung để gửi yêu cầu GraphQL (có xử lý lỗi Server)
      */
@@ -49,6 +53,9 @@ const authApi = {
             if (error instanceof ValidationError) {
                 throw error;
             }
+            if (error instanceof ValidationError) {
+                console.log("Validation errors:", error.errors);
+            }
 
             // Xử lý lỗi network hoặc lỗi GraphQL được trả về trong một response thất bại (status 4xx, 5xx)
             if (error.response?.data?.errors) {
@@ -60,6 +67,7 @@ const authApi = {
                 const errorMessage = gqlError.message || "Lỗi GraphQL từ Server.";
                 throw new Error(errorMessage);
             }
+
             
             // Ném lại các lỗi khác
             throw error;
@@ -196,7 +204,73 @@ const authApi = {
         } else {
             return { success: false, message: "Hoàn tất hồ sơ thất bại." };
         }
+    },
+
+    updateUserProfile: async (userID, data, token) => {
+        // Lọc ra chỉ những field hợp lệ
+        const { fullName, phoneNumber, cccd, address, avatarUrl } = data;
+        const input = { fullName, phoneNumber, cccd, address, avatarUrl };
+        console.log("updateUserProfile - input:", input);
+
+        const UPDATE_USER_MUTATION = `
+            mutation UpdateUserProfile($userID: ID!, $input: UpdateUserInput!) {
+                updateUserProfile(userID: $userID, input: $input) {
+                    userID
+                    fullName
+                    phoneNumber
+                    avatarUrl
+                    address
+                }
+            }
+        `;
+
+        const variables = { userID, input };
+
+        const result = await authApi.sendGraphQLRequest(UPDATE_USER_MUTATION, variables, token);
+
+        if (result?.updateUserProfile?.userID) {
+            return { success: true, message: "Cập nhật thông tin thành công!", user: result.updateUserProfile };
+        } else {
+            return { success: false, message: "Cập nhật thất bại." };
+        }
+    },
+    uploadAvatarToCloudinary: async (file) => {
+        try {
+            const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+            const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
+            console.log("Cloud name:", cloudName, "Preset:", uploadPreset);
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", uploadPreset);
+
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error(`Upload failed with status ${response.status}`);
+
+            const data = await response.json();
+            return data.secure_url;
+        } catch (err) {
+            console.error("Cloudinary upload error:", err);
+            throw err;
+        }
+    },
+     handleUpdateProfile: async function(userID, data, file){
+        const token = localStorage.getItem('userToken');
+        // Nếu có avatar, upload trước
+        if (file) {
+            const avatarUrl = await this.uploadAvatarToCloudinary(file);
+            data.avatarUrl = avatarUrl;
+        }
+
+        // Gọi mutation update thông tin
+        return await this.updateUserProfile(userID, data, token);
     }
+
 };
 
 export default authApi;

@@ -35,6 +35,15 @@ input LoginInput {
     password: String!
 }
 
+input UpdateUserInput {
+    address: String 
+    avatarUrl: String
+    cccd: String
+    fullName: String
+    phoneNumber: String
+}
+
+
 input FamilyRegisterInput {
     fullName: String!
     email: String!
@@ -88,6 +97,7 @@ type User {
     phoneNumber: String
     address: String
     cccd: String
+    avatarUrl: String   
     doctorCode: String
 }
 
@@ -178,6 +188,9 @@ type Mutation {
     # SỬA: Sử dụng RequestDoctorInput
     requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
+    
+    # user
+    updateUserProfile(userID: ID!, input: UpdateUserInput!): User
 
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
