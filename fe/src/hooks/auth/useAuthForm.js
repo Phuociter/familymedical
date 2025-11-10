@@ -1,6 +1,6 @@
 // src/hooks/useAuthForm.js
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ValidationError } from '../../api/authApi'; // Import a custom error
 
 /**
  * Custom hook để quản lý logic cho các form xác thực (đăng ký, đăng nhập).
@@ -9,34 +9,34 @@ import { useNavigate } from 'react-router-dom';
  * @param {function} onSuccess - Callback thực thi khi API gọi thành công.
  */
 const useAuthForm = (initialState, apiCall, onSuccess) => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState(initialState);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+    const [errors, setErrors] = useState({}); // Thay message/isError bằng errors object
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Xóa message khi người dùng bắt đầu nhập lại
-        if (message) {
-            setMessage('');
-            setIsError(false);
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+
+        // Xóa lỗi của trường đang nhập và lỗi chung
+        if (errors[name] || errors.general) {
+            const newErrors = { ...errors };
+            delete newErrors[name];
+            delete newErrors.general;
+            setErrors(newErrors);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors({});
 
         // Kiểm tra mật khẩu xác nhận (nếu có)
         if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-            setMessage("Mật khẩu xác nhận không khớp.");
-            setIsError(true);
+            setErrors({ confirmPassword: "Mật khẩu xác nhận không khớp." });
             return;
         }
 
         setLoading(true);
-        setMessage('');
-        setIsError(false);
 
         try {
             // Loại bỏ confirmPassword trước khi gửi đi
@@ -44,19 +44,22 @@ const useAuthForm = (initialState, apiCall, onSuccess) => {
             const result = await apiCall(dataToSend);
 
             if (result.success) {
-                setMessage(result.message || 'Đăng nhập thành công!');
-                setIsError(false);
-                // Thực thi callback khi thành công
+                // Xử lý thành công, không có lỗi
                 if (onSuccess) {
                     onSuccess(result);
                 }
             } else {
-                setMessage(result.message || 'Có lỗi xảy ra.');
-                setIsError(true);
+                // Xử lý lỗi chung từ logic trả về của API (ít dùng sau khi đổi sang throw)
+                setErrors({ general: result.message || 'Có lỗi xảy ra.' });
             }
         } catch (err) {
-            setMessage(err.message || "Đã xảy ra lỗi hệ thống. Vui lòng thử lại.");
-            setIsError(true);
+            if (err instanceof ValidationError) {
+                // Bắt lỗi validation chi tiết từ backend
+                setErrors(err.errors);
+            } else {
+                // Bắt các lỗi khác (lỗi mạng, lỗi server 500,...)
+                setErrors({ general: err.message || "Đã xảy ra lỗi hệ thống. Vui lòng thử lại." });
+            }
         } finally {
             setLoading(false);
         }
@@ -65,11 +68,11 @@ const useAuthForm = (initialState, apiCall, onSuccess) => {
     return {
         formData,
         loading,
-        message,
-        isError,
+        errors, // Trả về object errors
         handleChange,
         handleSubmit,
     };
 };
 
 export default useAuthForm;
+

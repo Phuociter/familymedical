@@ -11,6 +11,7 @@ const OAuth2CompleteProfilePage = () => {
     const { login } = useAuth();
 
     const token = searchParams.get('token');
+    const userId = searchParams.get('userId'); // Lấy userId từ URL
     const email = searchParams.get('email');
     const role = searchParams.get('role');
 
@@ -18,6 +19,7 @@ const OAuth2CompleteProfilePage = () => {
     const completeProfileApiCall = (data) => {
         return authApi.completeOAuth2Profile(data, token);
     };
+
 
     const handleSuccess = (result) => {
         // On success, use the login function from useAuth
@@ -27,8 +29,7 @@ const OAuth2CompleteProfilePage = () => {
     const {
         formData,
         loading,
-        message,
-        isError,
+        errors,
         handleChange,
         handleSubmit,
     } = useAuthForm(
@@ -55,9 +56,9 @@ const OAuth2CompleteProfilePage = () => {
                     </p>
                 </div>
                 <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-                    {message && (
-                        <div className={`p-3 mb-4 text-sm rounded-lg ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`} role="alert">
-                            {message}
+                    {errors.general && (
+                        <div className="p-3 mb-4 text-sm rounded-lg text-red-700 bg-red-100" role="alert">
+                            {errors.general}
                         </div>
                     )}
 
@@ -67,6 +68,7 @@ const OAuth2CompleteProfilePage = () => {
                         value={formData.familyName}
                         onChange={handleChange}
                         required
+                        error={errors.familyName}
                     />
                     <FormField
                         label="Số điện thoại"
@@ -74,6 +76,7 @@ const OAuth2CompleteProfilePage = () => {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         placeholder="Số điện thoại (Tùy chọn)"
+                        error={errors.phoneNumber}
                     />
                     <FormField
                         label="Địa chỉ"
@@ -82,6 +85,7 @@ const OAuth2CompleteProfilePage = () => {
                         onChange={handleChange}
                         isTextArea
                         placeholder="Địa chỉ (Tùy chọn)"
+                        error={errors.address}
                     />
 
                     <div className="pt-4">
