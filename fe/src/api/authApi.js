@@ -85,6 +85,7 @@ const authApi = {
                     user {
                         userID
                         email
+                        avatarUrl
                         fullName
                         role
                         phoneNumber
@@ -238,8 +239,6 @@ const authApi = {
         try {
             const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
             const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
-
-            console.log("Cloud name:", cloudName, "Preset:", uploadPreset);
 
             const formData = new FormData();
             formData.append("file", file);

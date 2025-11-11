@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View } from '../../type.js';
 import { useAuth } from '../../hooks/auth/useAuth.js';
-
+import { useSelector } from 'react-redux';
 const NavItem = ({ view, activeView, setActiveView, icon, label }) => {
   const isActive = activeView === view;
   return (
@@ -38,7 +38,7 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const { logout } = useAuth();
-
+  const user = useSelector((state) => state.user.user);
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);
@@ -114,12 +114,11 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
         >
           <img
             className="h-10 w-10 rounded-full object-cover"
-            src={userAvatar}
+            src={user.avatarUrl}
             alt="User avatar"
           />
           <div className="ml-3">
-            <p className="text-sm font-medium text-[#FFFFFF]">{userName}</p>
-            <p className="text-xs text-[#9CA3AF]">Ogananan</p>
+            <p className="text-sm font-medium text-[#FFFFFF]">{user.fullName}</p>
           </div>
         </button>
       </div>
