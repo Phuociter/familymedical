@@ -1,0 +1,74 @@
+extend type Query {
+  # Dashboard queries
+  doctorDashboard: DoctorDashboard!
+  doctorAssignedFamilies(search: String): [Family!]!
+  familyMembers(familyId: ID!): [Member!]!
+  memberMedicalRecords(memberId: ID!): [MedicalRecord!]!
+  pendingDoctorRequests: [DoctorRequest!]!
+  
+  # Medical records with filtering
+  recentMedicalRecords(days: Int): [MedicalRecord!]!
+  searchMedicalRecords(
+    familyId: ID
+    memberId: ID
+    diagnosis: String
+    startDate: DateTime
+    endDate: DateTime
+  ): [MedicalRecord!]!
+}
+
+extend type Mutation {
+  # Doctor request management
+  respondToDoctorRequest(
+    requestId: ID!
+    status: RequestStatus!
+    message: String
+  ): DoctorRequest!
+  
+  # Medical record management
+  updateMedicalRecord(
+    recordId: ID!
+    diagnosis: String
+    treatmentPlan: String
+    symptoms: String
+  ): MedicalRecord!
+  
+  createMedicalRecordNote(
+    recordId: ID!
+    note: String!
+  ): MedicalRecord!
+  
+  # Assignment management
+  updateAssignmentStatus(
+    assignmentId: ID!
+    status: AssignmentStatus!
+  ): DoctorAssignment!
+}
+
+type Subscription {
+  newDoctorRequest(doctorId: ID!): DoctorRequest!
+  newMedicalRecord(doctorId: ID!): MedicalRecord!
+}
+
+# TYPES BASED ON YOUR ENTITIES
+type DoctorDashboard {
+  # Thống kê tổng quan
+  assignedFamiliesCount: Int!
+  pendingRequestsCount: Int!
+  recentRecordsCount: Int!
+  totalPatientsCount: Int!
+  
+  # Danh sách chi tiết
+  recentMedicalRecords: [MedicalRecord!]!
+  pendingRequests: [DoctorRequest!]!
+  assignedFamilies: [Family!]!
+  
+  # Thống kê theo thời gian
+  weeklyStats: [WeeklyStat!]!
+}
+
+type WeeklyStat {
+  date: Date!
+  recordsCount: Int!
+  consultationsCount: Int!
+}
