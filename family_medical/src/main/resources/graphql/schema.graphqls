@@ -1,3 +1,6 @@
+scalar Date
+scalar DateTime
+
 # =======================================================
 # 1. ENUMS
 # =======================================================
@@ -24,6 +27,17 @@ enum PaymentStatus {
     Completed
     Failed
     Pending
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 # =======================================================
@@ -124,6 +138,16 @@ type AuthPayload {
     user: User!
 }
 
+type Family {
+    familyID: ID
+    familyName: String
+    familyAddress: String
+    headOfFamily: User
+    members: [Member]
+    doctorAssignments: [DoctorAssignment] 
+    createdAt: DateTime
+}
+
 type Member {#bổ sungg
     memberID: ID!
     fullName: String
@@ -151,6 +175,12 @@ type DoctorRequest {
     message: String
     status: String
     requestDate: String
+}
+
+type DoctorAssignment {
+    assignmentId: ID
+    doctor: User
+    family: Family
 }
 
 type Payment {

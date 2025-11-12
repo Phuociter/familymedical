@@ -12,7 +12,8 @@ public class GraphQLScalarConfig {
     public RuntimeWiringConfigurer runtimeWiringConfigurer() {
         return builder -> builder
                 .scalar(ExtendedScalars.DateTime) // ✅ OK
+                .scalar(ExtendedScalars.Date)
                 .scalar(ExtendedScalars.Url)      // tùy bạn thêm nếu cần
-                .scalar(ExtendedScalars.Json);    // tùy bạn thêm nếu cần
+                .scalar(ExtendedScalars.Json);    // tùy bạn thêm nếu cần   
     }
 }
