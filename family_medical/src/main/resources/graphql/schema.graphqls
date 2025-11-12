@@ -79,10 +79,21 @@ input CreateMedicalRecordInput {
 }
 
 input UpdateMemberInput {
-     fullName: String
-     relationship: String
-     cccd: String
+    fullName: String 
+    dateOfBirth: LocalDate
+    gender: String 
+    relationship: String 
+    phoneNumber: String 
+    cccd: String 
+}
 
+input CreateMemberInput {
+    fullName: String 
+    dateOfBirth: LocalDate
+    gender: String 
+    relationship: String 
+    phoneNumber: String 
+    cccd: String 
 }
 
 input RequestDoctorInput { # Input Object cho việc yêu cầu bác sĩ
@@ -176,7 +187,7 @@ type Query {
 
     #Truy vấn gia đình
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
-    membersByFamily(familyID: ID!): [Member]
+    membersByFamilyID(familyID: ID!): [Member]
 
 
 }
@@ -201,6 +212,7 @@ type Mutation {
 
     #member
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member
+    createMember(input: CreateMemberInput!): Member!
     deleteMember(memberID: ID!): Boolean
     
     # MoMo Payment Mutations

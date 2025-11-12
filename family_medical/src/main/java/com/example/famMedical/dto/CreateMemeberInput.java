@@ -2,11 +2,8 @@ package com.example.famMedical.dto;
 
 import java.time.LocalDate;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 @Data
-@NoArgsConstructor
-public class UpdateMemberInput {
-
+public class CreateMemeberInput {
     private String fullName;
     private LocalDate dateOfBirth; 
     private Gender gender;

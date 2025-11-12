@@ -18,7 +18,7 @@ public class MemberQueryResolver {
     }
 
     @QueryMapping 
-    public List<Member> membersByFamily(@Argument Integer familyID){
+    public List<Member> membersByFamilyID(@Argument Integer familyID){
         return memberService.getMembersByFamilyId(familyID);
     }
 
