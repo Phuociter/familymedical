@@ -1,14 +1,31 @@
-import React, { useState } from 'react';
-import { DOCTORS } from '../../constants.js';
+import React, { useEffect, useState } from 'react';
+// import { DOCTORS } from '../../constants.js';
 import DoctorDetailModal from './DoctorDetailModal.jsx';
+import DoctorAPI from '../../api/DoctorAPI.js';
 
 const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [doctors, setDoctors] = useState([]);
+    
 
-    const filteredDoctors = DOCTORS.filter(doctor =>
-        doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    useEffect(() =>{
+        const fetchDoctors = async() => {
+            try {
+                const token = localStorage.getItem('userToken');
+                // const token = localStorage.getItem('token');
+                const doctorData = await DoctorAPI.getAllDoctor(token);
+                setDoctors(doctorData);
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách bác sĩ:', error);
+            }
+        };
+        fetchDoctors();
+    }, [])
+    const filteredDoctors = doctors.filter(doctor =>
+        doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     
     const handleDoctorClick = (doctor) => {
         setSelectedDoctor(doctor);
@@ -56,12 +73,12 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
                             >
                                 <img
                                     className="h-12 w-12 rounded-full object-cover"
-                                    src={`https://picsum.photos/seed/${doctor.id}/100`}
-                                    alt={`Bác sĩ ${doctor.name}`}
+                                    src={`https://picsum.photos/seed/${doctor.ID}/100`}
+                                    alt={`Bác sĩ ${doctor.fullName}`}
                                 />
                                 <div>
-                                    <p className="font-semibold text-[#111827]">{doctor.name}</p>
-                                    <p className="text-sm text-[#4B5563]">{doctor.specialty}</p>
+                                    <p className="font-semibold text-[#111827]">{doctor.fullName}</p>
+                                    {/* <p className="text-sm text-[#4B5563]">{doctor.specialty}</p> */}
                                 </div>
                             </li>
                         ))

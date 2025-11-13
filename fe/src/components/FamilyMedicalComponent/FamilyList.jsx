@@ -44,21 +44,21 @@ const FamilyList = () => {
   };
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const responseData = await graphqlRequest({ query: GET_FAMILY_MEMBERS_QUERY });
-        setFamilyMembers(responseData.familyMembers || []);
-      } catch (error) {
-        console.error("Failed to fetch family members:", error);
-        setError("Không thể tải danh sách thành viên. Vui lòng thử lại.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // const fetchMembers = async () => {
+    //   try {
+    //     setIsLoading(true);
+    //     setError(null);
+    //     const responseData = await graphqlRequest({ query: GET_FAMILY_MEMBERS_QUERY });
+    //     setFamilyMembers(responseData.familyMembers || []);
+    //   } catch (error) {
+    //     console.error("Failed to fetch family members:", error);
+    //     setError("Không thể tải danh sách thành viên. Vui lòng thử lại.");
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
 
-    fetchMembers();
+    // fetchMembers();
   }, []);
 
   const handleAddMember = async (memberData) => {

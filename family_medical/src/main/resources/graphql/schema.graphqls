@@ -11,7 +11,7 @@ enum UserRole {
     Admin
 }
 
-enum Gender { # Thêm Gender nếu cần cho Entity Member
+enum Gender {
     Nam
     Nu
     Khac
@@ -110,10 +110,9 @@ input CreateMemberInput {
     cccd: String 
 }
 
-input RequestDoctorInput { # Input Object cho việc yêu cầu bác sĩ
-    familyID: Int!
+input RequestDoctorInput { 
+    userID: Int!
     doctorID: Int!
-    message: String
 }
 
 
@@ -129,6 +128,8 @@ type User {
     phoneNumber: String
     address: String
     cccd: String
+    hospitalName: String
+    yearsOfExperience: String
     avatarUrl: String   
     doctorCode: String
 }
@@ -148,12 +149,15 @@ type Family {
     createdAt: DateTime
 }
 
-type Member {#bổ sungg
+type Member {
     memberID: ID!
     fullName: String
-    # SỬA: Đổi tên thành 'relationship' để khớp với Entity Java
     relationship: String
     cccd: String
+    phoneNumber: String
+    gender:String
+    dateOfBirth: LocalDate
+    
     # Thêm các trường khác của Member nếu cần (DateOfBirth, Gender)
 }
 
@@ -203,7 +207,10 @@ type MomoPaymentResponse {
     message: String
 }
 
+type Doctor {
+    userID: ID!
 
+}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -214,11 +221,11 @@ type Query {
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
     getPaymentsByUserId(userId: Int!): [Payment]
     getPaymentOnByUserId(userId: Int!): [Payment]
+    getDoctorList: [User!]!
 
     #Truy vấn gia đình
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
-
 
 }
 
@@ -233,8 +240,7 @@ type Mutation {
 
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
 
-    # SỬA: Sử dụng RequestDoctorInput
-    requestDoctor(input: RequestDoctorInput!): DoctorRequest
+    # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!
     
     # user
@@ -244,6 +250,9 @@ type Mutation {
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member
     createMember(input: CreateMemberInput!): Member!
     deleteMember(memberID: ID!): Boolean
+
+    # doctor request
+    createDRequest(familyID:ID!, userID:ID!, input:RequestDoctorInput!) : DoctorRequest
     
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!

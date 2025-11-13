@@ -12,6 +12,7 @@ import com.example.famMedical.exception.InvalidCredentialsException;
 import com.example.famMedical.service.AuthService;
 import com.example.famMedical.service.JwtService;
 import jakarta.validation.Valid;
+
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
@@ -95,4 +96,6 @@ public class AuthGraphQLResolver {
                 input.getAddress()
         );
     }
+
+
 }

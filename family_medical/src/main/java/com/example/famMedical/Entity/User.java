@@ -61,6 +61,12 @@ public class User implements UserDetails {
     @Column(name = "FacebookID", length = 255, nullable = true)
     private String facebookId;
 
+    @Column(name = "HospitalName" ,nullable = false, length = 255)
+    private String HospitalName; 
+    
+    @Column(name = "yearsOfExperience", nullable = false, length = 255)
+    private String yearsOfExperience;
+
     @Column(name = "IsProfileComplete", nullable = false)
     private boolean isProfileComplete = true;
 
@@ -84,8 +90,6 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
-
-
 
     @Override
     public boolean isAccountNonExpired() {

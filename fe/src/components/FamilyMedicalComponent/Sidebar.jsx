@@ -39,6 +39,7 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
   const menuRef = useRef(null);
   const { logout } = useAuth();
   const user = useSelector((state) => state.user.user);
+  console.log("Sidebar user:", user.avatarUrl);
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);

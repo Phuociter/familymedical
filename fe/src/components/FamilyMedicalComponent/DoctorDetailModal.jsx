@@ -48,32 +48,32 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
 
         <img
           className="w-24 h-24 rounded-full mx-auto -mt-4 mb-4 border-4 border-[#FFFFFF] shadow-md"
-          src={`https://picsum.photos/seed/${doctor.id}/200`}
-          alt={doctor.name}
+          src={`https://picsum.photos/seed/${doctor.ID}/200`}
+          alt={doctor.fullName}
         />
 
         <h2
           id="doctor-modal-title"
           className="text-2xl font-bold text-[#2563EB] mb-4"
         >
-          {doctor.name}
+          {doctor.fullName}
         </h2>
 
         <div className="text-left space-y-3 text-[#374151]">
-          <p>
+          {/* <p>
             <strong className="font-medium w-28 inline-block">Chuyên khoa:</strong> {doctor.specialty}
-          </p>
+          </p> */}
           <p>
             <strong className="font-medium w-28 inline-block">Email:</strong> {doctor.email}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Số điện thoại:</strong> {doctor.phone}
+            <strong className="font-medium w-28 inline-block">Số điện thoại:</strong> {doctor.phoneNumber}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Kinh nghiệm:</strong> {doctor.experience}
+            <strong className="font-medium w-28 inline-block">Kinh nghiệm:</strong> {doctor.yearsOfExperience}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Bệnh viện:</strong> {doctor.hospital}
+            <strong className="font-medium w-28 inline-block">Bệnh viện:</strong> {doctor.hospitalName}
           </p>
         </div>
 
