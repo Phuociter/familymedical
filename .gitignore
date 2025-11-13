@@ -22,7 +22,7 @@ node_modules/
 *.iml
 *.ipr
 .env
-
+app-run.log
 
 ### NetBeans ###
 /nbproject/private/
