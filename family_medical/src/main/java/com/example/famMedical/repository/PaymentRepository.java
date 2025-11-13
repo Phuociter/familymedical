@@ -2,6 +2,7 @@ package com.example.famMedical.repository;
 
 import com.example.famMedical.Entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,3 +18,4 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query("SELECT p FROM Payment p WHERE p.user.userID = :userId AND p.expiryDate > CURRENT_DATE")
     List<Payment> findByUser_UserId(@Param("userId") Integer userId);
 }
+

@@ -25,7 +25,7 @@ public class Family {
     private String address;
 
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "HeadOfFamilyID", referencedColumnName = "UserID")
     private User headOfFamily;
 

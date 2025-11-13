@@ -64,6 +64,12 @@ public class User implements UserDetails {
     @Column(name = "IsProfileComplete", nullable = false)
     private boolean isProfileComplete = true;
 
+    @Column(name = "IsLocked", nullable = false)
+    private boolean isLocked = false;
+
+    @Column(name = "IsVerified", nullable = false)
+    private boolean isVerified = false;
+
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -94,7 +100,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isLocked;
     }
 
     @Override

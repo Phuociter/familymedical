@@ -1,3 +1,4 @@
+
 package com.example.famMedical.repository;
 
 import com.example.famMedical.Entity.MedicalRecord;
@@ -16,4 +17,5 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
     @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.member.memberID = :memberId")
     List<String> findFileLinksByMemberId(@Param("memberId") Integer memberId);
 }
+
 

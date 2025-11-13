@@ -18,26 +18,26 @@ public class DoctorRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer requestID;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "familyID")
     private Family family;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctorID")
     private User doctor;
 
     private String message;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatus status; // PENDING, ACCEPTED, REJECTED
+    private RequestStatus status; // pending, accepted, rejected
 
     private LocalDateTime requestDate;
 
     
     public enum RequestStatus {
-        PENDING,
-        ACCEPTED,
-        REJECTED
+        pending,
+        accepted,
+        rejected
     }
 }
 
