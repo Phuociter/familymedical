@@ -1,5 +1,6 @@
 package com.example.famMedical.config;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.famMedical.security.JwtAuthenticationFilter; // IMPORT FILTER
 import com.example.famMedical.service.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
