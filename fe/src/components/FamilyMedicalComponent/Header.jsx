@@ -1,146 +1,76 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState,useRef,useEffect } from "react";
-import doctorImage from "../../assets/images/doctor_consultation.png";
-import notiImage from "../../assets/images/notification.png";
-import notiImage2 from "../../assets/images/notification2.png";
-import searchIcon from "../../assets/images/search.png";
-import UserMenu from "./User";
+import React, { useState, useRef, useEffect } from 'react';
 
+const Header = ({ title }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef(null);
 
-
-export default function Header({ onAddFamily }) {
-  const [openNotify, setOpenNotify] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
-
-
-
-  const handleClickOutside = (event) => {
-    // Nếu menu đang mở và người dùng click *bên ngoài* menu
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setIsOpen(false); // Đóng menu
-    }
-  };
+  const notifications = [
+    { id: 1, text: 'Hồ sơ của Nguyễn Văn A đã được cập nhật.', time: '5 phút trước' },
+    { id: 2, text: 'Bác sĩ Trần Thị B đã gửi một tin nhắn mới.', time: '1 giờ trước' },
+    { id: 3, text: 'Lịch hẹn của bạn vào ngày mai đã được xác nhận.', time: '3 giờ trước' },
+  ];
+  
+  const unreadCount = notifications.length;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
-
-
-
-
-
-
   return (
-    <header className="w-full bg-blue shadow-md flex items-center justify-between px-6 py-3">
-      {/* Logo */}
-      <div className="flex items-center gap-2">
-        <img
-          src={doctorImage}
-          alt="logo"
-          className="w-6 h-6"
-        />
-        <h1 className="text-xl font-semibold text-white">
-          Quản lý hồ sơ y tế gia đình
-        </h1>
-      </div>
-
-      {/* search */}
-      <div className="flex-1 flex justify-center">
-        <div className="relative w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Tìm kiếm hồ sơ y tế..."
-            className="w-full rounded-full px-4 py-2 pl-10 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <img
-            src={searchIcon}
-            className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+    <header className="bg-[#FFFFFF] shadow-sm border-b border-[#EEEEEE] z-10 flex-shrink-0">
+      <div className="px-6 md:px-8 py-4 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[#111827]">{title}</h2>
+        <div className="relative" ref={notificationRef}>
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)} 
+            className="relative p-2 rounded-full text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#374151] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6]"
+            aria-label="Thông báo"
           >
-          </img>
-        </div>
-      </div>
-
-      {/*notification + user */}
-      <div className="flex items-center gap-6">
-        {/* Notification */}
-        <button onClick={() => setOpenNotify(!openNotify)} className="relative transition-transform duration-200 hover:scale-110  hover:brightness-110">
-          <img
-            src={openNotify ? notiImage2 :notiImage}
-            alt="bell"
-            className="w-6 h-6"
-          />
-          {/* Chấm đỏ hiển thị số thông báo */}
-          <span className="absolute -top-1 -right-1 bg-red-500 text-[#ff0000] text-sm w-4 h-4 flex items-center justify-center rounded-full">
-            1
-          </span>
-        </button>
-        {/* Dropdown danh sách thông báo */}
-          {openNotify && (
-          <div className='absolute right-0 border-b top-10 w-72 text-white rounded shadow-xl'>
-            <div className='p-3 bg-[#1a1a1a] border-b font-semibold'>Thông báo</div>
-            <ul className='max-h-64 overflow-y-auto'>
-              {/* {notifications.map((item) => (
-                <li
-                  key={item.notificationId}
-                  className='flex justify-between items-center px-4 py-2 bg-[#1a1a1a] text-sm hover:text-[#65b0f6] hover:bg-[#2a2a2a]'
-                >
-                  <span      
-                    className="cursor-pointer hover:underline"
-                    onClick={() => handleNotificationClick(item.type)}
-                  >
-                  {item.content}
-                  </span>
-                  <button
-                    className='text-red-500 hover:underline text-xs ml-2'
-                    onClick={() => handleDeleteNotification(item.notificationId)}
-                  >
-                    Xóa
-                  </button>
-                </li>
-              ))} */}
-              {
-                <li
-                  key={1}
-                  className='flex justify-between items-center px-4 py-2 bg-[#1a1a1a] text-sm hover:text-[#65b0f6] hover:bg-[#2a2a2a]'
-                >
-                  <span      
-                    className="cursor-pointer hover:underline"
-                    // onClick={() => handleNotificationClick(item.type)}
-                  >
-                  demo
-                  </span>
-                  <button
-                    className='text-red-500 hover:underline text-xs ml-2'
-                    // onClick={() => handleDeleteNotification(item.notificationId)}
-                  >
-                    Xóa
-                  </button>
-                </li>
-              }
-            </ul>
-          </div>
-        )}
-
-        {/* User */}
-        <div className="flex items-center gap-2">
-          <button>
-            <span className="text-sm font-medium text-white">USER</span>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-              alt="user"
-              className="w-8 h-8 rounded-full border"
-            />
+            <NotificationIcon />
+            {unreadCount > 0 && (
+              <span className="absolute top-0 right-0 block h-5 w-5 transform -translate-y-1/4 translate-x-1/4 rounded-full ring-2 ring-[#FFFFFF] bg-[#EF4444] text-[#FFFFFF] text-xs flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
           </button>
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFFFF] rounded-lg shadow-xl overflow-hidden border border-[#EEEEEE]">
+              <div className="p-3 border-b border-[#EEEEEE]">
+                <h3 className="font-semibold text-[#111827]">Thông báo</h3>
+              </div>
+              <ul className="max-h-80 overflow-y-auto">
+                {notifications.map(notif => (
+                  <li key={notif.id} className="border-b border-[#F3F4F6] last:border-b-0">
+                    <a href="#" className="block p-3 hover:bg-[#F9FAFB] transition-colors">
+                      <p className="text-sm text-[#374151]">{notif.text}</p>
+                      <p className="text-xs text-[#9CA3AF] mt-1">{notif.time}</p>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div className="p-2 bg-[#F3F4F6] text-center">
+                 <a href="#" className="text-sm font-medium text-[#3B82F6] hover:underline">Xem tất cả</a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
   );
-}
+};
+
+const NotificationIcon = () => (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+    </svg>
+);
+
+export default Header;

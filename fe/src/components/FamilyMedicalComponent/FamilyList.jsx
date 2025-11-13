@@ -1,126 +1,158 @@
-import { useState } from "react";
-import searchIcon from "../../assets/images/search.png";
+import React, { useState, useEffect } from 'react';
+import { FAMILY_MEMBERS } from '../../constants.js';
+import MedicalRecordModal from './MedicalRecordModal.jsx';
+import AddMemberModal from './AddMemberModal.jsx';
 
-export default function FamilyList({
-  families,
-  // selectedFamilyId,
-  // onSelectFamily,
-  // onAddFamily,
-  // onDeleteFamily,
-  // onRenameFamily,
-  // onSelectMember,
-  // membersData
-}) {
-  const [selectedMemberId, setSelectedMemberId] = useState(null);
-  const [showPDFs, setShowPDFs] = useState(false);
-  const [pdfList, setPdfList] = useState([]);
+const FamilyMemberCard = ({ member, onViewDetails }) => {
+    const initials = member.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    return (
+        <div className="bg-[#FFFFFF] p-4 rounded-lg shadow-sm border border-[#EEEEEE] flex items-center justify-between transition-shadow hover:shadow-md">
+            <div className="flex items-center">
+                <div className={`w-12 h-12 rounded-full ${member.avatarColor} flex items-center justify-center text-[#FFFFFF] font-bold text-xl mr-4`}>
+                    {initials}
+                </div>
+                <div>
+                    <p className="font-semibold text-[#111827]">{member.name}</p>
+                    <p className="text-sm text-[#6B7280]">{member.relationship}</p>
+                </div>
+            </div>
+            <button onClick={() => onViewDetails(member)} className="text-sm font-medium text-[#3B82F6] hover:text-[#2563EB]">
+                Xem chi tiết &gt;
+            </button>
+        </div>
+    );
+};
 
-  // 🟡 Khi click 1 hồ sơ bệnh nhân
-  const handleSelectMember = (member) => {
-    setSelectedMemberId(member.id);
-    setShowPDFs(true);
-    setPdfList(member.pdfs || []); // Dữ liệu bệnh án (PDF) của bệnh nhân
-    if (onSelectMember) onSelectMember(member.id);
+const FamilyList = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const filteredMembers = FAMILY_MEMBERS.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleViewDetails = (member) => {
+    setSelectedMember(member);
   };
 
-  // 💗 Khi thêm file PDF
-  const handleAddPDF = () => {
-    const newPdf = {
-      id: Date.now(),
-      name: `BenhAn_${pdfList.length + 1}.pdf`,
-      addedAt: new Date().toLocaleString(),
-      note: "Bệnh án mới được thêm.",
+  const handleCloseModal = () => {
+    setSelectedMember(null);
+  };
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const responseData = await graphqlRequest({ query: GET_FAMILY_MEMBERS_QUERY });
+        setFamilyMembers(responseData.familyMembers || []);
+      } catch (error) {
+        console.error("Failed to fetch family members:", error);
+        setError("Không thể tải danh sách thành viên. Vui lòng thử lại.");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    setPdfList([...pdfList, newPdf]);
+
+    fetchMembers();
+  }, []);
+
+  const handleAddMember = async (memberData) => {
+    try {
+        const responseData = await graphqlRequest({
+            query: ADD_FAMILY_MEMBER_MUTATION,
+            variables: { input: memberData }
+        });
+        const newMember = responseData.addFamilyMember;
+        // Cập nhật state để hiển thị thành viên mới ngay lập tức
+        setFamilyMembers(prevMembers => [...prevMembers, newMember]);
+        alert('Thêm thành viên mới thành công!');
+    } catch (error) {
+        console.error("Failed to add family member:", error);
+        alert('Thêm thành viên thất bại. Vui lòng thử lại.');
+        // Ném lỗi để modal biết và không tự đóng
+        throw error;
+    }
+  };
+
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingSpinner />;
+    }
+    if (error) {
+      return (
+        <div className="text-center py-10 bg-red-50 rounded-lg shadow-sm border border-red-200">
+          <p className="text-red-600">{error}</p>
+        </div>
+      );
+    }
+    if (filteredMembers.length > 0) {
+      return (
+        <div className="space-y-4">
+          {filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)}
+        </div>
+      );
+    }
+    return (
+      <div className="text-center py-10 bg-white rounded-lg shadow-sm border border-gray-200">
+        <p className="text-gray-500">Chưa có thành viên nào. Hãy thêm một thành viên mới.</p>
+      </div>
+    );
   };
 
   return (
-    <div className="flex w-full h-full bg-[#f4f6f8] justify-end">
-        
-
-      {/* danh sách hồ sơ bệnh nhân */}
-      <section className="flex-1 p-6 bg-[#f4f6f8] mr-3 pd-1 overflow-y-auto">
-        {/* sau đó sẽ sửa lại sau lấy tên hộ gđ từ db */}
-        <h3 className="flex-1 flex justify-center text-lg font-semibold text-gray-800 mb-4">Hộ gia đình</h3> 
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Danh sách hồ sơ </h3>
-        <div className="grid grid-cols-2 gap-4 " >
-          {families.map((m) => (
-            <div
-              key={m.id}
-              className={`p-4 bg-white shadow rounded-md border border-[#ccc] hover:shadow-lg transform hover:scale-105 transition duration-200 cursor-pointer ${
-                selectedMemberId === m.id ? "border-blue-500" : "border-gray-200"
-              }`}
-              onClick={() => handleSelectMember(m)}
-            >
-              <div className="font-medium text-gray-800">{m.name}</div>
-              <div className="text-sm text-gray-500">Số bệnh án: {m.caseNumber}</div>
-              <div className="text-sm text-gray-500">Hồ sơ được gửi đến bác sĩ: {m.caseNumber}</div>
-            </div>
-          ))}
-            {/* 🟡 Thêm người thân */}
-          <div
-            onClick={() => alert("Thêm người thân mới!")} // bạn có thể thay alert = mở modal
-            className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-blue-400 rounded-md cursor-pointer hover:bg-blue-50 hover:border-blue-500 transition"
-          >
-            <span className="text-blue-500 font-semibold text-lg">+ Thêm người thân</span>
+    <>
+      <div className="p-6 md:p-8">
+        <div className="mb-6 bg-[#FFFFFF] p-4 rounded-lg shadow-sm border border-[#EEEEEE]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="w-5 h-5 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                  </div>
+                  <input
+                      type="text"
+                      placeholder="Tìm kiếm theo tên chủ hộ hoặc bệnh nhân..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-[#D1D5DB] rounded-md focus:ring-[#3B82F6] focus:border-[#3B82F6] transition"
+                  />
+              </div>
+              <button onClick={() => setIsAddModalOpen(true)} className="w-full sm:w-auto px-4 py-2 bg-[#3B82F6] text-[#FFFFFF] rounded-md hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition-colors">
+                  + Thêm thành viên
+              </button>
           </div>
         </div>
 
-        {/* 🩷 Vùng PDF (hiện khi chọn bệnh nhân) */}
-        {showPDFs && (
-          <div className="mt-8 p-4 border-2 border-dashed border-pink-400 rounded-lg">
-            <h4 className="font-semibold text-gray-800 mb-3">Danh sách bệnh án</h4>
-
-            {/* Lọc bệnh án */}
-            <div className="flex justify-between items-center mb-3">
-              <label className="text-sm text-gray-600">Lọc theo thời gian thêm:</label>
-              <select className="border rounded px-2 py-1 text-sm">
-                <option>Tất cả</option>
-                <option>Mới nhất</option>
-                <option>Cũ nhất</option>
-              </select>
+        <div className="space-y-4">
+          {filteredMembers.length > 0 ? (
+            filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)
+          ) : (
+            <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
+              <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
             </div>
-
-            {/* Danh sách PDF */}
-            <ul className="flex flex-col gap-2">
-              {pdfList.map((pdf) => (
-                <li
-                  key={pdf.id}
-                  className="p-3 bg-gray-100 rounded-md border border-gray-300 hover:bg-gray-200"
-                >
-                  <div className="text-gray-700 font-medium">{pdf.note}</div>
-                  <div className="text-xs text-gray-500">{pdf.addedAt}</div>
-                  <div className="text-sm text-blue-600 mt-1">{pdf.name}</div>
-                </li>
-              ))}
-            </ul>
-
-            {/* Thêm PDF mới */}
-            <button
-              onClick={handleAddPDF}
-              className="mt-4 w-full border-2 border-blue-400 text-blue-500 font-medium py-3 rounded-lg hover:bg-blue-50"
-            >
-              + Thêm PDF
-            </button>
-
-          </div>
-        )}
-      </section>
-        {/* tìm kiếm bác sĩ */}
-        <div className="relative w-[400px] border-l bg-white border-[#ccc] justify-end ">
-          <div className="relative w-full max-w-md">
-            <input
-              type="text"
-              placeholder="Tìm kiếm bác sĩ..."
-              className="w-[390px] rounded-full px-4 py-2 pl-10 ml-1 mt-3 mr-150  bg-white border border-blue-500 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <img
-              src={searchIcon}
-              className="absolute left-3 ml-1 top-6 w-5 h-5 text-gray-400"
-            >
-            </img>
-          </div>
+          )}
         </div>
-    </div>
+      </div>
+      {selectedMember && (
+        <MedicalRecordModal 
+          member={selectedMember} 
+          onClose={handleCloseModal} 
+        />
+      )}
+      <AddMemberModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddMember}
+      />
+    </>
   );
-}
+};
+
+export default FamilyList;

@@ -11,11 +11,10 @@ const OAuth2CallbackPage = () => {
         const token = searchParams.get('token');
         const role = searchParams.get('role');
         const userDetails = {
-            // Giả sử backend trả về các thông tin này qua URL
-            // Nếu không, bạn cần điều chỉnh để lấy từ API sau khi có token
+            // Lấy thông tin từ URL mà backend đã gửi qua
+            userID: searchParams.get('userId'),
             fullName: searchParams.get('fullName') || 'Người dùng',
             email: searchParams.get('email'),
-            // Thêm các trường khác nếu có
         };
 
         if (token && role) {

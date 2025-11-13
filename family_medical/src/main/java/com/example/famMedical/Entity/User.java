@@ -15,7 +15,7 @@ import java.util.List;
 import lombok.ToString;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -48,6 +48,9 @@ public class User implements UserDetails {
 
     @Column(name = "CCCD", length = 20)
     private String cccd;
+
+    @Column(name = "avatarUrl", length = 255)
+    private String avatarUrl;
 
     @Column(name = "DoctorCode", length = 20)
     private String doctorCode;

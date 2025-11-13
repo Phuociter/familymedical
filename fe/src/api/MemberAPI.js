@@ -1,26 +1,75 @@
-import axiosClient from './axiosClient';
+import axios from 'axios';
 
-export const createMember = async (familyId) =>
-  (await axiosClient.post(`/members?familyId=${familyId}`)).data;
+const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
+import userSlice from '../redux/userSlice';
+import { useSelector } from "react-redux";
+import authApi from './authApi';
 
-export const updateMember = async (member) =>
-  (await axiosClient.put(`/members/${member.id}`, member)).data;
+const MemberAPI = {
+  // const user = useSelector((state) => state.user.user);
+  getMemberByUserID: async (userID, token) => {
+    try{
+      const GET_MEMBERS_QUERY = `
+      query MembersByFamilyID($familyID: ID!) {
+        membersByFamilyID(familyID: $familyID) {
+          id
+          fullName
+          dateOfBirth
+          gender
+          relationship
+          phoneNumber
+          cccd
+        }`
+        const data = await authApi.sendGraphQLRequest(GET_MEMBERS_QUERY, { familyID: userID }, token);
+        return data.membersByFamilyID;
 
-export const deleteMember = async (id) =>
-  (await axiosClient.delete(`/members/${id}`)).data;
-
-export const uploadFiles = async (memberId, files) => {
-  const formData = new FormData();
-  Array.from(files).forEach((file) => formData.append('files', file));
-  return (
-    await axiosClient.post(`/members/${memberId}/upload`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-  ).data;
-};
-
-export const deleteFile = async (fileId) =>
-  (await axiosClient.delete(`/files/${fileId}`)).data;
-
-export const assignDoctor = async (memberId, doctorId) =>
-  (await axiosClient.put(`/members/${memberId}/assignDoctor`, { doctorId })).data;
+    }
+    catch (error) {}
+  },
+  updateMember: async (memberID, memberData, token) => {
+    try {
+      const UPDATE_MEMBER_MUTATION = `
+      mutation UpdateMember($memberID: ID!, $input: MemberUpdateInput!) {
+        updateMember(memberID: $memberID, input: $input) {
+          id
+          fullName
+          dateOfBirth 
+          gender
+          relationship
+          phoneNumber
+          cccd
+        }
+      }`; 
+      const variables = {                                                                                                     
+      memberID,                                                                                                            
+      input: updateData,                                                                                                   
+      };
+      return await authApi.sendGraphQLRequest(UPDATE_MEMBER_MUTATION, variables, token);
+    } catch (error) {
+      throw error;
+    }
+  },
+  createMember: async (memberData, token) => {
+    try{
+      const CREATE_MEMBER_MUTATIOIN  = `
+      mutation CreateMember($input: MemberCreateInput!) {
+        createMember(input: $input) {
+          id
+          fullName
+          dateOfBirth 
+          gender
+          relationship
+          phoneNumber
+          cccd
+        }
+      };`
+      const variables = {
+        input: memberData,
+      };
+      const data = await authApi.sendGraphQLRequest(CREATE_MEMBER_MUTATIOIN, variables, token);
+      return data.createMember;
+    }
+    catch(error){}
+  }
+}
+export default MemberAPI;

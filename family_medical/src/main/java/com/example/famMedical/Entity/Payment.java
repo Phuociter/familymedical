@@ -1,61 +1,67 @@
 package com.example.famMedical.Entity;
-
-
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Payment")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(name = "Payment")
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PaymentID")
-    private Integer paymentID;
 
-    // UserID là bắt buộc trong database, có thể lấy từ family.headOfFamilyID
-    @Column(name = "UserID", nullable = false)
-    private Integer userID;
+    private int paymentId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "familyID")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "headOfFamily"})
-    private Family family;
+    @ManyToOne
+    @JoinColumn(name = "UserID", nullable = false)
+    private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "doctorID")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
-    private User doctor;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PackageType", nullable = false)
+    private PackageType packageType;
 
-    @Column(name = "Amount")
-    private Double amount;
-    
-    @Column(name = "PaymentMethod")
-    private String paymentMethod;
-    
-    @Column(name = "PaymentStatus")
-    private String paymentStatus; // COMPLETED, FAILED, PENDING
-    
+    @Column(name = "Amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
     @Column(name = "PaymentDate")
     private LocalDateTime paymentDate;
 
-    // Getter để trả về familyID (để frontend có thể sử dụng)
-    public Integer getFamilyID() {
-        return family != null ? family.getFamilyID() : null;
+    @Column(name = "ExpiryDate", nullable = false)
+    private LocalDateTime expiryDate;
+
+    @Column(name = "PaymentMethod", length = 50)
+    private String paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PaymentStatus")
+    private PaymentStatus paymentStatus;
+
+    @Column(name = "TransactionCode", length = 100)
+    private String transactionCode;
+
+    @Column(name = "CreatedAt", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "UpdatedAt")
+    private LocalDateTime updatedAt;
+
+    public enum PackageType {
+        ONE_MONTH,
+        SIX_MONTHS,
+        ONE_YEAR
     }
 
-    // Getter để trả về doctorID (để frontend có thể sử dụng)
-    public Integer getDoctorID() {
-        return doctor != null ? doctor.getUserID() : null;
+    public enum PaymentStatus {
+        Completed,
+        Failed,
+        Pending
     }
 }
-

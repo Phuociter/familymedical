@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "family")
+@Table(name = "Family")
 @Data
 @NoArgsConstructor
 public class Family {
@@ -28,5 +30,11 @@ public class Family {
     private User headOfFamily;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private OffsetDateTime createdAt = OffsetDateTime.now();
+
+    @OneToMany(mappedBy = "family", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Member> members;
+
+    @OneToMany(mappedBy = "family", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DoctorAssignment> doctorAssignments;
 }
