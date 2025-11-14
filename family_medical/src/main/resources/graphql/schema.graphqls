@@ -50,11 +50,14 @@ input LoginInput {
 }
 
 input UpdateUserInput {
+    userID: Int
     address: String 
     avatarUrl: String
     cccd: String
     fullName: String
     phoneNumber: String
+    doctorCode: String
+    role: UserRole
 }
 
 
@@ -132,6 +135,8 @@ type User {
     yearsOfExperience: String
     avatarUrl: String   
     doctorCode: String
+    isVerified: Boolean
+    isLocked: Boolean
 }
 
 type AuthPayload {
@@ -143,7 +148,9 @@ type Family {
     familyID: ID
     familyName: String
     familyAddress: String
+    address: String
     headOfFamily: User
+    headOfFamilyID: Int
     members: [Member]
     doctorAssignments: [DoctorAssignment] 
     createdAt: DateTime
@@ -151,14 +158,14 @@ type Family {
 
 type Member {
     memberID: ID!
+    familyID: Int
     fullName: String
     relationship: String
     cccd: String
-    phoneNumber: String
-    gender:String
     dateOfBirth: LocalDate
-    
-    # Thêm các trường khác của Member nếu cần (DateOfBirth, Gender)
+    gender: String
+    phoneNumber: String
+    createdAt: String
 }
 
 type MedicalRecord {
@@ -227,6 +234,18 @@ type Query {
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
 
+    # Admin queries
+    allMembers: [Member]
+    allDoctors: [User]
+    allUsers: [User]
+    allFamilies: [Family]
+    memberById(memberID: Int!): Member
+    userById(userID: Int!): User
+    familyById(familyID: Int!): Family
+    allPayments: [Payment]
+    allDoctorRequests: [DoctorRequest]
+    doctorRequestsByStatus(status: String): [DoctorRequest]
+    paymentsByStatus(status: String): [Payment]
 }
 
 # =======================================================
@@ -259,5 +278,4 @@ type Mutation {
     updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!
 
 }
-
 
