@@ -1,5 +1,6 @@
 package com.example.famMedical.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 @Table(name = "Members")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Member {
 
     @Id
@@ -38,6 +40,21 @@ public class Member {
 
     @Column(name = "PhoneNumber", length = 20)
     private String phoneNumber;
+
+    @Column(name = "CreatedAt", nullable = true, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private java.time.LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = java.time.LocalDateTime.now();
+        }
+    }
+
+    // Getter cho GraphQL để resolve familyID
+    public Integer getFamilyID() {
+        return family != null ? family.getFamilyID() : null;
+    }
 
     public enum Gender {
         Nam, Nữ, Khác
