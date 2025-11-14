@@ -278,4 +278,3 @@ type Mutation {
     updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!
 
 }
-

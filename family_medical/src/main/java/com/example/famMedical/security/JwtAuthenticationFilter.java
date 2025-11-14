@@ -33,6 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // Bỏ qua OPTIONS requests (preflight)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -42,26 +48,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+        try {
+            jwt = authHeader.substring(7);
+            userEmail = jwtService.extractUsername(jwt);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Tải thông tin người dùng từ CSDL (UserDetails)
-            UserDetails userDetails = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new RuntimeException("User not found from token"));
+                // Tải thông tin người dùng từ CSDL (UserDetails)
+                var userOptional = userRepository.findByEmail(userEmail);
+                
+                if (userOptional.isPresent()) {
+                    UserDetails userDetails = userOptional.get();
 
-            if (jwtService.validateToken(jwt)) {
-
-                // Nếu Token hợp lệ, thiết lập đối tượng Authentication trong SecurityContext
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities() // Cần triển khai getAuthorities() trong User Entity
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    if (jwtService.validateToken(jwt)) {
+                        // Nếu Token hợp lệ, thiết lập đối tượng Authentication trong SecurityContext
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
+                // Nếu user không tìm thấy hoặc token không hợp lệ, chỉ bỏ qua authentication
             }
+        } catch (Exception e) {
+            // Log lỗi nhưng không throw exception - để request tiếp tục (có thể là public endpoint)
+            // Token không hợp lệ hoặc expired sẽ được xử lý bởi authorization layer
+            logger.debug("JWT authentication failed: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
