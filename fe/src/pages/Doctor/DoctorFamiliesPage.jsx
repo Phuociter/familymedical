@@ -106,7 +106,7 @@ export default function DoctorFamiliesPage() {
   };
 
   return (
-    <Box>
+    <Box maxWidth={"lg"}>
       {/* Mock Data Indicator */}
       {useMockData && (
         <Alert severity="info" sx={{ mb: 2 }}>

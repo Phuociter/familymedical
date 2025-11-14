@@ -95,21 +95,23 @@ export default function PatientDetailPage() {
         </Alert>
       )}
 
-      {/* Header with breadcrumb and back button */}
-      <Box sx={{ mb: 3, px: { xs: 2, md: 3 }, display: 'flex', alignItems: 'center', gap: 2 }}>
+      {/* Header with breadcrumb and back button - Responsive */}
+      <Box sx={{ mb: { xs: 2, sm: 3 }, px: { xs: 2, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
         <IconButton
           onClick={() => navigate(`/doctor/families/${familyId}`)}
           sx={{
             bgcolor: 'background.paper',
             boxShadow: 1,
             '&:hover': { bgcolor: 'action.hover' },
+            width: { xs: 40, sm: 44 },
+            height: { xs: 40, sm: 44 },
           }}
         >
-          <ArrowBackIcon />
+          <ArrowBackIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
         </IconButton>
         
-        <Box sx={{ flex: 1 }}>
-          <Breadcrumbs>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Breadcrumbs sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
             <Link
               component="button"
               variant="body1"
@@ -119,6 +121,7 @@ export default function PatientDetailPage() {
                 color: 'primary.main',
                 cursor: 'pointer',
                 '&:hover': { textDecoration: 'underline' },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
               }}
             >
               Danh sách gia đình
@@ -132,35 +135,59 @@ export default function PatientDetailPage() {
                 color: 'primary.main',
                 cursor: 'pointer',
                 '&:hover': { textDecoration: 'underline' },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: { xs: '120px', sm: 'none' },
               }}
             >
               {family?.familyName || 'Gia đình'}
             </Link>
-            <Typography color="text.primary" variant="body1">
+            <Typography 
+              color="text.primary" 
+              variant="body1"
+              sx={{
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {patient.fullName}
             </Typography>
           </Breadcrumbs>
           
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              mt: 0.5,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {patient.relationship} • {patient.gender} • {patient.dateOfBirth ? new Date(patient.dateOfBirth).getFullYear() : ''}
           </Typography>
         </Box>
       </Box>
 
-      {/* Main Content Area - 2 Column Layout */}
+      {/* Main Content Area - Responsive 2 Column Layout */}
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            gap: 3,
+            gap: { xs: 2, sm: 2.5, md: 3 },
             alignItems: 'flex-start',
           }}
         >
           {/* Left Column: Patient Info + Doctor Notes */}
           <Box
             sx={{
-              width: { xs: '100%', md: '350px' },
+              width: { xs: '100%', md: '350px', lg: '380px' },
               flexShrink: 0,
             }}
           >
@@ -171,10 +198,10 @@ export default function PatientDetailPage() {
                 borderRadius: 2,
                 boxShadow: 1,
                 overflow: 'hidden',
-                mb: 3,
+                mb: { xs: 2, sm: 2.5, md: 3 },
               }}
             >
-              <Box sx={{ p: 3 }}>
+              <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
                 <PatientHeader patient={patient} />
               </Box>
             </Box>
@@ -188,20 +215,31 @@ export default function PatientDetailPage() {
                 overflow: 'hidden',
               }}
             >
-              <Box sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+              <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom 
+                  sx={{ 
+                    mb: 2,
+                    fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+                  }}
+                >
                   Ghi chú của bác sĩ
                 </Typography>
                 <Box
                   sx={{
-                    p: 2,
+                    p: { xs: 1.5, sm: 2 },
                     backgroundColor: '#f9f9f9',
                     borderRadius: 1,
                     border: '1px solid #e0e0e0',
-                    minHeight: 120,
+                    minHeight: { xs: 100, sm: 120 },
                   }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+                  >
                     {patient.notes || 'Chưa có ghi chú nào'}
                   </Typography>
                 </Box>
@@ -224,8 +262,15 @@ export default function PatientDetailPage() {
                 overflow: 'hidden',
               }}
             >
-              <Box sx={{ p: { xs: 2, md: 3 } }}>
-                <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+              <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom 
+                  sx={{ 
+                    mb: { xs: 2, sm: 2.5, md: 3 },
+                    fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+                  }}
+                >
                   Hồ sơ bệnh án
                 </Typography>
                 <MedicalRecordTimeline

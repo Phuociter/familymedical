@@ -82,22 +82,22 @@ export default function TimelineEntry({ record, isLast = false }) {
   const fileType = getFileType(record.diagnosis, record.fileLink);
 
   return (
-    <Box sx={{ display: 'flex', position: 'relative', pb: isLast ? 0 : 3 }}>
-      {/* Timeline Line and Dot */}
+    <Box sx={{ display: 'flex', position: 'relative', pb: isLast ? 0 : { xs: 2, sm: 2.5, md: 3 } }}>
+      {/* Timeline Line and Dot - Responsive */}
       <Box
         sx={{
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          mr: 2,
+          mr: { xs: 1.5, sm: 2 },
         }}
       >
-        {/* Dot */}
+        {/* Dot - Responsive Size */}
         <Box
           sx={{
-            width: 12,
-            height: 12,
+            width: { xs: 10, sm: 12 },
+            height: { xs: 10, sm: 12 },
             borderRadius: '50%',
             backgroundColor: 'primary.main',
             border: '2px solid',
@@ -119,11 +119,11 @@ export default function TimelineEntry({ record, isLast = false }) {
         )}
       </Box>
 
-      {/* Content Card - Simplified */}
+      {/* Content Card - Simplified - Responsive */}
       <Card
         sx={{
           flex: 1,
-          p: 2,
+          p: { xs: 1.5, sm: 2 },
           boxShadow: 1,
           '&:hover': {
             boxShadow: 2,
@@ -134,24 +134,31 @@ export default function TimelineEntry({ record, isLast = false }) {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            gap: { xs: 1.5, sm: 2 },
           }}
         >
           {/* Left: File Info */}
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            {/* Date */}
+          <Box sx={{ flex: 1, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
+            {/* Date - Responsive */}
             <Typography
               variant="caption"
               color="text.secondary"
-              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5, 
+                mb: 0.5,
+                fontSize: { xs: '0.75rem', sm: '0.813rem' },
+              }}
             >
-              <CalendarIcon sx={{ fontSize: 14 }} />
+              <CalendarIcon sx={{ fontSize: { xs: 12, sm: 14 } }} />
               {formatDate(record.recordDate)}
             </Typography>
             
-            {/* File Name */}
+            {/* File Name - Responsive */}
             <Typography
               variant="body1"
               sx={{
@@ -161,32 +168,44 @@ export default function TimelineEntry({ record, isLast = false }) {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                fontSize: { xs: '0.875rem', sm: '1rem' },
               }}
             >
-              <DescriptionIcon sx={{ fontSize: 18, verticalAlign: 'middle', mr: 0.5 }} />
+              <DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 }, verticalAlign: 'middle', mr: 0.5 }} />
               {fileName}
             </Typography>
 
-            {/* File Type Chip */}
+            {/* File Type Chip - Responsive */}
             <Chip
-              icon={<ImageIcon />}
+              icon={<ImageIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
               label={fileType}
               size="small"
               color="primary"
               variant="outlined"
-              sx={{ mt: 0.5 }}
+              sx={{ 
+                mt: 0.5,
+                fontSize: { xs: '0.688rem', sm: '0.75rem' },
+                height: { xs: 20, sm: 24 },
+              }}
             />
           </Box>
 
-          {/* Right: View Button */}
+          {/* Right: View Button - Touch-Friendly */}
           {record.fileLink && (
             <Button
               variant="outlined"
               size="small"
-              startIcon={<DescriptionIcon />}
+              startIcon={<DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
               href={record.fileLink}
               target="_blank"
-              sx={{ textTransform: 'none', flexShrink: 0 }}
+              sx={{ 
+                textTransform: 'none', 
+                flexShrink: 0,
+                fontSize: { xs: '0.813rem', sm: '0.875rem' },
+                minHeight: { xs: 36, sm: 32 },
+                px: { xs: 2, sm: 1.5 },
+                width: { xs: '100%', sm: 'auto' },
+              }}
             >
               Xem
             </Button>

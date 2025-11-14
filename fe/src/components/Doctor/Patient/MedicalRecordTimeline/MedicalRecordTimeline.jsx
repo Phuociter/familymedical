@@ -180,12 +180,16 @@ export default function MedicalRecordTimeline({
 
   return (
     <Box>
-      {/* Filters */}
+      {/* Filters - Responsive */}
       <TimelineFilters filters={filters} onFilterChange={handleFilterChange} />
 
-      {/* Results Count */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+      {/* Results Count - Responsive */}
+      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Typography 
+          variant="body2" 
+          color="text.secondary"
+          sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+        >
           Hiển thị {filteredRecords.length} hồ sơ bệnh án
           {filteredRecords.length !== records.length && ` (từ tổng số ${records.length})`}
         </Typography>
@@ -209,13 +213,13 @@ export default function MedicalRecordTimeline({
             ))}
           </Box>
 
-          {/* Pagination */}
+          {/* Pagination - Responsive */}
           {totalPages > 1 && (
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'center',
-                mt: 4,
+                mt: { xs: 3, sm: 4 },
               }}
             >
               <Pagination
@@ -223,9 +227,16 @@ export default function MedicalRecordTimeline({
                 page={currentPage}
                 onChange={handlePageChange}
                 color="primary"
-                size="large"
+                size={{ xs: 'medium', sm: 'large' }}
                 showFirstButton
                 showLastButton
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    fontSize: { xs: '0.813rem', sm: '0.875rem' },
+                    minWidth: { xs: 32, sm: 36 },
+                    height: { xs: 32, sm: 36 },
+                  },
+                }}
               />
             </Box>
           )}

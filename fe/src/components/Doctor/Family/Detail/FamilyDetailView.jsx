@@ -1,206 +1,194 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
+  Container,
   Box,
-  Paper,
-  Tabs,
-  Tab,
-  IconButton,
   Typography,
   Breadcrumbs,
   Link,
+  Tabs,
+  Tab,
+  Alert,
+  CircularProgress,
+  IconButton,
 } from '@mui/material';
-import {
-  ArrowBack as ArrowBackIcon,
-  Info as InfoIcon,
-  People as PeopleIcon,
-  Timeline as TimelineIcon,
-  MedicalServices as MedicalServicesIcon,
-} from '@mui/icons-material';
-import TabPanel from './Tabs/TabPanel';
-import FamilyInfoTab from './Tabs/FamilyInfoTab';
-import FamilyMembersTab from './Tabs/FamilyMembersTab';
-import FamilyMedicalHistoryTab from './Tabs/FamilyMedicalHistoryTab';
-import FamilyMedicalBackgroundTab from './Tabs/FamilyMedicalBackgroundTab';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import InfoTab from './InfoTab';
+import MembersTab from './MembersTab';
+import { MOCK_FAMILY_DETAILS } from '../../../../mocks/familyMockData';
 
-/**
- * FamilyDetailView component - Tabbed interface for family information
- * Displays four tabs: Family Information, Members, Family Medical History, and Family Medical Background
- * @param {Object} props
- * @param {string} props.familyId - Family ID
- * @param {Object} props.family - Family detail object
- * @param {Array} props.members - Array of family members
- * @param {Array} props.familyMedicalHistory - Array of family medical records
- * @param {Object} props.familyBackground - Family background object
- * @param {Function} props.onBack - Callback to return to family list
- * @param {Function} props.onMemberSelect - Callback when member is selected
- * @param {boolean} props.loading - Loading state
- */
-export default function FamilyDetailView({
-  familyId,
-  family,
-  members = [],
-  familyMedicalHistory = [],
-  familyBackground = null,
-  onBack,
-  onMemberSelect,
-  loading = false,
-}) {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Get tab from URL parameter, default to 0
-  const tabParam = searchParams.get('tab');
-  const initialTab = tabParam ? parseInt(tabParam, 10) : 0;
-  const [activeTab, setActiveTab] = useState(initialTab);
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`family-tabpanel-${index}`}
+      aria-labelledby={`family-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
-  // Update URL when tab changes
-  useEffect(() => {
-    if (activeTab !== initialTab) {
-      setSearchParams({ tab: activeTab.toString() });
-    }
-  }, [activeTab, initialTab, setSearchParams]);
-
-  // Sync state with URL parameter changes
-  useEffect(() => {
-    const newTab = tabParam ? parseInt(tabParam, 10) : 0;
-    if (newTab !== activeTab && newTab >= 0 && newTab <= 3) {
-      setActiveTab(newTab);
-    }
-  }, [tabParam]);
-
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
-
-  const handleAddMember = () => {
-    // Placeholder for add member functionality (will be implemented in task 5)
-    console.log('Add member clicked');
-  };
-
-  // Accessibility props for tabs
-  const a11yProps = (index) => ({
+function a11yProps(index) {
+  return {
     id: `family-tab-${index}`,
     'aria-controls': `family-tabpanel-${index}`,
-  });
+  };
+}
+
+function FamilyDetailView() {
+  const { familyId } = useParams();
+  const navigate = useNavigate();
+  const [value, setValue] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [useMockData] = useState(true);
+
+  // Get family data
+  const family = useMockData ? MOCK_FAMILY_DETAILS[familyId] : null;
+
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, [familyId]);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!family) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Alert severity="error">Không tìm thấy thông tin gia đình</Alert>
+      </Container>
+    );
+  }
 
   return (
-    <Box>
-      {/* Header with breadcrumb and back button */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton
-          onClick={onBack}
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', pb: 4 }}>
+      <Container maxWidth="lg" sx={{ pt: 3 }}>
+        {/* Header with back button and breadcrumb - Responsive */}
+        <Box
           sx={{
-            bgcolor: 'background.paper',
-            boxShadow: 1,
-            '&:hover': { bgcolor: 'action.hover' },
+            mb: { xs: 2, sm: 3 },
+            px: { xs: 2, md: 0 },
+            display: 'flex',
+            alignItems: 'center',
+            gap: { xs: 1, sm: 2 },
           }}
         >
-          <ArrowBackIcon />
-        </IconButton>
-        
-        <Box sx={{ flex: 1 }}>
-          <Breadcrumbs>
-            <Link
-              component="button"
-              variant="body1"
-              onClick={onBack}
+          <IconButton
+            onClick={() => navigate('/doctor/families')}
+            sx={{
+              bgcolor: 'background.paper',
+              boxShadow: 1,
+              '&:hover': { bgcolor: 'action.hover' },
+              width: { xs: 40, sm: 44 },
+              height: { xs: 40, sm: 44 },
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          </IconButton>
+
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Breadcrumbs
+              aria-label="breadcrumb"
+              sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+            >
+              <Link
+                component="button"
+                variant="body1"
+                onClick={() => navigate('/doctor/families')}
+                sx={{
+                  textDecoration: 'none',
+                  color: 'primary.main',
+                  cursor: 'pointer',
+                  '&:hover': { textDecoration: 'underline' },
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                }}
+              >
+                Danh sách gia đình
+              </Link>
+              <Typography
+                color="text.primary"
+                variant="body1"
+                sx={{
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {family.familyName}
+              </Typography>
+            </Breadcrumbs>
+
+            <Typography
+              variant="h4"
+              component="h1"
               sx={{
-                textDecoration: 'none',
-                color: 'primary.main',
-                cursor: 'pointer',
-                '&:hover': { textDecoration: 'underline' },
+                mt: 1,
+                fontWeight: 600,
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
-              Danh sách gia đình
-            </Link>
-            <Typography color="text.primary" variant="body1">
-              {family?.familyName || 'Chi tiết gia đình'}
+              {family.familyName}
             </Typography>
-          </Breadcrumbs>
-          
-          {family && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Chủ hộ: {family.headOfFamily?.fullName} • {members.length} thành viên
-            </Typography>
-          )}
+          </Box>
         </Box>
-      </Box>
 
-      {/* Tabs Navigation */}
-      <Paper sx={{ mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          variant="scrollable"
-          scrollButtons="auto"
+        {/* Tabs - Responsive */}
+        <Box
           sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            '& .MuiTab-root': {
-              minHeight: 64,
-              textTransform: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 500,
-            },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 1,
+            px: { xs: 0, sm: 0 },
           }}
         >
-          <Tab
-            icon={<InfoIcon />}
-            iconPosition="start"
-            label="Thông tin gia đình"
-            {...a11yProps(0)}
-          />
-          <Tab
-            icon={<PeopleIcon />}
-            iconPosition="start"
-            label="Thành viên"
-            {...a11yProps(1)}
-          />
-          {/* <Tab
-            icon={<TimelineIcon />}
-            iconPosition="start"
-            label="Lịch sử khám bệnh"
-            {...a11yProps(2)}
-          />
-          <Tab
-            icon={<MedicalServicesIcon />}
-            iconPosition="start"
-            label="Tiền sử bệnh"
-            {...a11yProps(3)}
-          /> */}
-        </Tabs>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="family detail tabs"
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                '& .MuiTab-root': {
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                  minHeight: { xs: 48, sm: 56 },
+                },
+              }}
+            >
+              <Tab label="Thông tin Gia đình" {...a11yProps(0)} />
+              <Tab label="Thành viên" {...a11yProps(1)} />
+            </Tabs>
+          </Box>
 
-        {/* Tab Panels */}
-        <Box sx={{ px: 3 }}>
-          <TabPanel value={activeTab} index={0}>
-            <FamilyInfoTab family={family} />
+          <TabPanel value={value} index={0}>
+            <InfoTab family={family} />
           </TabPanel>
 
-          <TabPanel value={activeTab} index={1}>
-            <FamilyMembersTab
-              familyId={familyId}
-              members={members}
-              onMemberSelect={onMemberSelect}
-              onAddMember={handleAddMember}
-            />
-          </TabPanel>
-
-          <TabPanel value={activeTab} index={2}>
-            <FamilyMedicalHistoryTab
-              familyId={familyId}
-              records={familyMedicalHistory}
-            />
-          </TabPanel>
-
-          <TabPanel value={activeTab} index={3}>
-            <FamilyMedicalBackgroundTab
-              familyId={familyId}
-              background={familyBackground}
-            />
+          <TabPanel value={value} index={1}>
+            <MembersTab familyId={familyId} members={family.members} />
           </TabPanel>
         </Box>
-      </Paper>
+      </Container>
     </Box>
   );
 }
+
+export default FamilyDetailView;

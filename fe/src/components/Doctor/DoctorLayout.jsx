@@ -79,23 +79,29 @@ export default function DoctorLayout() {
       </Toolbar>
       <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
       <List sx={{ px: 1, pt: 2 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => handleMenuClick(item.path)}
-              sx={{
-                borderRadius: 1,
-                color: 'white',
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {menuItems.map((item) => {
+          // Check if current path matches or starts with the menu item path
+          const isSelected = location.pathname === item.path || 
+                           location.pathname.startsWith(item.path + '/');
+          
+          return (
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                selected={isSelected}
+                onClick={() => handleMenuClick(item.path)}
+                sx={{
+                  borderRadius: 1,
+                  color: 'white',
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Box>
   );

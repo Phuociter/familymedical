@@ -1,28 +1,14 @@
 import { useState } from 'react';
-import { Box, Paper, Stack } from '@mui/material';
-import FamilySearchBar from './FamilySearchBar';
+import { Box, Paper, Stack, Grid } from '@mui/material';
 import FamilySearchAndFilter from './FamilySearchAndFilter';
 import FamilyResultsCount from './FamilyResultsCount';
 import FamilyErrorState from './FamilyErrorState';
 import FamilyEmptyState from './FamilyEmptyState';
-import FamilyGrid from './FamilyGrid';
-import FamilyListSkeleton from './FamilyListSkeleton';
+import FamilyCard from './FamilyCard';
+import FamilyCardSkeleton from './FamilyCardSkeleton';
 
 const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFamilySelect }) => {
-  const [areaFilter, setAreaFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  // Extract unique areas from families (extract district/city from address)
-  const areas = [...new Set(
-    families
-      .map(f => {
-        if (!f.familyAddress) return null;
-        // Extract the last part of address (typically district or city)
-        const parts = f.familyAddress.split(',');
-        return parts[parts.length - 1]?.trim();
-      })
-      .filter(Boolean)
-  )].sort();
 
   // Filter families based on search and filters
   const filteredFamilies = families.filter(family => {
@@ -32,25 +18,13 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
       family.headOfFamily?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       family.familyAddress?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Area filter - matches the extracted area from address
-    const matchesArea = !areaFilter || family.familyAddress?.includes(areaFilter);
-    
     // Status filter - matches exact status value
     const matchesStatus = !statusFilter || family.status === statusFilter;
 
-    return matchesSearch && matchesArea && matchesStatus;
+    return matchesSearch && matchesStatus;
   });
 
-  const hasActiveFilters = areaFilter || statusFilter || searchTerm;
-
-  const handleClearFilters = () => {
-    setAreaFilter('');
-    setStatusFilter('');
-    // Also clear search term when clearing all filters
-    if (searchTerm) {
-      onSearchChange('');
-    }
-  };
+  const hasActiveFilters = statusFilter || searchTerm;
 
   if (error) {
     return <FamilyErrorState error={error} />;
@@ -79,7 +53,27 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
       </Paper>
 
       {/* Loading State */}
-      {loading && <FamilyListSkeleton count={6} />}
+      {loading && (
+        <Grid 
+          container 
+          spacing={{ xs: 2, sm: 2.5, md: 3 }}
+          sx={{
+            // Ensure proper spacing on mobile
+            mx: { xs: -1, sm: 0 },
+          }}
+        >
+          {families.map((family) => (
+            <Grid 
+              key={family.familyID} 
+              size={{ xs: 12, sm: 6, md: 4 }}
+            >
+              <FamilyCardSkeleton />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      
 
       {/* Empty State */}
       {!loading && filteredFamilies.length === 0 && (
@@ -88,7 +82,26 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
 
       {/* Family Grid */}
       {!loading && filteredFamilies.length > 0 && (
-        <FamilyGrid families={filteredFamilies} onFamilySelect={onFamilySelect} />
+        <Grid 
+          container 
+          spacing={{ xs: 2, sm: 2.5, md: 3 }}
+          sx={{
+            // Ensure proper spacing on mobile
+            mx: { xs: -1, sm: 0 },
+          }}
+        >
+          {filteredFamilies.map((family) => (
+            <Grid 
+              key={family.familyID} 
+              size={{ xs: 12, sm: 6, md: 4 }}
+            >
+              <FamilyCard
+                family={family}
+                onSelect={onFamilySelect}
+              />
+            </Grid>
+          ))}
+        </Grid>
       )}
     </Box>
   );
