@@ -9,12 +9,15 @@ import UserProfileModal from '../components/FamilyMedicalComponent/UserProfileMo
 import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDoctorInfoModal';
 import SubscriptionModal from '../components/FamilyMedicalComponent/SubscriptionModal';
 import AddMemberModal from '../components/FamilyMedicalComponent/AddMemberModal.jsx';
-
-import { useSelector } from "react-redux";
+import authApi from '../api/authApi.js';
+import DoctorAPI from '../api/DoctorAPI.js';
+import { updateProfile } from '../redux/userSlice.js';
+import { useSelector,useDispatch } from "react-redux";
 import { View } from '../type';
 import {  DOCTORS } from '../constants';
 
 const FamilyMedicalPage = () => {
+  const dispatch = useDispatch();
   const [activeView, setActiveView] = useState(View.Family);
   const [familyDoctorId, setFamilyDoctorId] = useState(2);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
@@ -28,9 +31,18 @@ const FamilyMedicalPage = () => {
     setFamilyDoctorId(user.doctorCode);
   };
 
-  const handleProfileUpdate = (updatedProfile) => {
-    authApi.handleUpdateProfile(updatedProfile.userID, updatedProfile, updatedProfile.avatarUrl);
 
+  const handleProfileUpdate = async (updatedProfile) => {
+  
+  
+    try {
+      const result = await authApi.handleUpdateProfile(updatedProfile.userID, updatedProfile, updatedProfile.avatarUrl);
+      if(result.success){
+        dispatch(updateProfile(result.user));
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật profile:", error);
+    }
   };
 
   const handleTerminateContract = () => {
@@ -46,7 +58,8 @@ const FamilyMedicalPage = () => {
       case View.Family:
         return <FamilyList />;
       case View.Doctors:
-        return <DoctorList familyDoctorId={familyDoctorId} onSetFamilyDoctor={handleSetFamilyDoctor} />;
+        return <DoctorList familyDoctorId={familyDoctorId} />;
+        // return <div>Tạm thời vô hiệu hóa DoctorList</div>;
       case View.Messages:
         return <Messages />;
       default:

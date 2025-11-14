@@ -211,7 +211,7 @@ const authApi = {
         // Lọc ra chỉ những field hợp lệ
         const { fullName, phoneNumber, cccd, address, avatarUrl } = data;
         const input = { fullName, phoneNumber, cccd, address, avatarUrl };
-        console.log("updateUserProfile - input:", input);
+        // console.log("updateUserProfile - input:", input);
 
         const UPDATE_USER_MUTATION = `
             mutation UpdateUserProfile($userID: ID!, $input: UpdateUserInput!) {

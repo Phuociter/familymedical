@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
+import java.util.List;
 @Service
 public class AuthService {
 
@@ -230,4 +230,5 @@ public class AuthService {
 
         return userRepository.save(user);
     }
+
 }

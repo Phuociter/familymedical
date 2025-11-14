@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
-import { DOCTORS } from '../../constants.js';
-import DoctorDetailModal from './DoctorDetailModal.jsx';
+import React, { useEffect, useState } from 'react';
+// import { DOCTORS } from '../../constants.js';
+// import DoctorDetailModal from './DoctorDetailModal.jsx';
+import * as DoctorDetailModalModule from './DoctorDetailModal.jsx'
+const DoctorDetailModal = DoctorDetailModalModule.default;
+import DoctorAPI from '../../api/DoctorAPI.js';
 
-const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
+const DoctorList = ({ familyDoctorId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [doctors, setDoctors] = useState([]);
+    const [doctorRequest,setDoctorRequest] = useState();
+    const token = localStorage.getItem('userToken');
+    const user = JSON.parse(localStorage.getItem('user'));
+    // console.log("familyID",familyDoctorId);
+    useEffect(() =>{
+        const fetchDoctors = async() => {
+            try {
+                const doctorData = await DoctorAPI.getAllDoctor(token);
+                setDoctors(doctorData);
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách bác sĩ:', error);
+            }
+        };
+        fetchDoctors();
+    }, [])
 
-    const filteredDoctors = DOCTORS.filter(doctor =>
-        doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredDoctors = doctors.filter(doctor =>
+        doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     
     const handleDoctorClick = (doctor) => {
         setSelectedDoctor(doctor);
@@ -18,14 +38,29 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
         setSelectedDoctor(null);
     };
 
-    const handleRequestDoctor = (doctor) => {
-        if (familyDoctorId !== null) {
-            alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
-        } else {
-            onSetFamilyDoctor(doctor.id);
-            alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctor.name}.`);
-            handleCloseModal();
+    const onSetFamilyDoctor = async(doctorID) => {
+        try{
+                const doctorDataR = await DoctorAPI.createDoctorRequest(doctorID, user.userID, token);
+                setDoctorRequest(doctorDataR);  
+                console.log("create doctor request:", doctorDataR);
+                if(doctorDataR==null){
+                    console.log("tạo yêu cầu tới bác sĩ lỗi");
+                }          
+        }catch(error){
+            throw(error);
         }
+    }
+
+    const handleRequestDoctor = (doctorID) => {
+        // if (familyDoctorId !== null) {
+        //     alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
+        // } else {
+        //     onSetFamilyDoctor(doctorID);
+        //     // alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctors.fullName}.`);
+        //     handleCloseModal();
+        // } 
+            onSetFamilyDoctor(doctorID);
+            handleCloseModal();
     };
 
   return (
@@ -56,12 +91,12 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
                             >
                                 <img
                                     className="h-12 w-12 rounded-full object-cover"
-                                    src={`https://picsum.photos/seed/${doctor.id}/100`}
-                                    alt={`Bác sĩ ${doctor.name}`}
+                                    src={`https://picsum.photos/seed/${doctor.ID}/100`}
+                                    alt={`Bác sĩ ${doctor.fullName}`}
                                 />
                                 <div>
-                                    <p className="font-semibold text-[#111827]">{doctor.name}</p>
-                                    <p className="text-sm text-[#4B5563]">{doctor.specialty}</p>
+                                    <p className="font-semibold text-[#111827]">{doctor.fullName}</p>
+                                    {/* <p className="text-sm text-[#4B5563]">{doctor.specialty}</p> */}
                                 </div>
                             </li>
                         ))

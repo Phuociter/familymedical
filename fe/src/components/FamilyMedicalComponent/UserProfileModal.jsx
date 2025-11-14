@@ -64,7 +64,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setProfileData(prev => ({ ...prev, avatar: event.target.result }));
+          setProfileData(prev => ({ ...prev, avatarUrl: event.target.result }));
         }
       };
       reader.readAsDataURL(e.target.files[0]);
@@ -158,9 +158,9 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
             </div>
             {/* //sửa lại giao diện không cho sửa email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 flex-grow w-full">
-              <InfoItem label="Họ và tên:" value={profileData.fullName} name="name" />
+              <InfoItem label="Họ và tên:" value={profileData.fullName} name="fullName" />
               <InfoItem label="Email:" value={profileData.email} name="email" readOnly={true} />
-              <InfoItem label="Số điện thoại:" value={profileData.phoneNumber} name="phone" />
+              <InfoItem label="Số điện thoại:" value={profileData.phoneNumber} name="phoneNumber" />
               <InfoItem label="CCCD:" value={profileData.cccd} name="cccd" />
               <div className="sm:col-span-2">
                 <InfoItem label="Địa chỉ:" value={profileData.address} name="address" />
