@@ -15,7 +15,8 @@ const LoginPage = () => {
 
         // Chờ 1.5s để người dùng thấy thông báo rồi mới chuyển trang
         setTimeout(() => {
-            if (result.role === 'BacSi') {
+            const role = normalized.role;
+            if (role === 'BacSi') {
                 navigate('/doctor/dashboard');
             } else if (result.role === 'ChuHo') {
                 navigate('/families');

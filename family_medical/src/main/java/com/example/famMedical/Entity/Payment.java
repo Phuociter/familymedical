@@ -1,5 +1,4 @@
 package com.example.famMedical.Entity;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +17,7 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PaymentID")
+
     private int paymentId;
 
     @ManyToOne
