@@ -213,6 +213,15 @@ public class AdminGraphQLResolver {
     }
 
     /**
+     * Resolver cho field address của Family
+     * Map trực tiếp từ Entity field address
+     */
+    @SchemaMapping(typeName = "Family", field = "address")
+    public String address(Family family) {
+        return family.getAddress();
+    }
+
+    /**
      * Resolver cho field createdAt của Family
      * Convert OffsetDateTime sang String (RFC3339 format với timezone)
      */
