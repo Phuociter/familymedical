@@ -57,9 +57,18 @@ const AdminDashboard = () => {
         // Tính toán thống kê yêu cầu bác sĩ
         const requestsStats = {
           total: doctorRequests.length,
-          pending: doctorRequests.filter(r => r.status === 'PENDING' || r.status === 'pending').length,
-          accepted: doctorRequests.filter(r => r.status === 'ACCEPTED' || r.status === 'accepted').length,
-          rejected: doctorRequests.filter(r => r.status === 'REJECTED' || r.status === 'rejected').length,
+          pending: doctorRequests.filter(r => {
+            const s = r.status?.toUpperCase();
+            return s === 'PENDING';
+          }).length,
+          accepted: doctorRequests.filter(r => {
+            const s = r.status?.toUpperCase();
+            return s === 'ACCEPTED';
+          }).length,
+          rejected: doctorRequests.filter(r => {
+            const s = r.status?.toUpperCase();
+            return s === 'REJECTED';
+          }).length,
         };
 
         // Tính toán thống kê thanh toán

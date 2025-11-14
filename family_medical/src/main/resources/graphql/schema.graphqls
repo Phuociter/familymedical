@@ -50,11 +50,14 @@ input LoginInput {
 }
 
 input UpdateUserInput {
+    userID: Int
     address: String 
     avatarUrl: String
     cccd: String
     fullName: String
     phoneNumber: String
+    doctorCode: String
+    role: UserRole
 }
 
 
@@ -93,6 +96,7 @@ input CreateMedicalRecordInput {
 }
 
 input UpdateMemberInput {
+    memberID: Int
     fullName: String 
     dateOfBirth: LocalDate
     gender: String 
@@ -131,6 +135,8 @@ type User {
     cccd: String
     avatarUrl: String   
     doctorCode: String
+    isVerified: Boolean
+    isLocked: Boolean
 }
 
 type AuthPayload {
@@ -142,19 +148,24 @@ type Family {
     familyID: ID
     familyName: String
     familyAddress: String
+    address: String
     headOfFamily: User
+    headOfFamilyID: Int
     members: [Member]
     doctorAssignments: [DoctorAssignment] 
     createdAt: DateTime
 }
 
-type Member {#bổ sungg
+type Member {
     memberID: ID!
+    familyID: Int
     fullName: String
-    # SỬA: Đổi tên thành 'relationship' để khớp với Entity Java
     relationship: String
     cccd: String
-    # Thêm các trường khác của Member nếu cần (DateOfBirth, Gender)
+    dateOfBirth: LocalDate
+    gender: String
+    phoneNumber: String
+    createdAt: String
 }
 
 type MedicalRecord {
@@ -219,6 +230,18 @@ type Query {
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
 
+    # Admin queries
+    allMembers: [Member]
+    allDoctors: [User]
+    allUsers: [User]
+    allFamilies: [Family]
+    memberById(memberID: Int!): Member
+    userById(userID: Int!): User
+    familyById(familyID: Int!): Family
+    allPayments: [Payment]
+    allDoctorRequests: [DoctorRequest]
+    doctorRequestsByStatus(status: String): [DoctorRequest]
+    paymentsByStatus(status: String): [Payment]
 
 }
 
@@ -239,6 +262,7 @@ type Mutation {
     
     # user
     updateUserProfile(userID: ID!, input: UpdateUserInput!): User
+    updateUser(input: UpdateUserInput!): User
 
     #member
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member

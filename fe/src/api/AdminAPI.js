@@ -142,8 +142,8 @@ export const createMember = async (memberData) => {
  */
 export const updateMember = async (id, memberData) => {
     const mutation = `
-        mutation UpdateMember($input: UpdateMemberInput!) {
-            updateMember(input: $input) {
+        mutation UpdateMember($memberID: ID!, $input: UpdateMemberInput!) {
+            updateMember(memberID: $memberID, input: $input) {
                 memberID
                 familyID
                 fullName
@@ -156,8 +156,8 @@ export const updateMember = async (id, memberData) => {
             }
         }
     `;
-    const input = { memberID: parseInt(id), ...memberData };
-    const data = await sendGraphQLRequest(mutation, { input });
+    const input = { ...memberData };
+    const data = await sendGraphQLRequest(mutation, { memberID: parseInt(id), input });
     return data.updateMember;
 };
 

@@ -85,7 +85,7 @@ public class AdminService {
 
     public List<MedicalRecord> getMedicalRecordsForPatient(Integer memberId) {
         Member member = getPatientById(memberId);
-        return medicalRecordRepository.findByMember(member);
+        return medicalRecordRepository.findByMember_MemberID(memberId);
     }
 
     public void lockUserAccount(Integer userId) {
@@ -125,12 +125,12 @@ public class AdminService {
         DoctorRequest req = doctorRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Doctor request not found: " + requestId));
         if (approve) {
-            req.setStatus(DoctorRequest.RequestStatus.accepted);
+            req.setStatus(DoctorRequest.RequestStatus.Accepted);
             User doctor = req.getDoctor();
             doctor.setVerified(true);
             userRepository.save(doctor);
         } else {
-            req.setStatus(DoctorRequest.RequestStatus.rejected);
+            req.setStatus(DoctorRequest.RequestStatus.Rejected);
         }
         // Lưu thay đổi status của DoctorRequest
         doctorRequestRepository.save(req);
@@ -202,7 +202,7 @@ public class AdminService {
     // ------------------ Doctor Request management ------------------
 
     public List<DoctorRequest> listAllDoctorRequests() {
-        return doctorRequestRepository.findAll();
+        return doctorRequestRepository.findAllWithRelations();
     }
 
     public List<DoctorRequest> listDoctorRequestsByStatus(DoctorRequest.RequestStatus status) {
@@ -210,7 +210,7 @@ public class AdminService {
     }
 
     public DoctorRequest getDoctorRequestById(Integer id) {
-        return doctorRequestRepository.findById(id)
+        return doctorRequestRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new IllegalArgumentException("Doctor request not found: " + id));
     }
 
@@ -218,52 +218,19 @@ public class AdminService {
 
     public List<Payment> listAllPayments() {
         // Sử dụng query với join fetch để load đầy đủ relationships
-        return paymentRepository.findAllWithRelations();
+        return paymentRepository.findAllWithUser();
     }
 
     public List<Payment> listPaymentsByStatus(String status) {
         // Sử dụng query với join fetch để load đầy đủ relationships
-        return paymentRepository.findByStatusWithRelations(status);
-    }
-
-    public Payment getPaymentById(Integer id) {
-        return paymentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + id));
-    }
-
-    @Transactional
-    public Payment createPayment(Payment payment) {
-        if (payment.getPaymentDate() == null) {
-            payment.setPaymentDate(LocalDateTime.now());
-        }
-        // Đảm bảo userID được set
-        if (payment.getUserID() == null) {
-            if (payment.getFamily() != null && payment.getFamily().getHeadOfFamily() != null) {
-                payment.setUserID(payment.getFamily().getHeadOfFamily().getUserID());
-            } else if (payment.getDoctor() != null) {
-                payment.setUserID(payment.getDoctor().getUserID());
-            } else {
-                throw new IllegalArgumentException("UserID is required. Please provide familyID or doctorID.");
-            }
-        }
-        return paymentRepository.save(payment);
+        return paymentRepository.findByPaymentStatus(Payment.PaymentStatus.valueOf(status));      
     }
 
     @Transactional
     public Payment updatePayment(Integer id, Payment updated) {
-        Payment existing = getPaymentById(id);
-        if (updated.getAmount() != null) existing.setAmount(updated.getAmount());
-        if (updated.getPaymentMethod() != null) existing.setPaymentMethod(updated.getPaymentMethod());
-        if (updated.getPaymentStatus() != null) existing.setPaymentStatus(updated.getPaymentStatus());
-        if (updated.getPaymentDate() != null) existing.setPaymentDate(updated.getPaymentDate());
-        if (updated.getFamily() != null) existing.setFamily(updated.getFamily());
-        if (updated.getDoctor() != null) existing.setDoctor(updated.getDoctor());
-        return paymentRepository.save(existing);
-    }
-
-    @Transactional
-    public void deletePayment(Integer id) {
-        paymentRepository.deleteById(id);
+        Payment existing = paymentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + id));
+        return paymentRepository.save(updated);
     }
 
 }

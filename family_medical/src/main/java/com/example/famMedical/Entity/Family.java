@@ -1,5 +1,6 @@
 package com.example.famMedical.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.List;
 @Table(name = "Family")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Family {
 
     @Id
@@ -27,6 +29,7 @@ public class Family {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "HeadOfFamilyID", referencedColumnName = "UserID")
+    @JsonIgnoreProperties({"passwordHash", "role", "isVerified", "isLocked", "doctorCode"})
     private User headOfFamily;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)

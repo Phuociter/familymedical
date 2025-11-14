@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -77,52 +78,52 @@ public class AdminRestController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/members/{memberId}/upload")
-    public ResponseEntity<?> uploadFiles(@PathVariable Integer memberId, @RequestParam("files") MultipartFile[] files) {
-        if (files == null || files.length == 0) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No files provided"));
-        }
+    // @PostMapping("/members/{memberId}/upload")
+    // public ResponseEntity<?> uploadFiles(@PathVariable Integer memberId, @RequestParam("files") MultipartFile[] files) {
+    //     if (files == null || files.length == 0) {
+    //         return ResponseEntity.badRequest().body(Map.of("error", "No files provided"));
+    //     }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
+    //     Member member = memberRepository.findById(memberId)
+    //             .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
 
-        List<String> uploadedUrls = new java.util.ArrayList<>();
-        List<String> errors = new java.util.ArrayList<>();
+    //     List<String> uploadedUrls = new java.util.ArrayList<>();
+    //     List<String> errors = new java.util.ArrayList<>();
 
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                continue;
-            }
+    //     for (MultipartFile file : files) {
+    //         if (file.isEmpty()) {
+    //             continue;
+    //         }
             
-            try {
-                // Upload file lên Cloudinary
-                String fileUrl = cloudinaryService.uploadFile(file);
+    //         try {
+    //             // Upload file lên Cloudinary
+    //             String fileUrl = cloudinaryService.uploadImage(file);
 
-                // Lưu MedicalRecord với Cloudinary URL
-                MedicalRecord rec = MedicalRecord.builder()
-                        .member(member)
-                        .fileLink(fileUrl) // Lưu Cloudinary URL thay vì local path
-                        .recordDate(LocalDateTime.now())
-                        .build();
-                medicalRecordRepository.save(rec);
-                uploadedUrls.add(fileUrl);
-            } catch (IOException e) {
-                errors.add("Failed to upload " + file.getOriginalFilename() + ": " + e.getMessage());
-            } catch (Exception e) {
-                errors.add("Error uploading " + file.getOriginalFilename() + ": " + e.getMessage());
-            }
-        }
+    //             // Lưu MedicalRecord với Cloudinary URL
+    //             MedicalRecord rec = MedicalRecord.builder()
+    //                     .member(member)
+    //                     .fileLink(fileUrl) // Lưu Cloudinary URL thay vì local path
+    //                     .recordDate(LocalDateTime.now())
+    //                     .build();
+    //             medicalRecordRepository.save(rec);
+    //             uploadedUrls.add(fileUrl);
+    //         } catch (IOException e) {
+    //             errors.add("Failed to upload " + file.getOriginalFilename() + ": " + e.getMessage());
+    //         } catch (Exception e) {
+    //             errors.add("Error uploading " + file.getOriginalFilename() + ": " + e.getMessage());
+    //         }
+    //     }
 
-        if (errors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", "ok", "uploaded", uploadedUrls.size()));
-        } else if (uploadedUrls.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "All uploads failed", "errors", errors));
-        } else {
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                    .body(Map.of("status", "partial", "uploaded", uploadedUrls.size(), "errors", errors));
-        }
-    }
+    //     if (errors.isEmpty()) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", "ok", "uploaded", uploadedUrls.size()));
+    //     } else if (uploadedUrls.isEmpty()) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    //                 .body(Map.of("error", "All uploads failed", "errors", errors));
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+    //                 .body(Map.of("status", "partial", "uploaded", uploadedUrls.size(), "errors", errors));
+    //     }
+    // }
 
     /**
      * Lấy danh sách files (MedicalRecords) của một member
@@ -131,7 +132,7 @@ public class AdminRestController {
     public ResponseEntity<List<MedicalRecord>> getMemberFiles(@PathVariable Integer memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
-        List<MedicalRecord> records = medicalRecordRepository.findByMember(member);
+        List<MedicalRecord> records = medicalRecordRepository.findByMember_MemberID(memberId);
         
         // Force load các quan hệ để tránh lỗi lazy loading khi serialize
         for (MedicalRecord record : records) {
@@ -168,23 +169,23 @@ public class AdminRestController {
         return ResponseEntity.ok(saved);
     }
 
-    @DeleteMapping("/files/{fileId}")
-    public ResponseEntity<?> deleteFile(@PathVariable Integer fileId) {
-        MedicalRecord rec = medicalRecordRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+    // @DeleteMapping("/files/{fileId}")
+    // public ResponseEntity<?> deleteFile(@PathVariable Integer fileId) {
+    //     MedicalRecord rec = medicalRecordRepository.findById(fileId)
+    //             .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
         
-        String fileUrl = rec.getFileLink();
+    //     String fileUrl = rec.getFileLink();
         
-        // Xóa file khỏi Cloudinary nếu là Cloudinary URL
-        if (fileUrl != null && fileUrl.contains("cloudinary.com")) {
-            cloudinaryService.deleteFile(fileUrl);
-        }
+    //     // Xóa file khỏi Cloudinary nếu là Cloudinary URL
+    //     if (fileUrl != null && fileUrl.contains("cloudinary.com")) {
+    //         cloudinaryService.deleteImageFromCloudinary(fileUrl);
+    //     }
         
-        // Xóa record khỏi database
-        medicalRecordRepository.deleteById(fileId);
+    //     // Xóa record khỏi database
+    //     medicalRecordRepository.deleteById(fileId);
         
-        return ResponseEntity.noContent().build();
-    }
+    //     return ResponseEntity.noContent().build();
+    // }
 
     @PutMapping("/members/{memberId}/assignDoctor")
     public ResponseEntity<?> assignDoctorToMember(@PathVariable Integer memberId, @RequestBody Map<String, Integer> body) {
@@ -237,7 +238,7 @@ public class AdminRestController {
 
     @GetMapping("/families")
     public List<Family> listFamilies() {
-        return familyRepository.findAll();
+        return familyRepository.findAllWithHeadOfFamily();
     }
 
     @PostMapping("/families")
@@ -266,10 +267,13 @@ public class AdminRestController {
     public List<DoctorRequest> listDoctorRequests(@RequestParam(required = false) String status) {
         if (status != null && !status.isEmpty()) {
             try {
-                // Convert từ string sang enum (hỗ trợ cả uppercase và lowercase)
-                DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(status.toLowerCase());
+                // Convert từ string sang enum (database uses Pending, Accepted, Rejected)
+                // Hỗ trợ cả uppercase, lowercase và capitalized
+                String normalizedStatus = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+                DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(normalizedStatus);
                 return adminService.listDoctorRequestsByStatus(requestStatus);
             } catch (IllegalArgumentException e) {
+                // Nếu không parse được, trả về tất cả
                 return adminService.listAllDoctorRequests();
             }
         }
@@ -305,12 +309,26 @@ public class AdminRestController {
 
     @GetMapping("/payments/{id}")
     public Payment getPaymentById(@PathVariable Integer id) {
-        return adminService.getPaymentById(id);
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + id));
+        // Đảm bảo user được load
+        if (payment.getUser() != null) {
+            org.hibernate.Hibernate.initialize(payment.getUser());
+        }
+        return payment;
     }
 
     @PostMapping("/payments")
     public ResponseEntity<Payment> createPayment(@RequestBody Map<String, Object> payload) {
         Payment payment = new Payment();
+        payment.setAmount(new BigDecimal(0));
+        payment.setPaymentStatus(Payment.PaymentStatus.Pending);
+        payment.setPaymentMethod(null);
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setExpiryDate(LocalDateTime.now().plusMonths(1));
+        payment.setTransactionCode(null);
+        payment.setCreatedAt(LocalDateTime.now());
+        payment.setUpdatedAt(LocalDateTime.now());
         
         // Xử lý familyID: có thể là nested object hoặc direct ID
         Integer familyID = extractFamilyID(payload);
@@ -323,10 +341,10 @@ public class AdminRestController {
             final Integer finalFamilyID = familyID;
             Family family = familyRepository.findById(finalFamilyID)
                     .orElseThrow(() -> new IllegalArgumentException("Family not found: " + finalFamilyID));
-            payment.setFamily(family);
+            payment.setUser(family.getHeadOfFamily());
             // Set userID từ headOfFamilyID nếu chưa có
             if (family.getHeadOfFamily() != null) {
-                payment.setUserID(family.getHeadOfFamily().getUserID());
+                payment.setUser(family.getHeadOfFamily());
             }
         }
         
@@ -334,16 +352,16 @@ public class AdminRestController {
             final Integer finalDoctorID = doctorID;
             User doctor = userRepository.findById(finalDoctorID)
                     .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + finalDoctorID));
-            payment.setDoctor(doctor);
+            payment.setUser(doctor);
         }
         
         // Set các trường khác từ payload
         if (payload.containsKey("amount")) {
             Object amountObj = payload.get("amount");
             if (amountObj instanceof Number) {
-                payment.setAmount(((Number) amountObj).doubleValue());
+                payment.setAmount(BigDecimal.valueOf(((Number) amountObj).doubleValue()));
             } else if (amountObj instanceof String) {
-                payment.setAmount(Double.parseDouble((String) amountObj));
+                payment.setAmount(BigDecimal.valueOf(Double.parseDouble((String) amountObj)));
             }
         }
         
@@ -352,47 +370,25 @@ public class AdminRestController {
         }
         
         if (payload.containsKey("paymentStatus")) {
-            payment.setPaymentStatus((String) payload.get("paymentStatus"));
+            payment.setPaymentStatus(Payment.PaymentStatus.valueOf((String) payload.get("paymentStatus")));
         } else if (payload.containsKey("status")) {
-            payment.setPaymentStatus((String) payload.get("status"));
+            payment.setPaymentStatus(Payment.PaymentStatus.valueOf((String) payload.get("status")));
         } else {
-            payment.setPaymentStatus("PENDING");
+            payment.setPaymentStatus(Payment.PaymentStatus.Pending);
         }
         
         // Nếu vẫn chưa có userID, set từ doctorID hoặc familyID
-        if (payment.getUserID() == null) {
-            if (payment.getDoctor() != null && payment.getDoctor().getUserID() != null) {
-                payment.setUserID(payment.getDoctor().getUserID());
-            } else if (payment.getFamily() != null && payment.getFamily().getHeadOfFamily() != null) {
-                payment.setUserID(payment.getFamily().getHeadOfFamily().getUserID());
-            } else {
-                throw new IllegalArgumentException("UserID is required. Please provide familyID or doctorID.");
-            }
+        if (payment.getUser() == null && payment.getUser() != null) {
+            payment.setUser(payment.getUser());
         }
         
-        Payment created = adminService.createPayment(payment);
+        Payment created = paymentRepository.save(payment);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @PutMapping("/payments/{id}")
-    public Payment updatePayment(@PathVariable Integer id, @RequestBody Payment payment) {
-        // Set family and doctor if provided
-        if (payment.getFamily() != null && payment.getFamily().getFamilyID() != null) {
-            Family family = familyRepository.findById(payment.getFamily().getFamilyID())
-                    .orElseThrow(() -> new IllegalArgumentException("Family not found"));
-            payment.setFamily(family);
-        }
-        if (payment.getDoctor() != null && payment.getDoctor().getUserID() != null) {
-            User doctor = userRepository.findById(payment.getDoctor().getUserID())
-                    .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
-            payment.setDoctor(doctor);
-        }
-        return adminService.updatePayment(id, payment);
     }
 
     @DeleteMapping("/payments/{id}")
     public ResponseEntity<Void> deletePayment(@PathVariable Integer id) {
-        adminService.deletePayment(id);
+        paymentRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 

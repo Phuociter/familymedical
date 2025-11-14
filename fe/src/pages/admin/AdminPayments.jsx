@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { getPayments, deletePayment, getFamilies, getDoctors } from '../../api/AdminAPI';
+import { getPayments, deletePayment } from '../../api/AdminAPI';
 import { FiTrash2, FiSearch, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
-  const [families, setFamilies] = useState([]);
-  const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Tìm kiếm và filter
@@ -23,33 +21,16 @@ const AdminPayments = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [paymentsData, familiesData, doctorsData] = await Promise.all([
-        getPayments(),
-        getFamilies(),
-        getDoctors(),
-      ]);
+      const paymentsData = await getPayments();
       setPayments(Array.isArray(paymentsData) ? paymentsData : []);
-      setFamilies(Array.isArray(familiesData) ? familiesData : []);
-      setDoctors(Array.isArray(doctorsData) ? doctorsData : []);
       
       // Debug: Log để kiểm tra dữ liệu
       if (paymentsData && paymentsData.length > 0) {
         console.log('=== Payment Data Debug ===');
         console.log('Payment sample:', paymentsData[0]);
-        console.log('Payment family:', paymentsData[0].family);
-        console.log('Payment doctor:', paymentsData[0].doctor);
-        console.log('Payment familyID:', paymentsData[0].familyID);
-        console.log('Payment doctorID:', paymentsData[0].doctorID);
+        console.log('Payment user:', paymentsData[0].user);
+        console.log('Payment user fullName:', paymentsData[0].user?.fullName);
         console.log('Payment paymentStatus:', paymentsData[0].paymentStatus);
-        console.log('Payment status (old):', paymentsData[0].status);
-        console.log('Families count:', familiesData?.length || 0);
-        console.log('Doctors count:', doctorsData?.length || 0);
-        if (familiesData && familiesData.length > 0) {
-          console.log('First family:', familiesData[0]);
-        }
-        if (doctorsData && doctorsData.length > 0) {
-          console.log('First doctor:', doctorsData[0]);
-        }
         console.log('========================');
       }
     } catch (error) {
@@ -73,55 +54,13 @@ const AdminPayments = () => {
     }
   };
 
-  // Hàm helper để lấy tên gia đình
-  const getFamilyName = (payment) => {
+  // Hàm helper để lấy tên người thanh toán
+  const getUserName = (payment) => {
     if (!payment) return 'N/A';
     
-    // Ưu tiên 1: Lấy từ family object nếu có
-    if (payment.family && payment.family.familyName) {
-      return payment.family.familyName;
-    }
-    
-    // Ưu tiên 2: Lấy từ familyID và tìm trong mảng families
-    const familyID = payment.familyID || (payment.family && payment.family.familyID);
-    if (familyID && families && families.length > 0) {
-      // Chuyển đổi sang number để so sánh (xử lý cả string và number)
-      const id = typeof familyID === 'string' ? parseInt(familyID, 10) : Number(familyID);
-      const family = families.find(f => {
-        if (!f || f.familyID === undefined || f.familyID === null) return false;
-        const fId = typeof f.familyID === 'string' ? parseInt(f.familyID, 10) : Number(f.familyID);
-        return fId === id;
-      });
-      if (family && family.familyName) {
-        return family.familyName;
-      }
-    }
-    
-    return 'N/A';
-  };
-
-  // Hàm helper để lấy tên bác sĩ
-  const getDoctorName = (payment) => {
-    if (!payment) return 'N/A';
-    
-    // Ưu tiên 1: Lấy từ doctor object nếu có
-    if (payment.doctor && payment.doctor.fullName) {
-      return payment.doctor.fullName;
-    }
-    
-    // Ưu tiên 2: Lấy từ doctorID và tìm trong mảng doctors
-    const doctorID = payment.doctorID || (payment.doctor && payment.doctor.userID);
-    if (doctorID && doctors && doctors.length > 0) {
-      // Chuyển đổi sang number để so sánh (xử lý cả string và number)
-      const id = typeof doctorID === 'string' ? parseInt(doctorID, 10) : Number(doctorID);
-      const doctor = doctors.find(d => {
-        if (!d || d.userID === undefined || d.userID === null) return false;
-        const dId = typeof d.userID === 'string' ? parseInt(d.userID, 10) : Number(d.userID);
-        return dId === id;
-      });
-      if (doctor && doctor.fullName) {
-        return doctor.fullName;
-      }
+    // Lấy từ user object nếu có
+    if (payment.user && payment.user.fullName) {
+      return payment.user.fullName;
     }
     
     return 'N/A';
@@ -132,13 +71,11 @@ const AdminPayments = () => {
     if (!Array.isArray(payments)) return [];
     
     let filtered = payments.filter((payment) => {
-      const familyName = getFamilyName(payment);
-      const doctorName = getDoctorName(payment);
+      const userName = getUserName(payment);
       
       const matchesSearch = 
         !searchTerm ||
-        familyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (payment.paymentMethod && payment.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesStatus = 
@@ -173,7 +110,7 @@ const AdminPayments = () => {
     });
 
     return filtered;
-  }, [payments, families, doctors, searchTerm, filterStatus, sortField, sortDirection]);
+  }, [payments, searchTerm, filterStatus, sortField, sortDirection]);
 
   // Phân trang
   const paginatedPayments = useMemo(() => {
@@ -279,7 +216,7 @@ const AdminPayments = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Tìm kiếm theo gia đình, bác sĩ..."
+              placeholder="Tìm kiếm theo người thanh toán..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -331,8 +268,7 @@ const AdminPayments = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gia đình</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bác sĩ</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người thanh toán</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phương thức</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
@@ -343,22 +279,19 @@ const AdminPayments = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedPayments.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                     Không có thanh toán nào
                   </td>
                 </tr>
               ) : (
                 paginatedPayments.map((payment) => {
                   return (
-                    <tr key={payment.paymentID} className="hover:bg-gray-50">
+                    <tr key={payment.paymentID || payment.paymentId} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {payment.paymentID}
+                        {payment.paymentID || payment.paymentId}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {payment.family?.familyName || getFamilyName(payment)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {payment.doctor?.fullName || getDoctorName(payment)}
+                        {getUserName(payment)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {formatCurrency(payment.amount)}
@@ -376,7 +309,7 @@ const AdminPayments = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
-                          onClick={() => handleDelete(payment.paymentID)}
+                          onClick={() => handleDelete(payment.paymentID || payment.paymentId)}
                           className="text-red-600 hover:text-red-900"
                           title="Xóa"
                         >

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -77,6 +78,44 @@ public class AdminGraphQLResolver {
                 .orElseThrow(() -> new IllegalArgumentException("Family not found: " + familyID));
     }
 
+    @QueryMapping
+    public List<Payment> allPayments() {
+        return adminService.listAllPayments();
+    }
+
+    @QueryMapping
+    public List<Payment> paymentsByStatus(@Argument String status) {
+        if (status == null || status.isEmpty()) {
+            return adminService.listAllPayments();
+        }
+        return adminService.listPaymentsByStatus(status);
+    }
+
+    @QueryMapping
+    public List<DoctorRequest> allDoctorRequests() {
+        return adminService.listAllDoctorRequests();
+    }
+
+    @QueryMapping
+    public List<DoctorRequest> doctorRequestsByStatus(@Argument String status) {
+        if (status == null || status.isEmpty()) {
+            return adminService.listAllDoctorRequests();
+        }
+        try {
+            // Convert string status to enum (database uses Pending, Accepted, Rejected)
+            DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(status);
+            return adminService.listDoctorRequestsByStatus(requestStatus);
+        } catch (IllegalArgumentException e) {
+            // If status is invalid, return all requests
+            return adminService.listAllDoctorRequests();
+        }
+    }
+
+    @QueryMapping
+    public List<DoctorRequest> doctorRequestsForDoctor(@Argument Integer doctorID) {
+        return doctorRequestRepository.findByDoctor_UserID(doctorID);
+    }
+
     // ==================== FIELD RESOLVERS ====================
 
     /**
@@ -117,24 +156,14 @@ public class AdminGraphQLResolver {
 
     /**
      * Resolver cho field gender của Member
-     * Convert từ Java enum (Nữ) sang GraphQL enum (Nu)
+     * Trả về giá trị enum trực tiếp từ database (Nam, Nữ, Khác)
      */
     @SchemaMapping(typeName = "Member", field = "gender")
     public String gender(Member member) {
         if (member.getGender() == null) {
             return null;
         }
-        // Convert Java enum sang GraphQL enum format
-        switch (member.getGender()) {
-            case female:
-                return "Female";
-            case male:
-                return "Male";
-            case other:
-                return "Other";
-            default:
-                return member.getGender().name();
-        }
+        return member.getGender().name();
     }
 
     /**
@@ -175,15 +204,119 @@ public class AdminGraphQLResolver {
     }
 
     /**
+     * Resolver cho field familyAddress của Family
+     * Map từ address field
+     */
+    @SchemaMapping(typeName = "Family", field = "familyAddress")
+    public String familyAddress(Family family) {
+        return family.getAddress();
+    }
+
+    /**
      * Resolver cho field createdAt của Family
-     * Convert LocalDateTime sang String (ISO format)
+     * Convert OffsetDateTime sang String (RFC3339 format với timezone)
      */
     @SchemaMapping(typeName = "Family", field = "createdAt")
     public String createdAt(Family family) {
         if (family.getCreatedAt() == null) {
             return null;
         }
-        return family.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        // OffsetDateTime đã có timezone, format theo RFC3339
+        return family.getCreatedAt().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
+    /**
+     * Resolver cho field requestDate của DoctorRequest
+     * Convert LocalDateTime sang String
+     */
+    @SchemaMapping(typeName = "DoctorRequest", field = "requestDate")
+    public String requestDate(DoctorRequest doctorRequest) {
+        if (doctorRequest.getRequestDate() == null) {
+            return null;
+        }
+        return doctorRequest.getRequestDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    /**
+     * Resolver cho field familyID của DoctorRequest
+     */
+    @SchemaMapping(typeName = "DoctorRequest", field = "familyID")
+    public Integer familyID(DoctorRequest doctorRequest) {
+        if (doctorRequest.getFamily() == null) {
+            return null;
+        }
+        return doctorRequest.getFamily().getFamilyID();
+    }
+
+    /**
+     * Resolver cho field doctorID của DoctorRequest
+     */
+    @SchemaMapping(typeName = "DoctorRequest", field = "doctorID")
+    public Integer doctorID(DoctorRequest doctorRequest) {
+        if (doctorRequest.getDoctor() == null) {
+            return null;
+        }
+        return doctorRequest.getDoctor().getUserID();
+    }
+
+    /**
+     * Resolver cho field status của DoctorRequest
+     * Trả về giá trị enum trực tiếp từ database (Pending, Accepted, Rejected)
+     */
+    @SchemaMapping(typeName = "DoctorRequest", field = "status")
+    public String status(DoctorRequest doctorRequest) {
+        if (doctorRequest.getStatus() == null) {
+            return null;
+        }
+        return doctorRequest.getStatus().name();
+    }
+
+    /**
+     * Resolver cho field paymentDate của Payment
+     * Convert LocalDateTime sang String
+     */
+    @SchemaMapping(typeName = "Payment", field = "paymentDate")
+    public String paymentDate(Payment payment) {
+        if (payment.getPaymentDate() == null) {
+            return null;
+        }
+        return payment.getPaymentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    /**
+     * Resolver cho field expiryDate của Payment
+     * Convert LocalDateTime sang String
+     */
+    @SchemaMapping(typeName = "Payment", field = "expiryDate")
+    public String expiryDate(Payment payment) {
+        if (payment.getExpiryDate() == null) {
+            return null;
+        }
+        return payment.getExpiryDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    /**
+     * Resolver cho field createdAt của Payment
+     * Convert LocalDateTime sang String
+     */
+    @SchemaMapping(typeName = "Payment", field = "createdAt")
+    public String createdAt(Payment payment) {
+        if (payment.getCreatedAt() == null) {
+            return null;
+        }
+        return payment.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    /**
+     * Resolver cho field updatedAt của Payment
+     * Convert LocalDateTime sang String
+     */
+    @SchemaMapping(typeName = "Payment", field = "updatedAt")
+    public String updatedAt(Payment payment) {
+        if (payment.getUpdatedAt() == null) {
+            return null;
+        }
+        return payment.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
     // ==================== MUTATIONS - MEMBERS ====================
@@ -197,23 +330,32 @@ public class AdminGraphQLResolver {
         member.setFamily(family);
         if (input.getFullName() != null) member.setFullName(input.getFullName());
         if (input.getDateOfBirth() != null) {
-            member.setDateOfBirth(LocalDate.parse(input.getDateOfBirth(), DateTimeFormatter.ISO_DATE));
+            member.setDateOfBirth(parseDate(input.getDateOfBirth()));
         }
         if (input.getGender() != null) {
-            // Map GraphQL enum string (Male, Female, Other) to Java enum (male, female, other)
+            // Map từ GraphQL input (có thể là "Male"/"Female"/"Other" hoặc "Nam"/"Nữ"/"Khác") sang enum database
             String graphqlGender = input.getGender();
-            if (graphqlGender.equals("Female")) {
-                member.setGender(Member.Gender.female);
-            } else if (graphqlGender.equals("Male")) {
-                member.setGender(Member.Gender.male);
-            } else if (graphqlGender.equals("Other")) {
-                member.setGender(Member.Gender.other);
-            } else {
-                // Fallback: try to parse as lowercase
-                try {
-                    member.setGender(Member.Gender.valueOf(graphqlGender.toLowerCase()));
-                } catch (IllegalArgumentException e) {
-                    // Ignore if cannot parse
+            try {
+                // Thử parse trực tiếp nếu là giá trị database (Nam, Nữ, Khác)
+                member.setGender(Member.Gender.valueOf(graphqlGender));
+            } catch (IllegalArgumentException e) {
+                // Fallback: map từ GraphQL enum (Male, Female, Other) sang database enum
+                switch (graphqlGender) {
+                    case "Female":
+                    case "female":
+                        member.setGender(Member.Gender.Nữ);
+                        break;
+                    case "Male":
+                    case "male":
+                        member.setGender(Member.Gender.Nam);
+                        break;
+                    case "Other":
+                    case "other":
+                        member.setGender(Member.Gender.Khác);
+                        break;
+                    default:
+                        // Ignore if cannot parse
+                        break;
                 }
             }
         }
@@ -225,27 +367,36 @@ public class AdminGraphQLResolver {
     }
 
     @MutationMapping
-    public Member updateMember(@Argument UpdateMemberInput input) {
-        Member member = adminService.getPatientById(input.getMemberID());
+    public Member updateMember(@Argument Integer memberID, @Argument UpdateMemberInput input) {
+        Member member = adminService.getPatientById(memberID);
         if (input.getFullName() != null) member.setFullName(input.getFullName());
         if (input.getDateOfBirth() != null) {
-            member.setDateOfBirth(LocalDate.parse(input.getDateOfBirth(), DateTimeFormatter.ISO_DATE));
+            member.setDateOfBirth(parseDate(input.getDateOfBirth()));
         }
         if (input.getGender() != null) {
-            // Map GraphQL enum string (Male, Female, Other) to Java enum (male, female, other)
+            // Map từ GraphQL input (có thể là "Male"/"Female"/"Other" hoặc "Nam"/"Nữ"/"Khác") sang enum database
             String graphqlGender = input.getGender();
-            if (graphqlGender.equals("Female")) {
-                member.setGender(Member.Gender.female);
-            } else if (graphqlGender.equals("Male")) {
-                member.setGender(Member.Gender.male);
-            } else if (graphqlGender.equals("Other")) {
-                member.setGender(Member.Gender.other);
-            } else {
-                // Fallback: try to parse as lowercase
-                try {
-                    member.setGender(Member.Gender.valueOf(graphqlGender.toLowerCase()));
-                } catch (IllegalArgumentException e) {
-                    // Ignore if cannot parse
+            try {
+                // Thử parse trực tiếp nếu là giá trị database (Nam, Nữ, Khác)
+                member.setGender(Member.Gender.valueOf(graphqlGender));
+            } catch (IllegalArgumentException e) {
+                // Fallback: map từ GraphQL enum (Male, Female, Other) sang database enum
+                switch (graphqlGender) {
+                    case "Female":
+                    case "female":
+                        member.setGender(Member.Gender.Nữ);
+                        break;
+                    case "Male":
+                    case "male":
+                        member.setGender(Member.Gender.Nam);
+                        break;
+                    case "Other":
+                    case "other":
+                        member.setGender(Member.Gender.Khác);
+                        break;
+                    default:
+                        // Ignore if cannot parse
+                        break;
                 }
             }   
         }
@@ -253,7 +404,7 @@ public class AdminGraphQLResolver {
         if (input.getRelationship() != null) member.setRelationship(input.getRelationship());
         if (input.getPhoneNumber() != null) member.setPhoneNumber(input.getPhoneNumber());
 
-        return adminService.updatePatient(input.getMemberID(), member);
+        return adminService.updatePatient(memberID, member);
     }
 
     @MutationMapping
@@ -525,6 +676,75 @@ public class AdminGraphQLResolver {
         public void setFamilyName(String familyName) { this.familyName = familyName; }
         public String getAddress() { return address; }
         public void setAddress(String address) { this.address = address; }
+    }
+
+    // ==================== HELPER METHODS ====================
+
+    /**
+     * Parse date string từ nhiều format khác nhau
+     * Hỗ trợ: ISO_DATE (yyyy-MM-dd), M/d/yy, M/d/yyyy, d/M/yy, d/M/yyyy
+     */
+    private LocalDate parseDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null;
+        }
+        
+        String trimmed = dateString.trim();
+        
+        // Thử parse với ISO_DATE format trước (yyyy-MM-dd)
+        try {
+            return LocalDate.parse(trimmed, DateTimeFormatter.ISO_DATE);
+        } catch (Exception e) {
+            // Continue to try other formats
+        }
+        
+        // Thử parse với format M/d/yy hoặc M/d/yyyy (ví dụ: 10/5/80 hoặc 10/5/1980)
+        // Format: month/day/year
+        try {
+            if (trimmed.matches("\\d{1,2}/\\d{1,2}/\\d{2,4}")) {
+                String[] parts = trimmed.split("/");
+                int firstPart = Integer.parseInt(parts[0]);
+                int secondPart = Integer.parseInt(parts[1]);
+                int year = Integer.parseInt(parts[2]);
+                
+                // Nếu năm chỉ có 2 chữ số, giả định là 19xx hoặc 20xx
+                if (year < 100) {
+                    if (year < 50) {
+                        year += 2000; // 00-49 -> 2000-2049
+                    } else {
+                        year += 1900; // 50-99 -> 1950-1999
+                    }
+                }
+                
+                // Phân biệt M/d và d/M: nếu phần đầu > 12 thì là d/M, ngược lại là M/d
+                int month, day;
+                if (firstPart > 12) {
+                    // Format d/M/yy hoặc d/M/yyyy (day/month/year)
+                    day = firstPart;
+                    month = secondPart;
+                } else {
+                    // Format M/d/yy hoặc M/d/yyyy (month/day/year)
+                    month = firstPart;
+                    day = secondPart;
+                }
+                
+                // Validate month và day
+                if (month < 1 || month > 12) {
+                    throw new IllegalArgumentException("Invalid month: " + month);
+                }
+                if (day < 1 || day > 31) {
+                    throw new IllegalArgumentException("Invalid day: " + day);
+                }
+                
+                return LocalDate.of(year, month, day);
+            }
+        } catch (Exception e) {
+            // Nếu không parse được với logic trên, throw exception với message rõ ràng
+            throw new IllegalArgumentException("Cannot parse date: " + dateString + ". Supported formats: yyyy-MM-dd, M/d/yy, M/d/yyyy, d/M/yy, d/M/yyyy. Error: " + e.getMessage());
+        }
+        
+        // Nếu không match pattern, throw exception
+        throw new IllegalArgumentException("Cannot parse date: " + dateString + ". Supported formats: yyyy-MM-dd, M/d/yy, M/d/yyyy, d/M/yy, d/M/yyyy");
     }
 }
 
