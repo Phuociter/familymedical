@@ -40,6 +40,8 @@ public class DoctorRequestResolver {
     // Map doctorID từ entity User → GraphQL Int
     @SchemaMapping(typeName = "DoctorRequest", field = "doctorID")
     public Integer getDoctorID(DoctorRequest dr) {
+        //code mới nhất
         return dr.getDoctor() != null ? dr.getDoctor().getUserID() : null;
+        
     }
 }
