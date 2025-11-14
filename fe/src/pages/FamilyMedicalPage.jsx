@@ -10,6 +10,7 @@ import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDo
 import SubscriptionModal from '../components/FamilyMedicalComponent/SubscriptionModal';
 import AddMemberModal from '../components/FamilyMedicalComponent/AddMemberModal.jsx';
 import authApi from '../api/authApi.js';
+import DoctorAPI from '../api/DoctorAPI.js';
 import { updateProfile } from '../redux/userSlice.js';
 import { useSelector,useDispatch } from "react-redux";
 import { View } from '../type';
@@ -29,6 +30,7 @@ const FamilyMedicalPage = () => {
   const handleSetFamilyDoctor = () => {
     setFamilyDoctorId(user.doctorCode);
   };
+
 
   const handleProfileUpdate = async (updatedProfile) => {
   
@@ -56,7 +58,8 @@ const FamilyMedicalPage = () => {
       case View.Family:
         return <FamilyList />;
       case View.Doctors:
-        return <DoctorList familyDoctorId={familyDoctorId} onSetFamilyDoctor={handleSetFamilyDoctor} />;
+        return <DoctorList familyDoctorId={familyDoctorId} />;
+        // return <div>Tạm thời vô hiệu hóa DoctorList</div>;
       case View.Messages:
         return <Messages />;
       default:

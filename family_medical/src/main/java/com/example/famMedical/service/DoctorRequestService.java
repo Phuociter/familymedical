@@ -25,11 +25,14 @@ public class DoctorRequestService {
 
         Family f2 = familyRepository.findByHeadOfFamily_UserID(uID)
         .orElseThrow(() -> new IllegalArgumentException("family not found with ID: " + docID)); 
+        // System.out.println(f2.get);
          
         DoctorRequest newRequest = new DoctorRequest();
         newRequest.setFamily(f2);
         newRequest.setDoctor(u1);
+        newRequest.setFamily(f2);
         newRequest.setStatus(RequestStatus.PENDING);
+        System.out.println("thêm thành công doctor request");
         return doctorRequestRepository.save(newRequest);
 
     }

@@ -11,6 +11,8 @@ import com.example.famMedical.dto.DoctorRequestInput;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -24,8 +26,20 @@ public class DoctorRequestResolver {
     }
 
     @MutationMapping
-    public DoctorRequest createDRequest(@Argument @Valid DoctorRequestInput input) {
+    public DoctorRequest createDRequest(@Argument @Valid String doctorID, @Argument @Valid String userID) {
         // DRequest.
-        return doctorRequestService.createDoctorRequest(input.getDoctorID(),input.getUserID());
-    }   
+        return doctorRequestService.createDoctorRequest(doctorID,userID);
+    }
+    
+        // Map familyID từ entity Family → GraphQL Int
+    @SchemaMapping(typeName = "DoctorRequest", field = "familyID")
+    public Integer getFamilyID(DoctorRequest dr) {
+        return dr.getFamily() != null ? dr.getFamily().getFamilyID() : null;
+    }
+
+    // Map doctorID từ entity User → GraphQL Int
+    @SchemaMapping(typeName = "DoctorRequest", field = "doctorID")
+    public Integer getDoctorID(DoctorRequest dr) {
+        return dr.getDoctor() != null ? dr.getDoctor().getUserID() : null;
+    }
 }

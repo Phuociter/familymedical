@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 // import { DOCTORS } from '../../constants.js';
-import DoctorDetailModal from './DoctorDetailModal.jsx';
+// import DoctorDetailModal from './DoctorDetailModal.jsx';
+import * as DoctorDetailModalModule from './DoctorDetailModal.jsx'
+const DoctorDetailModal = DoctorDetailModalModule.default;
 import DoctorAPI from '../../api/DoctorAPI.js';
 
-const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
+const DoctorList = ({ familyDoctorId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [doctors, setDoctors] = useState([]);
-    
-
+    const [doctorRequest,setDoctorRequest] = useState();
+    const token = localStorage.getItem('userToken');
+    const user = JSON.parse(localStorage.getItem('user'));
+    // console.log("familyID",familyDoctorId);
     useEffect(() =>{
         const fetchDoctors = async() => {
             try {
-                const token = localStorage.getItem('userToken');
-                // const token = localStorage.getItem('token');
                 const doctorData = await DoctorAPI.getAllDoctor(token);
                 setDoctors(doctorData);
             } catch (error) {
@@ -22,6 +24,7 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
         };
         fetchDoctors();
     }, [])
+
     const filteredDoctors = doctors.filter(doctor =>
         doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -35,14 +38,29 @@ const DoctorList = ({ familyDoctorId, onSetFamilyDoctor }) => {
         setSelectedDoctor(null);
     };
 
-    const handleRequestDoctor = (doctor) => {
-        if (familyDoctorId !== null) {
-            alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
-        } else {
-            onSetFamilyDoctor(doctor.id);
-            alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctor.name}.`);
-            handleCloseModal();
+    const onSetFamilyDoctor = async(doctorID) => {
+        try{
+                const doctorDataR = await DoctorAPI.createDoctorRequest(doctorID, user.userID, token);
+                setDoctorRequest(doctorDataR);  
+                console.log("create doctor request:", doctorDataR);
+                if(doctorDataR==null){
+                    console.log("tạo yêu cầu tới bác sĩ lỗi");
+                }          
+        }catch(error){
+            throw(error);
         }
+    }
+
+    const handleRequestDoctor = (doctorID) => {
+        // if (familyDoctorId !== null) {
+        //     alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
+        // } else {
+        //     onSetFamilyDoctor(doctorID);
+        //     // alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctors.fullName}.`);
+        //     handleCloseModal();
+        // } 
+            onSetFamilyDoctor(doctorID);
+            handleCloseModal();
     };
 
   return (

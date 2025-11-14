@@ -54,7 +54,7 @@ cloudinary:
 
 jwt:
   secret:
-    key: ${JWT_SECRET_KEY:SjkwTjN5aG41V2t6M0p4SllYNDlRYzJmQnU4cTgyMXFhU1hIUlJjS00=}
+    key: SjkwTjN5aG41V2t6M0p4SllYNDlRYzJmQnU4cTgyMXFhU1hIUlJjS00=
   expiration:
     time:
       ms: 86400000

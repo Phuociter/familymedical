@@ -252,7 +252,7 @@ type Mutation {
     deleteMember(memberID: ID!): Boolean
 
     # doctor request
-    createDRequest(familyID:ID!, userID:ID!, input:RequestDoctorInput!) : DoctorRequest
+    createDRequest(doctorID:ID!, userID:ID!) : DoctorRequest
     
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!

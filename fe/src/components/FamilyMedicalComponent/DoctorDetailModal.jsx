@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
   const modalRef = useRef(null);
-
+  // console.log(doctor.userID)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -48,7 +48,7 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
 
         <img
           className="w-24 h-24 rounded-full mx-auto -mt-4 mb-4 border-4 border-[#FFFFFF] shadow-md"
-          src={`https://picsum.photos/seed/${doctor.ID}/200`}
+          src={`https://picsum.photos/seed/${doctor.userID}/200`}
           alt={doctor.fullName}
         />
 
@@ -79,7 +79,7 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            onClick={() => onRequest(doctor)}
+            onClick={ () => onRequest(doctor.userID)}
             className="w-full px-6 py-3 bg-[#10B981] text-[#FFFFFF] font-semibold rounded-lg hover:bg-[#059669] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981]"
           >
             Yêu cầu trở thành bác sĩ gia đình
@@ -95,5 +95,4 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
     </div>
   );
 };
-
 export default DoctorDetailModal;
