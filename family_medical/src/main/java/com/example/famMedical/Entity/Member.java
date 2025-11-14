@@ -57,6 +57,6 @@ public class Member {
     }
 
     public enum Gender {
-        male, female, other
+        Nam, Nữ, Khác
     }
 }

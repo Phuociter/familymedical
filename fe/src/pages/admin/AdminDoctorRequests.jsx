@@ -99,9 +99,18 @@ const AdminDoctorRequests = () => {
   const statistics = useMemo(() => {
     if (!Array.isArray(requests)) return { pending: 0, accepted: 0, rejected: 0, total: 0 };
     return {
-      pending: requests.filter(r => r.status === 'pending' || r.status === 'PENDING').length,
-      accepted: requests.filter(r => r.status === 'accepted' || r.status === 'ACCEPTED').length,
-      rejected: requests.filter(r => r.status === 'rejected' || r.status === 'REJECTED').length,
+      pending: requests.filter(r => {
+        const s = r.status?.toUpperCase();
+        return s === 'PENDING';
+      }).length,
+      accepted: requests.filter(r => {
+        const s = r.status?.toUpperCase();
+        return s === 'ACCEPTED';
+      }).length,
+      rejected: requests.filter(r => {
+        const s = r.status?.toUpperCase();
+        return s === 'REJECTED';
+      }).length,
       total: requests.length
     };
   }, [requests]);
@@ -127,7 +136,6 @@ const AdminDoctorRequests = () => {
       
       const matchesStatus = 
         !filterStatus ||
-        request.status === filterStatus.toLowerCase() ||
         request.status?.toUpperCase() === filterStatus.toUpperCase();
       
       const matchesFamily = 
@@ -197,16 +205,32 @@ const AdminDoctorRequests = () => {
   };
 
   const getStatusBadge = (status) => {
+    if (!status) return null;
+    
     const statusMap = {
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Chờ duyệt' },
       accepted: { bg: 'bg-green-100', text: 'text-green-800', label: 'Đã chấp nhận' },
       rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Đã từ chối' },
-      // Fallback cho uppercase (nếu có)
+      // Fallback cho uppercase và capitalized (database format)
       PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Chờ duyệt' },
       ACCEPTED: { bg: 'bg-green-100', text: 'text-green-800', label: 'Đã chấp nhận' },
       REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: 'Đã từ chối' },
+      Pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Chờ duyệt' },
+      Accepted: { bg: 'bg-green-100', text: 'text-green-800', label: 'Đã chấp nhận' },
+      Rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Đã từ chối' },
     };
-    const style = statusMap[status] || statusMap.pending;
+    
+    // Thử tìm với giá trị gốc trước
+    let style = statusMap[status];
+    
+    // Nếu không tìm thấy, thử với uppercase
+    if (!style) {
+      style = statusMap[status.toUpperCase()];
+    }
+    
+    // Fallback về pending nếu không tìm thấy
+    style = style || statusMap.pending;
+    
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${style.bg} ${style.text}`}>
         {style.label}
@@ -453,7 +477,7 @@ const AdminDoctorRequests = () => {
                           >
                             <FiEye size={18} />
                           </button>
-                          {(request.status === 'pending' || request.status === 'PENDING') && (
+                          {(request.status?.toUpperCase() === 'PENDING') && (
                             <>
                               <button
                                 onClick={() => handleApprove(request.requestID)}
@@ -646,7 +670,7 @@ const AdminDoctorRequests = () => {
                     </div>
                   </div>
 
-                  {(selectedRequest.status === 'pending' || selectedRequest.status === 'PENDING') && (
+                  {(selectedRequest.status?.toUpperCase() === 'PENDING') && (
                     <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
                       <button
                         onClick={() => {

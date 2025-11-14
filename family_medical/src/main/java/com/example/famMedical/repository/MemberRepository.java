@@ -9,7 +9,9 @@ import java.util.List;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Integer> {
+    
+    @Query("SELECT DISTINCT m FROM Member m LEFT JOIN FETCH m.family")
+    List<Member> findAllWithFamily();
+    
     List<Member> findByFamily_FamilyID(Integer familyID);
-
-
 }

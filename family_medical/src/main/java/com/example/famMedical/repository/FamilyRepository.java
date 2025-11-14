@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FamilyRepository extends JpaRepository<Family, Integer> {
 
+    @Query("SELECT DISTINCT f FROM Family f LEFT JOIN FETCH f.headOfFamily")
+    List<Family> findAllWithHeadOfFamily();
+
     @Query("SELECT DISTINCT f FROM Family f " +
         "JOIN f.doctorAssignments da " +
         "WHERE da.doctor.userID = :doctorId " +
