@@ -1,3 +1,4 @@
+
 scalar Date
 scalar DateTime
 scalar LocalDate
@@ -11,7 +12,7 @@ enum UserRole {
     Admin
 }
 
-enum Gender {
+enum Gender { # Thêm Gender nếu cần cho Entity Member
     Nam
     Nu
     Khac
@@ -50,11 +51,14 @@ input LoginInput {
 }
 
 input UpdateUserInput {
+    userID: Int
     address: String 
     avatarUrl: String
     cccd: String
     fullName: String
     phoneNumber: String
+    doctorCode: String
+    role: UserRole
 }
 
 
@@ -93,6 +97,7 @@ input CreateMedicalRecordInput {
 }
 
 input UpdateMemberInput {
+    memberID: Int
     fullName: String 
     dateOfBirth: LocalDate
     gender: String 
@@ -110,9 +115,10 @@ input CreateMemberInput {
     cccd: String 
 }
 
-input RequestDoctorInput { 
-    userID: Int!
+input RequestDoctorInput { # Input Object cho việc yêu cầu bác sĩ
+    familyID: Int!
     doctorID: Int!
+    message: String
 }
 
 
@@ -128,10 +134,10 @@ type User {
     phoneNumber: String
     address: String
     cccd: String
-    hospitalName: String
-    yearsOfExperience: String
     avatarUrl: String   
     doctorCode: String
+    isVerified: Boolean
+    isLocked: Boolean
 }
 
 type AuthPayload {
@@ -143,7 +149,9 @@ type Family {
     familyID: ID
     familyName: String
     familyAddress: String
+    address: String
     headOfFamily: User
+    headOfFamilyID: Int
     members: [Member]
     doctorAssignments: [DoctorAssignment] 
     createdAt: DateTime
@@ -151,14 +159,14 @@ type Family {
 
 type Member {
     memberID: ID!
+    familyID: Int
     fullName: String
     relationship: String
     cccd: String
-    phoneNumber: String
-    gender:String
     dateOfBirth: LocalDate
-    
-    # Thêm các trường khác của Member nếu cần (DateOfBirth, Gender)
+    gender: String
+    phoneNumber: String
+    createdAt: String
 }
 
 type MedicalRecord {
@@ -207,10 +215,7 @@ type MomoPaymentResponse {
     message: String
 }
 
-type Doctor {
-    userID: ID!
 
-}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -221,11 +226,23 @@ type Query {
     doctorRequestsForDoctor(doctorID: Int!): [DoctorRequest]
     getPaymentsByUserId(userId: Int!): [Payment]
     getPaymentOnByUserId(userId: Int!): [Payment]
-    getDoctorList: [User!]!
 
     #Truy vấn gia đình
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
+
+    # Admin queries
+    allMembers: [Member]
+    allDoctors: [User]
+    allUsers: [User]
+    allFamilies: [Family]
+    memberById(memberID: Int!): Member
+    userById(userID: Int!): User
+    familyById(familyID: Int!): Family
+    allPayments: [Payment]
+    allDoctorRequests: [DoctorRequest]
+    doctorRequestsByStatus(status: String): [DoctorRequest]
+    paymentsByStatus(status: String): [Payment]
 
 }
 
@@ -240,19 +257,18 @@ type Mutation {
 
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
 
-    # SỬA:
+    # SỬA: Sử dụng RequestDoctorInput
+    requestDoctor(input: RequestDoctorInput!): DoctorRequest
     completeOAuth2Profile(input: CompleteProfileInput!): User!
     
     # user
     updateUserProfile(userID: ID!, input: UpdateUserInput!): User
+    updateUser(input: UpdateUserInput!): User
 
     #member
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member
     createMember(input: CreateMemberInput!): Member!
     deleteMember(memberID: ID!): Boolean
-
-    # doctor request
-    createDRequest(doctorID:ID!, userID:ID!) : DoctorRequest
     
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
