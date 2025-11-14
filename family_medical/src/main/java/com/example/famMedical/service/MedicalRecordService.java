@@ -6,7 +6,7 @@ import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.repository.MedicalRecordRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;  
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,7 +32,7 @@ public class MedicalRecordService {
     }
 
     public List<MedicalRecord> getRecordsByMemberId(Integer memberId) {
-        return medicalRecordRepository.findByMemberMemberID(memberId);
+        return medicalRecordRepository.findByMember_MemberID(memberId);
     }
 
     // Trả về chỉ danh sách link file PDF
