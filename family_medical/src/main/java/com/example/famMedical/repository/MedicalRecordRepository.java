@@ -14,7 +14,7 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
     
     List<MedicalRecord> findByMemberID_MemberID(Integer memberID);
 
-    @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.member.memberID = :memberId")
+    @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.memberID.memberID = :memberId")
     List<String> findFileLinksByMemberId(@Param("memberId") Integer memberId);
 }
 
