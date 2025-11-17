@@ -89,10 +89,11 @@ input CompleteProfileInput {
 
 input CreateMedicalRecordInput {
     memberID: Int!
-    symptoms: String
-    diagnosis: String
-    treatmentPlan: String
+    doctorID: Int
+    fileType: String
     fileLink: String
+    description: String
+    treatmentPlan: recordDate
 }
 
 input UpdateMemberInput {
@@ -170,12 +171,14 @@ type Member {
 
 type MedicalRecord {
     recordID: ID!
-    member: Member!
+    memberID: Int
+    member: Member
+    doctorID: Int
+    Doctor: Doctor
     fileType: String
-    recordDate: Date
-    description: String
-    recordDate: String
     fileLink: String
+    description: String
+    recordDate: Date
 }
 
 type DoctorRequest {
@@ -258,7 +261,7 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
+    createMedicalRecord(memberID! ,input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

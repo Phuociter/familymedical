@@ -4,30 +4,35 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "MedicalRecords")
 @Data
-@NoArgsConstructor
+// @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class MedicalRecord {
 
+    public MedicalRecord(){}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "RecordID", nullable = true)
     private Integer recordID;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberID")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "family"})
-    private Member member;
+    private Member memberID;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctorID", nullable = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User doctor;
+    private User doctorID;
     
+    @Enumerated(EnumType.STRING)
     @Column(name = "FileType", nullable = true)
     private FileType fileType;
 
@@ -38,15 +43,12 @@ public class MedicalRecord {
     private String description;
 
     @Column(name = "RecordDate", nullable = true)
-    private LocalDateTime recordDate;
+    private LocalDate recordDate;
 
     private String symptoms;
     private String diagnosis;
     private String treatmentPlan;
     
-
-    // URL của file PDF được lưu trên cloud (Firebase/S3)
-
     public enum FileType{
         Chup_XQuang,
         Sieu_Am,
