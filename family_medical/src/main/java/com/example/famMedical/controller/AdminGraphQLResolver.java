@@ -247,28 +247,6 @@ public class AdminGraphQLResolver {
     }
 
     /**
-     * Resolver cho field familyID của DoctorRequest
-     */
-    @SchemaMapping(typeName = "DoctorRequest", field = "familyID")
-    public Integer familyID(DoctorRequest doctorRequest) {
-        if (doctorRequest.getFamily() == null) {
-            return null;
-        }
-        return doctorRequest.getFamily().getFamilyID();
-    }
-
-    /**
-     * Resolver cho field doctorID của DoctorRequest
-     */
-    @SchemaMapping(typeName = "DoctorRequest", field = "doctorID")
-    public Integer doctorID(DoctorRequest doctorRequest) {
-        if (doctorRequest.getDoctor() == null) {
-            return null;
-        }
-        return doctorRequest.getDoctor().getUserID();
-    }
-
-    /**
      * Resolver cho field status của DoctorRequest
      * Trả về giá trị enum trực tiếp từ database (Pending, Accepted, Rejected)
      */

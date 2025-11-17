@@ -1,17 +1,20 @@
-package com.example.famMedical.controller;
+package com.example.famMedical.resolver;
 
 
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.service.FamilyService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
-public class FamilyController {
+public class FamilyResolver {
 
     private final FamilyService familyService;
 
@@ -24,6 +27,12 @@ public class FamilyController {
 
     public Optional<Family> getFamilyById(Integer familyID) {
         return familyService.getFamilyById(familyID);
+    }
+
+    @QueryMapping
+    public Family getFamilyByHeadOfFamilyID(@Argument Integer userID){
+        // System.out.println("head:"+userID);
+        return familyService.getFamilyByHeadOfFamilyID(userID);
     }
 
     public Family createFamily(Family family) {

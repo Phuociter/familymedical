@@ -32,5 +32,6 @@ public interface FamilyRepository extends JpaRepository<Family, Integer> {
         @Param("search") String search
     );
 
-    Optional<Family> findByHeadOfFamily_UserID(Integer userID);
+    Family findByHeadOfFamily_UserID(Integer userID);
+    // Family findByMembersMemberID(Integer memberID);
 }

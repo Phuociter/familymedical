@@ -105,6 +105,7 @@ input UpdateMemberInput {
 }
 
 input CreateMemberInput {
+    familyID: Int
     fullName: String 
     dateOfBirth: LocalDate
     gender: String 
@@ -165,16 +166,14 @@ type Member {
     dateOfBirth: LocalDate
     gender: String
     phoneNumber: String
-    createdAt: String
 }
 
 type MedicalRecord {
     recordID: ID!
-    # memberID: ID! # Thường nên dùng Member Type để Resolver có thể fetch chi tiết
     member: Member!
-    symptoms: String
-    diagnosis: String
-    treatmentPlan: String
+    fileType: String
+    recordDate: Date
+    description: String
     recordDate: String
     fileLink: String
 }
@@ -233,6 +232,8 @@ type Query {
     #Truy vấn gia đình
     medicalRecordsByMember(memberID: Int!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
+    getFamilyByHeadOfFamilyID(userID: ID!): Family
+
 
     # Admin queries
     allMembers: [Member]

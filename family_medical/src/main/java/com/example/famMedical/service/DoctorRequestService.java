@@ -23,8 +23,8 @@ public class DoctorRequestService {
         User u1 = userRepository.findById(docID)
         .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + docID)); 
 
-        Family f2 = familyRepository.findByHeadOfFamily_UserID(uID)
-        .orElseThrow(() -> new IllegalArgumentException("family not found with ID: " + docID)); 
+        Family f2 = familyRepository.findByHeadOfFamily_UserID(uID);
+        // .orElseThrow(() -> new IllegalArgumentException("family not found with ID: " + docID)); 
         // System.out.println(f2.get);
          
         DoctorRequest newRequest = new DoctorRequest();

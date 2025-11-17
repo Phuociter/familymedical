@@ -1,37 +1,45 @@
 import axios from 'axios';
-
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
-import userSlice from '../redux/userSlice';
-import { useSelector } from "react-redux";
 import authApi from './authApi';
-
+const token = localStorage.getItem('userToken');
+const user = JSON.parse(localStorage.getItem('user'));
+const userID = user.userID;
 const MemberAPI = {
   // const user = useSelector((state) => state.user.user);
-  getMemberByUserID: async (userID, token) => {
+  getMemberByFamilyID: async (familyID, token) => {
     try{
       const GET_MEMBERS_QUERY = `
       query MembersByFamilyID($familyID: ID!) {
         membersByFamilyID(familyID: $familyID) {
-          id
+          memberID
+          familyID
           fullName
+          relationship
+          cccd
           dateOfBirth
           gender
-          relationship
           phoneNumber
-          cccd
-        }`
-        const data = await authApi.sendGraphQLRequest(GET_MEMBERS_QUERY, { familyID: userID }, token);
+        }
+      }`
+        const variables = {familyID};
+        const data = await authApi.sendGraphQLRequest(GET_MEMBERS_QUERY, variables, token);
         return data.membersByFamilyID;
 
     }
-    catch (error) {}
+    catch (error) {
+      console.error("lỗi khi lấy danh sách thành viên",error);
+      if(error.response){
+        console.log("lỗi server:",JSON.stringify(error.response.data, null, 2))
+      }
+      return[];
+    }
   },
   updateMember: async (memberID, memberData, token) => {
     try {
       const UPDATE_MEMBER_MUTATION = `
       mutation UpdateMember($memberID: ID!, $input: MemberUpdateInput!) {
         updateMember(memberID: $memberID, input: $input) {
-          id
+          memberID
           fullName
           dateOfBirth 
           gender
@@ -52,24 +60,74 @@ const MemberAPI = {
   createMember: async (memberData, token) => {
     try{
       const CREATE_MEMBER_MUTATIOIN  = `
-      mutation CreateMember($input: MemberCreateInput!) {
+      mutation CreateMember($input: CreateMemberInput!) {
         createMember(input: $input) {
-          id
+          relationship
           fullName
           dateOfBirth 
           gender
-          relationship
           phoneNumber
           cccd
         }
-      };`
+      }`;
       const variables = {
         input: memberData,
       };
       const data = await authApi.sendGraphQLRequest(CREATE_MEMBER_MUTATIOIN, variables, token);
       return data.createMember;
     }
-    catch(error){}
+    catch(error){
+      throw error;
+    }
+  },
+  getFamilyByHeadOfFamilyID: async (userID, token) => {
+    try{
+      // console.log("userID:",userID);
+      const Get_Family_By_MemberID_QUERY  = `
+      query GetFamilyByHeadOfFamilyID($userID:ID!) {
+        getFamilyByHeadOfFamilyID(userID: $userID) {
+          familyID
+          familyName
+          familyAddress
+          address
+          members {
+            memberID
+            fullName
+            relationship
+            cccd
+            dateOfBirth
+            gender
+            phoneNumber
+          }
+          doctorAssignments {
+          assignmentId
+            doctor{
+              userID
+              fullName
+              phoneNumber
+            }
+          } 
+        }
+      }`;
+    const variables = { userID };
+      // console.log("userID:",token);
+
+    const data = await authApi.sendGraphQLRequest(Get_Family_By_MemberID_QUERY, variables, token);
+    return data.getFamilyByHeadOfFamilyID;
+    }
+    catch(error){
+      console.error("getFamilyByHeadOfFamilyID error:", error);
+      throw error;
+    }
+  },
+  postMedicalRecord: async(memberID, medicalRecord,token) =>{
+    try{
+      const medicalRecordFile = await authApi.uploadAvatarToCloudinary(file)
+      const POST_MEDICAL_RECORD_DATA = `
+      `;
+    }catch(error){
+      throw(error);
+    }
   }
 }
 export default MemberAPI;
