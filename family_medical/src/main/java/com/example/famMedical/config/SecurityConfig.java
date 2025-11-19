@@ -1,5 +1,6 @@
 package com.example.famMedical.config;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.famMedical.security.JwtAuthenticationFilter; // IMPORT FILTER
 import com.example.famMedical.service.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
@@ -8,10 +9,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,14 +32,16 @@ public class SecurityConfig {
     }
 
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable);
+
         http.cors(cors -> {});
+
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/graphql", "/graphiql", "/login/oauth2/**", "/oauth2/**").permitAll()
+                .requestMatchers("/graphql", "/graphiql", "/login/oauth2/**", "/oauth2/**", "/h2-console/**").permitAll()
+                .requestMatchers("/api/**").permitAll() // Cho phép tất cả các request API không cần xác thực
                 .anyRequest().authenticated()
         );
         http.oauth2Login(oauth -> oauth.successHandler(oAuth2LoginSuccessHandler));

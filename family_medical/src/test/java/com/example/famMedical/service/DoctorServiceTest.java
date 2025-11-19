@@ -1,6 +1,9 @@
 package com.example.famMedical.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -98,11 +101,11 @@ public class DoctorServiceTest {
         // Setup medical records
         record1 = new MedicalRecord();
         record1.setRecordID(1000);
-        record1.setMember(member1);
+        record1.setMemberID(member1);
 
         record2 = new MedicalRecord();
         record2.setRecordID(1001);
-        record2.setMember(member1);
+        record2.setMemberID(member1);
     }
 
     @Nested
@@ -316,7 +319,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberMemberID(member1.getMemberID())).thenReturn(expectedRecords);
+            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());
@@ -326,7 +329,7 @@ public class DoctorServiceTest {
             assertEquals(expectedRecords, result);
             verify(userRepo).findById(doctor.getUserID());
             verify(memberRepo).findById(member1.getMemberID());
-            verify(medicalRecordRepo).findByMemberMemberID(member1.getMemberID());
+            verify(medicalRecordRepo).findByMemberID_MemberID(member1.getMemberID());
         }
 
         @Test
@@ -365,7 +368,7 @@ public class DoctorServiceTest {
                 doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID()));
             
             assertEquals("Member không tồn tại", exception.getMessage());
-            verify(medicalRecordRepo, never()).findByMemberMemberID(anyInt());
+            verify(medicalRecordRepo, never()).findByMemberID_MemberID(anyInt());
         }
 
         @Test
@@ -383,7 +386,7 @@ public class DoctorServiceTest {
                 doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID()));
             
             assertEquals("Bạn không có quyền truy cập gia đình này", exception.getMessage());
-            verify(medicalRecordRepo, never()).findByMemberMemberID(anyInt());
+            verify(medicalRecordRepo, never()).findByMemberID_MemberID(anyInt());
         }
 
         @Test
@@ -396,7 +399,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberMemberID(member1.getMemberID())).thenReturn(emptyList);
+            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(emptyList);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());
@@ -415,7 +418,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberMemberID(member1.getMemberID())).thenReturn(expectedRecords);
+            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());

@@ -1,9 +1,23 @@
-import React, { useState } from 'react';
-import { FAMILY_MEMBERS } from '../../constants.js';
+import React, { useState, useEffect } from 'react';
+// import { FAMILY_MEMBERS } from '../../constants.js';
 import MedicalRecordModal from './MedicalRecordModal.jsx';
+import AddMemberModal from './AddMemberModal.jsx';
+import MemberAPI from '../../api/MemberAPI.js'
+const token = localStorage.getItem('userToken');
 
 const FamilyMemberCard = ({ member, onViewDetails }) => {
-    const initials = member.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    const formatName = (name) => {
+        if (!name) return '';
+        return name
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
+    const formattedName = formatName(member.fullName);
+    const initials = (formattedName || '').split(' ').map(n => n[0]).join('').toUpperCase();
+
     return (
         <div className="bg-[#FFFFFF] p-4 rounded-lg shadow-sm border border-[#EEEEEE] flex items-center justify-between transition-shadow hover:shadow-md">
             <div className="flex items-center">
@@ -11,7 +25,7 @@ const FamilyMemberCard = ({ member, onViewDetails }) => {
                     {initials}
                 </div>
                 <div>
-                    <p className="font-semibold text-[#111827]">{member.name}</p>
+                    <p className="font-semibold text-[#111827]">{formattedName}</p>
                     <p className="text-sm text-[#6B7280]">{member.relationship}</p>
                 </div>
             </div>
@@ -25,10 +39,48 @@ const FamilyMemberCard = ({ member, onViewDetails }) => {
 const FamilyList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const[loading, setLoading] = useState(null);
+  const[members,setMembers] = useState([]);
 
-  const filteredMembers = FAMILY_MEMBERS.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  useEffect(()=>{
+    if(user==null || user.userID==null){
+      console.log("không tìm thấy user");
+      setLoading(false);
+      return;
+    }
+
+    const fetchMembers =  async()=>{
+      try{
+        setLoading(true);
+        const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
+        const memberData = await MemberAPI.getMemberByFamilyID(response.familyID);
+        setMembers(memberData);
+        console.log("FamilyID data:",memberData);
+        // console.log("members",members);
+        // console.log("response:",response.familyID);
+      }catch(err){
+        setError(err);
+        console.log("Failed to fetch family members:", err);
+      }finally{
+        setLoading(false);
+      }
+    };
+    fetchMembers();
+    // setMembers(memberData);
+  },[user?.userID]);
+
+  // useEffect(()=>{
+  //   if(members.length>0){
+
+  //   }
+
+  // },members)
 
   const handleViewDetails = (member) => {
     setSelectedMember(member);
@@ -36,6 +88,49 @@ const FamilyList = () => {
 
   const handleCloseModal = () => {
     setSelectedMember(null);
+  };
+
+  const handleAddMember = async (memberData) => {
+    try {
+      console.log("memberData",memberData);
+        const responseData = await MemberAPI.createMember(memberData, token);
+        setFamilyMembers(prevMembers => [...prevMembers, responseData]);
+        // alert('Thêm thành viên mới thành công!');
+        // const newMember = responseData.addFamilyMember;
+        // Cập nhật state để hiển thị thành viên mới ngay lập tức
+        // console.log("members",members);
+    } catch (error) {
+        console.error("Failed to add family member:", error);
+        alert('Thêm thành viên thất bại. Vui lòng thử lại.');
+        // Ném lỗi để modal biết và không tự đóng
+        throw error;
+    }
+  };
+
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingSpinner />;
+    }
+    if (error) {
+      return (
+        <div className="text-center py-10 bg-red-50 rounded-lg shadow-sm border border-red-200">
+          <p className="text-red-600">{error}</p>
+        </div>
+      );
+    }
+    if (members.length > 0) {
+      return (
+        <div className="space-y-4">
+          {members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)}
+        </div>
+      );
+    }
+    return (
+      <div className="text-center py-10 bg-white rounded-lg shadow-sm border border-gray-200">
+        <p className="text-gray-500">Chưa có thành viên nào. Hãy thêm một thành viên mới.</p>
+      </div>
+    );
   };
 
   return (
@@ -57,15 +152,15 @@ const FamilyList = () => {
                       className="w-full pl-10 pr-4 py-2 border border-[#D1D5DB] rounded-md focus:ring-[#3B82F6] focus:border-[#3B82F6] transition"
                   />
               </div>
-              <button className="w-full sm:w-auto px-4 py-2 bg-[#3B82F6] text-[#FFFFFF] rounded-md hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition-colors">
+              <button onClick={() => setIsAddModalOpen(true)} className="w-full sm:w-auto px-4 py-2 bg-[#3B82F6] text-[#FFFFFF] rounded-md hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition-colors">
                   + Thêm thành viên
               </button>
           </div>
         </div>
 
         <div className="space-y-4">
-          {filteredMembers.length > 0 ? (
-            filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)
+          {members.length > 0 ? (
+            members.map(member => <FamilyMemberCard key={member.membersID} member={member} onViewDetails={handleViewDetails} />)
           ) : (
             <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
               <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
@@ -77,8 +172,14 @@ const FamilyList = () => {
         <MedicalRecordModal 
           member={selectedMember} 
           onClose={handleCloseModal} 
+
         />
       )}
+      <AddMemberModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddMember}
+      />
     </>
   );
 };

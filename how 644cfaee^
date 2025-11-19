@@ -1,0 +1,118 @@
+*   [33m644cfaee[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Resolve merge
+[31m|[m[32m\[m  
+[31m|[m *   [33m0e82810f[m[33m ([m[1;31morigin/main[m[33m)[m Merge pull request #11 from Phuociter/admin_bracnd_main
+[31m|[m [33m|[m[34m\[m  
+[31m|[m [33m|[m * [33mb4292480[m[33m ([m[1;31morigin/admin_bracnd_main[m[33m)[m Merge pull request #10 from Phuociter/admin_branch
+[31m|[m [33m|[m[33m/[m[36m|[m 
+[31m|[m [33m|[m *   [33m84857f3b[m[33m ([m[1;31morigin/admin_branch[m[33m)[m Merge branch 'admin_bracnd_main' into admin_branch
+[31m|[m [33m|[m [1;31m|[m[33m\[m  
+[31m|[m [33m|[m [1;31m|[m[33m/[m  
+[31m|[m [33m|[m[33m/[m[1;31m|[m   
+[31m|[m [33m|[m * [33mfafabc48[m Add admin APIs, Cloudinary integration, and entity updates
+[31m|[m [33m|[m *   [33m3fc42ce4[m Merge pull request #3 from Phuociter/main
+[31m|[m [33m|[m [1;33m|[m[1;34m\[m  
+* [33m|[m [1;33m|[m [1;34m|[m [33m0c15e2fb[m create doctor request
+[33m|[m[33m/[m [1;33m/[m [1;34m/[m  
+* [1;33m|[m [1;34m|[m [33m664ee00e[m[33m ([m[1;31morigin/main1311_8_50[m[33m)[m fix localDate in member
+* [1;33m|[m [1;34m|[m [33m50298038[m sua loi localDate
+* [1;33m|[m [1;34m|[m   [33m4571936d[m them thanh vien
+[1;35m|[m[1;36m\[m [1;33m\[m [1;34m\[m  
+[1;35m|[m * [1;33m\[m [1;34m\[m   [33m93da88d3[m Merge pull request #9 from Phuociter/quan-2-t
+[1;35m|[m [31m|[m[32m\[m [1;33m\[m [1;34m\[m  
+[1;35m|[m [31m|[m * [1;33m|[m [1;34m|[m [33m8135c738[m[33m ([m[1;31morigin/quan-2-t[m[33m)[m feat(doctor): Add comprehensive Doctor Portal setup and requests feature documentation
+[1;35m|[m * [32m|[m [1;33m|[m [1;34m|[m [33m26e323e9[m[33m ([m[1;31morigin/main1311[m[33m)[m Merge pull request #7 from Phuociter/quan-2-t
+[1;35m|[m [33m|[m[32m\[m[32m|[m [1;33m|[m [1;34m|[m 
+[1;35m|[m [33m|[m * [1;33m|[m [1;34m|[m [33mcbf517b0[m feat(appointment): Add Appointment entity and repository
+[1;35m|[m [33m|[m * [1;33m|[m [1;34m|[m [33mdc2ee6f6[m[33m ([m[1;31morigin/quan-2[m[33m)[m feat(doctor): Add doctor management and Cloudinary integration
+* [33m|[m [34m|[m [1;33m|[m [1;34m|[m [33m2b7c36eb[m done them memberfamily
+[33m|[m[33m/[m [34m/[m [1;33m/[m [1;34m/[m  
+* [34m|[m [1;33m|[m [1;34m|[m [33medcc1b92[m them thanh vien
+* [34m|[m [1;33m|[m [1;34m|[m [33m42f5eeca[m them thanh vien
+* [34m|[m [1;33m|[m [1;34m|[m [33m55dfb37f[m them fe be update tt user
+* [34m|[m [1;33m|[m [1;34m|[m [33m9e9d0af9[m load user
+* [34m|[m [1;33m|[m [1;34m|[m   [33m59449dc8[m Merge branch 'main' of https://github.com/Phuociter/familymedical
+[35m|[m[36m\[m [34m\[m [1;33m\[m [1;34m\[m  
+[35m|[m * [34m\[m [1;33m\[m [1;34m\[m   [33mbbc9e2f7[m Merge pull request #6 from Phuociter/hai-momopayment
+[35m|[m [34m|[m[1;32m\[m [34m\[m [1;33m\[m [1;34m\[m  
+[35m|[m [34m|[m [1;32m|[m[34m/[m [1;33m/[m [1;34m/[m  
+[35m|[m [34m|[m[34m/[m[1;32m|[m [1;33m|[m [1;34m|[m   
+[35m|[m [34m|[m * [1;33m|[m [1;34m|[m [33m0dec13b0[m[33m ([m[1;31morigin/hai-momopayment[m[33m)[m fix lỗi
+[35m|[m [34m|[m * [1;33m|[m [1;34m|[m [33me54de13e[m fix thông báo lỗi và chuyển hướng sau khi đăng nhập bằng gg và fb
+[35m|[m [34m|[m[34m/[m [1;33m/[m [1;34m/[m  
+* [34m/[m [1;33m/[m [1;34m/[m [33maf35f1cc[m done load data thanh toan
+[34m|[m[34m/[m [1;33m/[m [1;34m/[m  
+* [1;33m|[m [1;34m|[m [33m11f890dc[m đổ dữ liệu vào be PHƯỚC
+* [1;33m|[m [1;34m|[m   [33m6fc603d3[m Merge branch 'main' of https://github.com/Phuociter/familymedical
+[1;33m|[m[1;34m\[m [1;33m\[m [1;34m\[m  
+[1;33m|[m * [1;33m\[m [1;34m\[m   [33m04c83c57[m Merge pull request #4 from Phuociter/hai-momopayment
+[1;33m|[m [1;35m|[m[1;36m\[m [1;33m\[m [1;34m\[m  
+[1;33m|[m [1;35m|[m * [1;33m|[m [1;34m|[m [33m4586abb4[m Thêm tính năng thanh toán MoMo
+[1;33m|[m [1;35m|[m[1;35m/[m [1;33m/[m [1;34m/[m  
+* [1;35m/[m [1;33m/[m [1;34m/[m [33m2fc7e5e9[m them be cho familyMedical
+[1;35m|[m[1;35m/[m [1;33m/[m [1;34m/[m  
+* [1;33m|[m [1;34m|[m [33m33100123[m update giao dien
+* [1;33m|[m [1;34m|[m [33m3c792ef4[m demo
+* [1;33m|[m [1;34m|[m [33m8ede4c9e[m sua lai giao dien
+* [1;33m|[m [1;34m|[m [33m4af8fd63[m sua lai file sql
+* [1;33m|[m [1;34m|[m [33m90077261[m fix cors
+* [1;33m|[m [1;34m|[m [33me904b85c[m fix loi graphql upload va sẽ upload bằng restAPI
+* [1;33m|[m [1;34m|[m [33m4d0374b6[m cai thien giao dien
+* [1;33m|[m [1;34m|[m [33m1fb7ec45[m them upload file o be va fe
+* [1;33m|[m [1;34m|[m [33m9e47f6e7[m Thêm folder subFamily và cập nhật FamilyList
+* [1;33m|[m [1;34m|[m [33mdcfe127a[m nothing
+* [1;33m|[m [1;34m|[m [33mfcdb4be0[m add AddRelatives
+* [1;33m|[m [1;34m|[m [33m0d754dc7[m fix button user
+* [1;33m|[m [1;34m|[m [33mc4e7940a[m add user,listdocter
+[1;34m|[m [1;33m|[m[1;34m/[m  
+[1;34m|[m[1;34m/[m[1;33m|[m   
+* [1;33m|[m   [33m6d7a8130[m sua lai giao dien families
+[31m|[m[32m\[m [1;33m\[m  
+[31m|[m * [1;33m\[m   [33m4cd58527[m Merge pull request #2 from Phuociter/hai-auth
+[31m|[m [33m|[m[34m\[m [1;33m\[m  
+[31m|[m [33m|[m * [1;33m\[m   [33m28d14793[m[33m ([m[1;31morigin/hai-auth[m[33m)[m Merge branch 'main' into hai-auth
+[31m|[m [33m|[m [35m|[m[33m\[m [1;33m\[m  
+[31m|[m [33m|[m [35m|[m[33m/[m [1;33m/[m  
+[31m|[m [33m|[m[33m/[m[35m|[m [1;33m|[m   
+[31m|[m [33m|[m * [1;33m|[m [33m22d2afd7[m FE và BE cho đăng nhập đăng ký, cập nhật 3 trường cho bảng user
+[31m|[m [33m|[m * [1;33m|[m [33m3f7b4750[m Hoàn thiện fe và be của đăng nhập và đăng ký, thêm 3 trường GoogleID, FacebookID và IsProfileComplete cho bảng User
+* [33m|[m [36m|[m [1;33m|[m [33m829b72ac[m luu lai 10_01_27/10
+[33m|[m[33m/[m [36m/[m [1;33m/[m  
+* [36m|[m [1;33m|[m [33m0e3dff1e[m hoan thien sơ bộ giao diện P
+* [36m|[m [1;33m|[m [33m270a73bf[m hoan thien giao dien header familyMedical
+[36m|[m[36m/[m [1;33m/[m  
+* [1;33m|[m [33m73e87b2b[m sua lai app js
+* [1;33m|[m [33m2183ce0c[m --color
+* [1;33m|[m [33m0b44925a[m sua lai một vài component trong pages xóa app.jsx do ghi nhầm.... thay đổi phiên bản tailwind
+[1;33m|[m[1;33m/[m  
+* [33mec1252b1[m sua lai phien ban tailwind
+* [33m73e5c1df[m Delete fe/node_modules directory
+* [33m60848bba[m test
+* [33me5001ed2[m nothing
+* [33m6d2d3b26[m sua lai phien ban tailwind
+* [33m1314cf22[m sua lai phien ban tailwind
+* [33m90c75197[m doi lai ten file app js
+*   [33mb8de77f8[m Merge pull request #1 from Phuociter/hải
+[1;31m|[m[1;32m\[m  
+[1;31m|[m *   [33m899149f9[m[33m ([m[1;31morigin/hải[m[33m)[m Merge branch 'main' into hải
+[1;31m|[m [1;33m|[m[1;31m\[m  
+[1;31m|[m [1;33m|[m[1;31m/[m  
+[1;31m|[m[1;31m/[m[1;33m|[m   
+* [1;33m|[m [33m7d660483[m cau hinh file index
+[1;34m|[m * [33meb801067[m Delete fe/node_modules directory
+[1;34m|[m * [33m2a2b8051[m Update tailwind.config.js
+[1;34m|[m * [33m59c8673e[m add fist demo fe login, register.
+[1;34m|[m[1;34m/[m  
+* [33mdd78fd2a[m bo sung them file index.css
+* [33m1d5d2c73[m them lai file index.js
+* [33mcb1e9380[m them package.jason
+* [33ma2a7bc02[m sua lai cau truc fe
+* [33mc1ef7825[m them va sua lai cau truc fe
+* [33m378c7ef7[m sửa lại cấu trúc fe
+* [33me8f5b72c[m thêm cấu trúc fe
+* [33md4208110[m them package còn thiếu
+* [33m8b1376a5[m env
+* [33m4d950d74[m cấu hình cloud
+* [33mf0cc8af9[m them file sql
+* [33m9690bc22[m tạo thêm entity và file yml liên quan có thêm vài entity trong schema của graphql
+* [33m1ce968c2[m cấu trúc dự án có đủ cấu hình trong pom.xml
+* [33m18e2b505[m Initial commit

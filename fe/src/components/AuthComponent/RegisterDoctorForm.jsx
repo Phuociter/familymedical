@@ -27,8 +27,7 @@ const RegisterDoctorForm = () => {
     const {
         formData,
         loading,
-        message,
-        isError,
+        errors,
         handleChange,
         handleSubmit,
     } = useAuthForm(initialDoctorState, authApi.registerDoctor, handleSuccess);
@@ -40,20 +39,20 @@ const RegisterDoctorForm = () => {
                     Đăng ký Bác sĩ
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {message && (
-                        <div className={`p-3 text-sm rounded-lg ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`} role="alert">
-                            {message}
+                    {errors.general && (
+                        <div className="p-3 text-sm rounded-lg text-red-700 bg-red-100" role="alert">
+                            {errors.general}
                         </div>
                     )}
 
-                    <FormField label="Mã Bác sĩ" name="doctorCode" value={formData.doctorCode} onChange={handleChange} required hint="Mã đăng ký cấp bởi cơ quan y tế" />
-                    <FormField label="Họ và Tên" name="fullName" value={formData.fullName} onChange={handleChange} required />
-                    <FormField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required />
-                    <FormField label="Mật khẩu" name="password" value={formData.password} onChange={handleChange} type="password" required />
-                    <FormField label="Nhập lại Mật khẩu" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} type="password" required />
-                    <FormField label="Số điện thoại" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
-                    <FormField label="Địa chỉ" name="address" value={formData.address} onChange={handleChange} isTextArea />
-                    <FormField label="CCCD/CMND" name="cccd" value={formData.cccd} onChange={handleChange} />
+                    <FormField label="Mã Bác sĩ" name="doctorCode" value={formData.doctorCode} onChange={handleChange} required hint="Mã đăng ký cấp bởi cơ quan y tế" error={errors.doctorCode} />
+                    <FormField label="Họ và Tên" name="fullName" value={formData.fullName} onChange={handleChange} required error={errors.fullName} />
+                    <FormField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required error={errors.email} />
+                    <FormField label="Mật khẩu" name="password" value={formData.password} onChange={handleChange} type="password" required error={errors.password} />
+                    <FormField label="Nhập lại Mật khẩu" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} type="password" required error={errors.confirmPassword} />
+                    <FormField label="Số điện thoại" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required error={errors.phoneNumber} />
+                    <FormField label="Địa chỉ" name="address" value={formData.address} onChange={handleChange} isTextArea error={errors.address} />
+                    <FormField label="CCCD/CMND" name="cccd" value={formData.cccd} onChange={handleChange} error={errors.cccd} />
 
                     <button
                         type="submit"

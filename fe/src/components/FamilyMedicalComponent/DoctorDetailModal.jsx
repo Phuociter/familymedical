@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
   const modalRef = useRef(null);
-
+  // console.log(doctor.userID)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -48,38 +48,38 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
 
         <img
           className="w-24 h-24 rounded-full mx-auto -mt-4 mb-4 border-4 border-[#FFFFFF] shadow-md"
-          src={`https://picsum.photos/seed/${doctor.id}/200`}
-          alt={doctor.name}
+          src={`https://picsum.photos/seed/${doctor.userID}/200`}
+          alt={doctor.fullName}
         />
 
         <h2
           id="doctor-modal-title"
           className="text-2xl font-bold text-[#2563EB] mb-4"
         >
-          {doctor.name}
+          {doctor.fullName}
         </h2>
 
         <div className="text-left space-y-3 text-[#374151]">
-          <p>
+          {/* <p>
             <strong className="font-medium w-28 inline-block">Chuyên khoa:</strong> {doctor.specialty}
-          </p>
+          </p> */}
           <p>
             <strong className="font-medium w-28 inline-block">Email:</strong> {doctor.email}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Số điện thoại:</strong> {doctor.phone}
+            <strong className="font-medium w-28 inline-block">Số điện thoại:</strong> {doctor.phoneNumber}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Kinh nghiệm:</strong> {doctor.experience}
+            <strong className="font-medium w-28 inline-block">Kinh nghiệm:</strong> {doctor.yearsOfExperience}
           </p>
           <p>
-            <strong className="font-medium w-28 inline-block">Bệnh viện:</strong> {doctor.hospital}
+            <strong className="font-medium w-28 inline-block">Bệnh viện:</strong> {doctor.hospitalName}
           </p>
         </div>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            onClick={() => onRequest(doctor)}
+            onClick={ () => onRequest(doctor.userID)}
             className="w-full px-6 py-3 bg-[#10B981] text-[#FFFFFF] font-semibold rounded-lg hover:bg-[#059669] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981]"
           >
             Yêu cầu trở thành bác sĩ gia đình
@@ -95,5 +95,4 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
     </div>
   );
 };
-
 export default DoctorDetailModal;

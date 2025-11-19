@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect, use } from 'react';
-import { useSelector } from "react-redux";
 import paymentApi from '../../api/paymentApi';
 const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
   if (!isOpen) return null;
-  // console.log("UserProfileModal props - isOpen:", isOpen, "userId:", userId);
-  // const userId = useSelector((state) => state.user.userID);
-  // console.log("User ID in UserProfileModal2:", userId);
   const userID = +userId;
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(profile);
-  console.log("UserProfileModal - profileData:", profileData);
   const fileInputRef = useRef(null);
   const [payments, setPayments] = useState([]);
   const [PaymentType, setCheckPaymentType] = useState();
   const [checkPaymentOn, setCheckPaymentOn] = useState(false);
   const typeP = payments[0]?.packageType;
+  console.log("user/////:", profile)
   useEffect(() => {
         const fetchPayments = async () => {
             try {
@@ -68,12 +64,21 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setProfileData(prev => ({ ...prev, avatar: event.target.result }));
+          setProfileData(prev => ({ ...prev, avatarUrl: event.target.result }));
         }
       };
       reader.readAsDataURL(e.target.files[0]);
     }
   };
+
+    const formatDate = (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
 
   const handleSave = () => {
     onSave(profileData);
@@ -85,7 +90,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
     setIsEditing(false);
   };
 
-  const InfoItem = ({ label, value, name }) => (
+  const InfoItem = ({ label, value, name, readOnly }) => (
     <div>
       <label htmlFor={name} className="block text-sm text-[#6B7280]">{label}</label>
       {isEditing && name ? (
@@ -94,6 +99,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
           type={name === 'email' ? 'email' : 'text'}
           name={name}
           value={value}
+          readOnly={readOnly}
           onChange={handleInputChange}
           className="w-full mt-1 px-3 py-2 border border-[#D1D5DB] rounded-md shadow-sm focus:ring-[#1a73e8] focus:border-[#1a73e8] transition"
         />
@@ -134,7 +140,7 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
         <div className="p-6">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-6">
             <div className="relative flex-shrink-0">
-              <img src={profileData.avatar} alt="Avatar" className="w-28 h-28 rounded-full object-cover border-4 border-[#E5E7EB]" />
+              <img src={profileData.avatarUrl} alt="Avatar" className="w-28 h-28 rounded-full object-cover border-4 border-[#E5E7EB]" />
               {isEditing && (
                 <>
                   <button
@@ -150,17 +156,17 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
                 </>
               )}
             </div>
-            
+            {/* //sửa lại giao diện không cho sửa email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 flex-grow w-full">
-              <InfoItem label="Họ và tên:" value={profileData.fullName} name="name" />
-              <InfoItem label="Email:" value={profileData.email} name="email" />
-              <InfoItem label="Số điện thoại:" value={profileData.phoneNumber} name="phone" />
+              <InfoItem label="Họ và tên:" value={profileData.fullName} name="fullName" />
+              <InfoItem label="Email:" value={profileData.email} name="email" readOnly={true} />
+              <InfoItem label="Số điện thoại:" value={profileData.phoneNumber} name="phoneNumber" />
               <InfoItem label="CCCD:" value={profileData.cccd} name="cccd" />
               <div className="sm:col-span-2">
                 <InfoItem label="Địa chỉ:" value={profileData.address} name="address" />
               </div>
               {/* cần nghiên cứu lại phần dưới////////////////////////////////////////////// */}
-              <InfoItem label="Số thành viên trong GĐ:" value={profileData.memberCount} name="" />
+              {/* <InfoItem label="Số thành viên trong GĐ:" value={profileData.memberCount} name="" /> */}
             </div>
           </div>
 
@@ -174,12 +180,12 @@ const UserProfileModal = ({ isOpen, onClose, profile, onSave, userId }) => {
                 </div>
                 <div>
                     <p className="text-sm text-[#6B7280]">Ngày hết hạn:</p>
-                    <p className="font-medium text-[#1F2937]">{payments[0].expiryDate}</p>
+                    <p className="font-medium text-[#1F2937]">{formatDate(payments[0].expiryDate)}</p>
                 </div>
               </div>
             </div>
           )}
-          {checkPaymentOn == false && (
+          {payments[0]==null && (
             <div className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]">
               <h3 className="font-semibold text-lg text-[#1F2937] mb-3">Gói sử dụng: Chưa gia hạn</h3>
               {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

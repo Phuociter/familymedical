@@ -6,7 +6,9 @@ import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.repository.MedicalRecordRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
-import lombok.RequiredArgsConstructor;
+
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;  
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+// @RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MedicalRecordService {
 
@@ -32,7 +35,7 @@ public class MedicalRecordService {
     }
 
     public List<MedicalRecord> getRecordsByMemberId(Integer memberId) {
-        return medicalRecordRepository.findByMemberMemberID(memberId);
+        return medicalRecordRepository.findByMemberID_MemberID(memberId);
     }
 
     // Trả về chỉ danh sách link file PDF
@@ -40,7 +43,7 @@ public class MedicalRecordService {
         return medicalRecordRepository.findFileLinksByMemberId(memberId);
     }
 
-    public MedicalRecord createRecord(MedicalRecord record) {
+    public MedicalRecord createMedicalRecord(MedicalRecord record) {
         return medicalRecordRepository.save(record);
     }
 
@@ -68,7 +71,7 @@ public class MedicalRecordService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
 
         // Ensure record is linked to a member and family
-        if (record.getMember() == null || record.getMember().getFamily() == null) {
+        if (record.getMemberID() == null || record.getMemberID().getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Family not found for this record");
         }
 
@@ -107,7 +110,7 @@ public class MedicalRecordService {
      * @return true if allowed, false otherwise
      */
     public boolean canUserDownloadRecord(User user, MedicalRecord record) {
-        Integer familyId = record.getMember().getFamily().getFamilyID();
+        Integer familyId = record.getMemberID().getFamily().getFamilyID();
 
         switch (user.getRole()) {
             case BacSi:
@@ -122,8 +125,8 @@ public class MedicalRecordService {
 
             case ChuHo:
                 // Head of family allowed if they are the head of this family
-                if (record.getMember().getFamily().getHeadOfFamily() != null
-                    && record.getMember().getFamily().getHeadOfFamily().getUserID().equals(user.getUserID())) {
+                if (record.getMemberID().getFamily().getHeadOfFamily() != null
+                    && record.getMemberID().getFamily().getHeadOfFamily().getUserID().equals(user.getUserID())) {
                     return true;
                 }
                 return false;

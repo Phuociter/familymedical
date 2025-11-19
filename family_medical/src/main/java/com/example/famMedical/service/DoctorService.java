@@ -52,7 +52,7 @@ public class DoctorService {
         
         validateDoctorAccessToFamily(doctorId, member.getFamily().getFamilyID());
         
-        return medicalRecordRepo.findByMemberMemberID(memberId);
+        return medicalRecordRepo.findByMemberID_MemberID(memberId);
     }
 
 

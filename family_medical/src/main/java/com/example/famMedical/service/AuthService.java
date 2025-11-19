@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
+import java.util.List;
 @Service
 public class AuthService {
 
@@ -217,4 +217,18 @@ public class AuthService {
 
         return savedUser;
     }
+    @Transactional
+    public User updateUserProfile(Integer userId, String fullName, String phoneNumber, String cccd, String avatarUrl, String address) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));  
+
+        user.setFullName(fullName);
+        user.setPhoneNumber(phoneNumber);
+        user.setCccd(cccd);
+        user.setAvatarUrl(avatarUrl);
+        user.setAddress(address);
+
+        return userRepository.save(user);
+    }
+
 }

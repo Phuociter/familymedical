@@ -23,6 +23,10 @@ public class FamilyService {
         return familyRepository.findById(id);
     }
 
+    public Family getFamilyByHeadOfFamilyID(Integer headOfFamilyID){
+        return familyRepository.findByHeadOfFamily_UserID(headOfFamilyID);
+    }
+
     public Family createFamily(Family family) {
         return familyRepository.save(family);
     }

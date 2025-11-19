@@ -1,5 +1,4 @@
 package com.example.famMedical.service;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,3 +56,4 @@ public class CloudinaryService {
         return cloudinary.config.apiKey;
     }
 }
+

@@ -11,6 +11,13 @@ spring:
       hibernate:
         format_sql: true
         physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
   
   web:
     cors:
@@ -48,13 +55,13 @@ server:
   port: ${SERVER_PORT:8080}
 
 cloudinary:
-  cloud_name: ${CLOUDINARY_CLOUD_NAME}
-  api_key: ${CLOUDINARY_API_KEY}
-  api_secret: ${CLOUDINARY_API_SECRET}
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:}
+  api_key: ${CLOUDINARY_API_KEY:}
+  api_secret: ${CLOUDINARY_API_SECRET:}
 
 jwt:
   secret:
-    key: ${JWT_SECRET_KEY:SjkwTjN5aG41V2t6M0p4SllYNDlRYzJmQnU4cTgyMXFhU1hIUlJjS00=}
+    key: SjkwTjN5aG41V2t6M0p4SllYNDlRYzJmQnU4cTgyMXFhU1hIUlJjS00=
   expiration:
     time:
       ms: 86400000

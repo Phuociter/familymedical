@@ -49,6 +49,9 @@ public class User implements UserDetails {
     @Column(name = "CCCD", length = 20)
     private String cccd;
 
+    @Column(name = "avatarUrl", length = 255)
+    private String avatarUrl;
+
     @Column(name = "DoctorCode", length = 20)
     private String doctorCode;
 
@@ -58,8 +61,20 @@ public class User implements UserDetails {
     @Column(name = "FacebookID", length = 255, nullable = true)
     private String facebookId;
 
+    @Column(name = "HospitalName" ,nullable = false, length = 255)
+    private String HospitalName; 
+    
+    @Column(name = "yearsOfExperience", nullable = false, length = 255)
+    private String yearsOfExperience;
+
     @Column(name = "IsProfileComplete", nullable = false)
     private boolean isProfileComplete = true;
+
+    @Column(name = "IsLocked", nullable = false)
+    private boolean isLocked = false;
+
+    @Column(name = "IsVerified", nullable = false)
+    private boolean isVerified = false;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -82,8 +97,6 @@ public class User implements UserDetails {
         return email;
     }
 
-
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -91,7 +104,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isLocked;
     }
 
     @Override
