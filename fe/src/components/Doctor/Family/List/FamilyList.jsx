@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Paper, Stack, Grid } from '@mui/material';
+import { Box, Paper, Stack, Grid, CircularProgress } from '@mui/material';
 import FamilySearchAndFilter from './FamilySearchAndFilter';
 import FamilyResultsCount from './FamilyResultsCount';
 import FamilyErrorState from './FamilyErrorState';
@@ -58,13 +58,12 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
           container 
           spacing={{ xs: 2, sm: 2.5, md: 3 }}
           sx={{
-            // Ensure proper spacing on mobile
             mx: { xs: -1, sm: 0 },
           }}
         >
-          {families.map((family) => (
+          {[...Array(6)].map((_, index) => (
             <Grid 
-              key={family.familyID} 
+              key={index} 
               size={{ xs: 12, sm: 6, md: 4 }}
             >
               <FamilyCardSkeleton />
@@ -72,8 +71,6 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
           ))}
         </Grid>
       )}
-
-      
 
       {/* Empty State */}
       {!loading && filteredFamilies.length === 0 && (

@@ -40,6 +40,7 @@ public class CloudinaryService {
         try {
             String downloadUrl = cloudinary.url()
                 .resourceType("auto")
+                .type("authenticated")
                 .generate(publicId);
             return downloadUrl;
         } catch (Exception e) {

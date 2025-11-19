@@ -19,6 +19,7 @@ import {
   Description as DescriptionIcon,
   Bolt as BoltIcon,
 } from '@mui/icons-material';
+import MessagesSkeleton from './MessagesSkeleton';
 
 function formatMessageTime(timestamp) {
   const date = new Date(timestamp);
@@ -89,7 +90,7 @@ const QUICK_REPLIES = [
   'Nếu có triệu chứng bất thường, hãy đến bệnh viện ngay',
 ];
 
-export default function ChatArea({ conversation, messages = [], onSendMessage }) {
+export default function ChatArea({ conversation, messages = [], onSendMessage, loading = false }) {
   const [messageText, setMessageText] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [quickReplyAnchor, setQuickReplyAnchor] = useState(null);
@@ -225,7 +226,9 @@ export default function ChatArea({ conversation, messages = [], onSendMessage })
           bgcolor: 'grey.50',
         }}
       >
-        {messages.length === 0 ? (
+        {loading ? (
+          <MessagesSkeleton />
+        ) : messages.length === 0 ? (
           <Box
             sx={{
               display: 'flex',

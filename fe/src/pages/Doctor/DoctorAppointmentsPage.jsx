@@ -1,135 +1,234 @@
+import { useState, useEffect } from 'react';
 import {
   Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
+  Tabs,
+  Tab,
   Button,
   IconButton,
 } from '@mui/material';
 import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
+  Add as AddIcon,
+  CalendarMonth as CalendarIcon,
+  List as ListIcon,
 } from '@mui/icons-material';
-
-// Mock data - sẽ thay bằng GraphQL sau
-const mockAppointments = [
-  {
-    id: 1,
-    patientName: 'Nguyễn Văn A',
-    familyName: 'Gia đình Nguyễn',
-    date: '2024-11-15',
-    time: '09:00',
-    status: 'confirmed',
-    reason: 'Khám định kỳ',
-  },
-  {
-    id: 2,
-    patientName: 'Trần Thị B',
-    familyName: 'Gia đình Trần',
-    date: '2024-11-15',
-    time: '10:30',
-    status: 'pending',
-    reason: 'Tái khám',
-  },
-  {
-    id: 3,
-    patientName: 'Lê Văn C',
-    familyName: 'Gia đình Lê',
-    date: '2024-11-16',
-    time: '14:00',
-    status: 'confirmed',
-    reason: 'Xem kết quả xét nghiệm',
-  },
-];
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'confirmed':
-      return 'success';
-    case 'pending':
-      return 'warning';
-    case 'cancelled':
-      return 'error';
-    default:
-      return 'default';
-  }
-};
-
-const getStatusText = (status) => {
-  switch (status) {
-    case 'confirmed':
-      return 'Đã xác nhận';
-    case 'pending':
-      return 'Chờ xác nhận';
-    case 'cancelled':
-      return 'Đã hủy';
-    default:
-      return status;
-  }
-};
+import AppointmentCalendar from '../../components/Doctor/Appointment/AppointmentCalendar';
+import AppointmentList from '../../components/Doctor/Appointment/AppointmentList';
+import AppointmentCalendarSkeleton from '../../components/Doctor/Appointment/AppointmentCalendarSkeleton';
+import AppointmentListSkeleton from '../../components/Doctor/Appointment/AppointmentListSkeleton';
+import CreateAppointmentDialog from '../../components/Doctor/Appointment/CreateAppointmentDialog';
+import AppointmentDetailDialog from '../../components/Doctor/Appointment/AppointmentDetailDialog';
+import { getMockAppointments } from '../../mocks/appointmentsMockData';
 
 export default function DoctorAppointmentsPage() {
+  // Load viewMode from localStorage, default to 'calendar'
+  const [viewMode, setViewMode] = useState(() => {
+    const saved = localStorage.getItem('appointmentViewMode');
+    return saved || 'calendar';
+  });
+  const [selectedTab, setSelectedTab] = useState(1); // 0: All, 1: Today, 2: Upcoming, 3: Past
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const appointments = getMockAppointments();
+
+  // Save viewMode to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('appointmentViewMode', viewMode);
+  }, [viewMode]);
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleAppointmentClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setDetailDialogOpen(true);
+  };
+
+  const handleCreateAppointment = () => {
+    setCreateDialogOpen(true);
+  };
+
+  const handleCloseDetailDialog = () => {
+    setDetailDialogOpen(false);
+    setSelectedAppointment(null);
+  };
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Lịch hẹn</Typography>
-        <Button variant="contained" color="primary">
-          Tạo lịch hẹn mới
-        </Button>
+      {/* Tabs, View Mode & Actions */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            bgcolor: '#e5e7eb',
+            borderRadius: 1,
+            p: 0.5,
+            display: 'inline-flex',
+          }}
+        >
+          <Tabs 
+            value={selectedTab} 
+            onChange={(_, v) => setSelectedTab(v)}
+            sx={{
+              minHeight: 'auto',
+              '& .MuiTabs-indicator': {
+                display: 'none',
+              },
+            }}
+          >
+          <Tab 
+            label="Tất cả"
+            sx={{
+              minHeight: 'auto',
+              py: 1,
+              px: 2,
+              borderRadius: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              color: 'text.secondary',
+              '&.Mui-selected': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          />
+          <Tab 
+            label="Hôm nay"
+            sx={{
+              minHeight: 'auto',
+              py: 1,
+              px: 2,
+              borderRadius: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              color: 'text.secondary',
+              '&.Mui-selected': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          />
+          <Tab 
+            label="Sắp tới"
+            sx={{
+              minHeight: 'auto',
+              py: 1,
+              px: 2,
+              borderRadius: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              color: 'text.secondary',
+              '&.Mui-selected': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          />
+          <Tab 
+            label="Đã qua"
+            sx={{
+              minHeight: 'auto',
+              py: 1,
+              px: 2,
+              borderRadius: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              color: 'text.secondary',
+              '&.Mui-selected': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          />
+          </Tabs>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton
+            onClick={() => setViewMode('calendar')}
+            disabled={viewMode === 'calendar'}
+            sx={{
+              bgcolor: viewMode === 'calendar' ? 'primary.main' : 'transparent',
+              color: viewMode === 'calendar' ? 'white' : 'action.active',
+              '&:hover': {
+                bgcolor: viewMode === 'calendar' ? 'primary.main' : 'action.hover',
+              },
+              '&.Mui-disabled': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          >
+            <CalendarIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => setViewMode('list')}
+            disabled={viewMode === 'list'}
+            sx={{
+              bgcolor: viewMode === 'list' ? 'primary.main' : 'transparent',
+              color: viewMode === 'list' ? 'white' : 'action.active',
+              borderRadius: 1,
+              '&:hover': {
+                bgcolor: viewMode === 'list' ? 'primary.main' : 'action.hover',
+              },
+              '&.Mui-disabled': {
+                bgcolor: 'primary.main',
+                color: 'white',
+              },
+            }}
+          >
+            <ListIcon />
+          </IconButton>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateAppointment}
+            sx={{ ml: 1 }}
+          >
+            Tạo lịch hẹn
+          </Button>
+        </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Bệnh nhân</TableCell>
-              <TableCell>Gia đình</TableCell>
-              <TableCell>Ngày</TableCell>
-              <TableCell>Giờ</TableCell>
-              <TableCell>Lý do</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell align="right">Thao tác</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {mockAppointments.map((appointment) => (
-              <TableRow key={appointment.id} hover>
-                <TableCell>{appointment.patientName}</TableCell>
-                <TableCell>{appointment.familyName}</TableCell>
-                <TableCell>{new Date(appointment.date).toLocaleDateString('vi-VN')}</TableCell>
-                <TableCell>{appointment.time}</TableCell>
-                <TableCell>{appointment.reason}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={getStatusText(appointment.status)}
-                    color={getStatusColor(appointment.status)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" color="primary">
-                    <VisibilityIcon />
-                  </IconButton>
-                  <IconButton size="small" color="primary">
-                    <EditIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* Content */}
+      {loading ? (
+        viewMode === 'calendar' ? (
+          <AppointmentCalendarSkeleton />
+        ) : (
+          <AppointmentListSkeleton />
+        )
+      ) : viewMode === 'calendar' ? (
+        <AppointmentCalendar
+          appointments={appointments}
+          onAppointmentClick={handleAppointmentClick}
+          selectedTab={selectedTab}
+        />
+      ) : (
+        <AppointmentList
+          appointments={appointments}
+          onAppointmentClick={handleAppointmentClick}
+          selectedTab={selectedTab}
+        />
+      )}
 
-      {mockAppointments.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography color="textSecondary">Không có lịch hẹn nào</Typography>
-        </Box>
+      {/* Dialogs */}
+      <CreateAppointmentDialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+      />
+
+      {selectedAppointment && (
+        <AppointmentDetailDialog
+          open={detailDialogOpen}
+          appointment={selectedAppointment}
+          onClose={handleCloseDetailDialog}
+        />
       )}
     </Box>
   );

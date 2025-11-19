@@ -1,16 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Paper } from '@mui/material';
 import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from '../../mocks/messagesMockData';
 import ConversationList from '../../components/Doctor/Message/ConversationList';
 import ChatArea from '../../components/Doctor/Message/ChatArea';
+import ConversationListSkeleton from '../../components/Doctor/Message/ConversationListSkeleton';
 
 export default function DoctorMessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
+  const [chatLoading, setChatLoading] = useState(false);
+
+  // Simulate initial conversations loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setConversationsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSelectConversation = (conversation) => {
+    // Show chat loading when selecting a conversation
+    setChatLoading(true);
     setSelectedConversation(conversation);
+    
+    // Simulate loading messages
+    setTimeout(() => {
+      setChatLoading(false);
+    }, 500);
     
     // Mark as read
     if (conversation.unreadCount > 0) {
@@ -75,16 +93,21 @@ export default function DoctorMessagesPage() {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
       }}
     >
-      <ConversationList
-        conversations={conversations}
-        selectedConversation={selectedConversation}
-        onSelectConversation={handleSelectConversation}
-      />
+      {conversationsLoading ? (
+        <ConversationListSkeleton />
+      ) : (
+        <ConversationList
+          conversations={conversations}
+          selectedConversation={selectedConversation}
+          onSelectConversation={handleSelectConversation}
+        />
+      )}
 
       <ChatArea
         conversation={selectedConversation}
         messages={currentMessages}
         onSendMessage={handleSendMessage}
+        loading={chatLoading}
       />
     </Paper>
   );

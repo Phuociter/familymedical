@@ -7,7 +7,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CircularProgress,
   Avatar,
   IconButton,
   Chip,
@@ -26,6 +25,11 @@ import { vi } from 'date-fns/locale';
 import { GET_ASSIGNED_FAMILIES } from '../../graphql/doctorQueries';
 import { MOCK_REQUEST_STATS, getRequestsByStatus } from '../../mocks/doctorRequestsMockData';
 import { getMockDashboardData } from '../../mocks/dashboardMockData';
+import StatCardSkeleton from '../../components/Doctor/Dashboard/StatCardSkeleton';
+import ChartSkeleton from '../../components/Doctor/Dashboard/ChartSkeleton';
+import AppointmentListSkeleton from '../../components/Doctor/Dashboard/AppointmentListSkeleton';
+import RequestListSkeleton from '../../components/Doctor/Dashboard/RequestListSkeleton';
+import MedicalRecordListSkeleton from '../../components/Doctor/Dashboard/MedicalRecordListSkeleton';
 
 const StatCard = ({ title, value, icon, color }) => (
   <Card sx={{ height: '100%', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)' } }}>
@@ -163,8 +167,45 @@ export default function DoctorDashboard() {
 
   if (loading || !dashboardData) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
+      <Box container maxWidth="lg">
+        {/* Header */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" fontWeight={700} gutterBottom>
+            Chào mừng trở lại! 👋
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            Đây là tổng quan hoạt động của bạn hôm nay.
+          </Typography>
+        </Box>
+
+        {/* Stats Cards Skeleton */}
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          {[...Array(4)].map((_, index) => (
+            <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
+              <StatCardSkeleton />
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Chart and Appointments Skeleton */}
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <ChartSkeleton />
+          </Grid>
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <AppointmentListSkeleton />
+          </Grid>
+        </Grid>
+
+        {/* Requests and Medical Records Skeleton */}
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <RequestListSkeleton />
+          </Grid>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <MedicalRecordListSkeleton />
+          </Grid>
+        </Grid>
       </Box>
     );
   }

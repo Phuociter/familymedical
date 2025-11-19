@@ -29,6 +29,7 @@ public class DoctorController {
     public List<Family> doctorAssignedFamilies(
             @AuthenticationPrincipal User user,
             @Argument String search) {
+        
         log.info("Getting assigned families for doctor: {}, search: {}", user.getUserID(), search);
         return doctorService.getDoctorAssignedFamilies(user.getUserID(), search);
     }
