@@ -178,17 +178,27 @@ public class AppointmentService {
     }
     
     private void checkOverlappingAppointments(User doctor, LocalDateTime dateTime, Integer duration, Integer excludeAppointmentId) {
-        LocalDateTime endTime = dateTime.plusMinutes(duration);
-        List<Appointment> overlapping = appointmentRepository.findOverlappingAppointments(
-            doctor, dateTime, endTime, AppointmentStatus.SCHEDULED
+        LocalDateTime newAppointmentEnd = dateTime.plusMinutes(duration);
+        
+        // Get all potentially overlapping appointments (those that start before our appointment ends)
+        List<Appointment> potentialOverlaps = appointmentRepository.findPotentiallyOverlappingAppointments(
+            doctor, newAppointmentEnd, AppointmentStatus.SCHEDULED
         );
         
-        // Filter out the current appointment if updating
-        if (excludeAppointmentId != null) {
-            overlapping = overlapping.stream()
-                .filter(a -> !a.getAppointmentID().equals(excludeAppointmentId))
-                .collect(Collectors.toList());
-        }
+        // Check for actual overlaps in Java
+        List<Appointment> overlapping = potentialOverlaps.stream()
+            .filter(a -> {
+                // Skip the current appointment if updating
+                if (excludeAppointmentId != null && a.getAppointmentID().equals(excludeAppointmentId)) {
+                    return false;
+                }
+                
+                // Check if appointments overlap
+                // Overlap occurs if: existingEnd > newStart AND existingStart < newEnd
+                LocalDateTime existingEnd = a.getEndTime();
+                return existingEnd.isAfter(dateTime) && a.getAppointmentDateTime().isBefore(newAppointmentEnd);
+            })
+            .collect(Collectors.toList());
         
         if (!overlapping.isEmpty()) {
             throw new ValidationException("Doctor has overlapping appointment at this time");

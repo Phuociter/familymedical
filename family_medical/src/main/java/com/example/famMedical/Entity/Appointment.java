@@ -68,6 +68,11 @@ public class Appointment {
         updatedAt = LocalDateTime.now();
     }
 
+    // Helper method to calculate end time
+    public LocalDateTime getEndTime() {
+        return appointmentDateTime.plusMinutes(duration);
+    }
+
     public enum AppointmentStatus {
         SCHEDULED,
         COMPLETED,

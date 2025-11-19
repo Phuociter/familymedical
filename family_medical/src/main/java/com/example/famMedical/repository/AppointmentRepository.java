@@ -42,13 +42,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
         @Param("endDate") LocalDateTime endDate
     );
     
+    // Find appointments by doctor and status that might overlap with given time range
+    // We'll do the overlap check in Java service layer for database portability
     @Query("SELECT a FROM Appointment a WHERE a.doctor = :doctor " +
            "AND a.status = :status " +
-           "AND a.appointmentDateTime < :endTime " +
-           "AND FUNCTION('DATE_ADD', a.appointmentDateTime, a.duration, 'MINUTE') > :startTime")
-    List<Appointment> findOverlappingAppointments(
+           "AND a.appointmentDateTime < :endTime")
+    List<Appointment> findPotentiallyOverlappingAppointments(
         @Param("doctor") User doctor,
-        @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime,
         @Param("status") AppointmentStatus status
     );
