@@ -36,12 +36,16 @@ public class DoctorRequest {
     private RequestStatus status; // Pending, Accepted, Rejected
 
     private LocalDateTime requestDate;
+    
+    private LocalDateTime responseDate;
+    
+    private String responseMessage;
 
     
     public enum RequestStatus {
-        Pending,
-        Accepted,
-        Rejected
+        PENDING,
+        ACCEPTED,
+        REJECTED
     }
 }
 

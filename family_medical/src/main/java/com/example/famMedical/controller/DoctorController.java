@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
@@ -50,9 +52,33 @@ public class DoctorController {
         return doctorService.getMemberMedicalRecords(user.getUserID(), memberId);
     }
     
-    // @QueryMapping
-    // public List<DoctorRequest> pendingDoctorRequests(@ContextValue int userId) {
-    //     log.info("Getting pending requests for doctor: {}", userId);
-    //     return doctorService.getPendingDoctorRequests(userId);
-    // }
+    // Doctor Requests GraphQL Resolvers
+    @QueryMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public List<DoctorRequest> doctorRequests(
+            @AuthenticationPrincipal User user,
+            @Argument DoctorRequest.RequestStatus status) {
+        log.info("Getting doctor requests for doctor: {}, status: {}", user.getUserID(), status);
+        return doctorService.getDoctorRequests(user.getUserID(), status);
+    }
+    
+    @QueryMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public DoctorRequest doctorRequestDetail(
+            @AuthenticationPrincipal User user,
+            @Argument Integer requestID) {
+        log.info("Getting doctor request detail for doctor: {}, requestID: {}", user.getUserID(), requestID);
+        return doctorService.getDoctorRequestDetail(requestID, user.getUserID());
+    }
+    
+    @MutationMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public DoctorRequest respondToDoctorRequest(
+            @AuthenticationPrincipal User user,
+            @Argument Integer requestID,
+            @Argument DoctorRequest.RequestStatus status,
+            @Argument String responseMessage) {
+        log.info("Doctor {} responding to request {}, status: {}", user.getUserID(), requestID, status);
+        return doctorService.respondToRequest(requestID, status, responseMessage, user.getUserID());
+    }
 }

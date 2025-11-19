@@ -32,7 +32,7 @@ public class DoctorRequestService {
         newRequest.setDoctor(u1);
         newRequest.setFamily(f2);
 
-        newRequest.setStatus(RequestStatus.Pending);    
+        newRequest.setStatus(RequestStatus.PENDING);    
 
         System.out.println("thêm thành công doctor request");
         return doctorRequestRepository.save(newRequest);

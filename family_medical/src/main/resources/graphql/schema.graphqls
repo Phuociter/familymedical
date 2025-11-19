@@ -1,6 +1,10 @@
+# =======================================================
+# SCALARS
+# =======================================================
 scalar Date
 scalar DateTime
 scalar LocalDate
+
 # =======================================================
 # 1. ENUMS
 # =======================================================
@@ -35,9 +39,24 @@ enum AssignmentStatus {
 }
 
 enum RequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum AppointmentStatus {
+    SCHEDULED
+    COMPLETED
+    CANCELLED
+}
+
+enum AppointmentType {
+    GENERAL_CHECKUP
+    FOLLOW_UP
+    CONSULTATION
+    VACCINATION
+    HOME_VISIT
+    OTHER
 }
 
 # =======================================================
@@ -93,7 +112,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    treatmentPlan: recordDate
+    treatmentPlan: String
 }
 
 input UpdateMemberInput {
@@ -118,6 +137,37 @@ input CreateMemberInput {
 input RequestDoctorInput { 
     userID: Int!
     doctorID: Int!
+}
+
+input CreateAppointmentInput {
+    familyID: Int!
+    memberID: Int!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: DateTime!
+    duration: Int!
+    location: String
+    notes: String
+    doctorNotes: String
+}
+
+input UpdateAppointmentInput {
+    appointmentID: Int!
+    title: String
+    type: AppointmentType
+    appointmentDateTime: DateTime
+    duration: Int
+    location: String
+    notes: String
+    doctorNotes: String
+}
+
+input AppointmentFilter {
+    status: AppointmentStatus
+    startDate: DateTime
+    endDate: DateTime
+    familyID: Int
+    memberID: Int
 }
 
 
@@ -184,10 +234,14 @@ type MedicalRecord {
 type DoctorRequest {
     requestID: ID!
     familyID: Int!
+    family: Family!
     doctorID: Int!
+    doctor: User!
     message: String
-    status: String
-    requestDate: String
+    status: RequestStatus!
+    requestDate: DateTime!
+    responseDate: DateTime
+    responseMessage: String
 }
 
 type DoctorAssignment {
@@ -218,7 +272,40 @@ type MomoPaymentResponse {
 
 type Doctor {
     userID: ID!
+}
 
+type Appointment {
+    appointmentID: ID!
+    familyID: Int!
+    family: Family!
+    memberID: Int!
+    member: Member!
+    doctorID: Int!
+    doctor: User!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: DateTime!
+    duration: Int!
+    status: AppointmentStatus!
+    location: String
+    notes: String
+    doctorNotes: String
+    createdAt: DateTime!
+    updatedAt: DateTime
+}
+
+type PatientAppointment {
+    appointmentID: ID!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: DateTime!
+    duration: Int!
+    status: AppointmentStatus!
+    location: String
+    notes: String
+    doctor: User!
+    member: Member!
+    createdAt: DateTime!
 }
 # =======================================================
 # 4. QUERY
@@ -237,6 +324,16 @@ type Query {
     membersByFamilyID(familyID: ID!): [Member]
     getFamilyByHeadOfFamilyID(userID: ID!): Family
 
+    # Doctor Requests queries
+    doctorRequests(status: RequestStatus): [DoctorRequest]
+    doctorRequestDetail(requestID: Int!): DoctorRequest
+
+    # Appointment queries
+    appointments(filter: AppointmentFilter): [Appointment]
+    appointmentDetail(appointmentID: Int!): Appointment
+    todayAppointments: [Appointment]
+    upcomingAppointments: [Appointment]
+    familyAppointments: [PatientAppointment]
 
     # Admin queries
     allMembers: [Member]
@@ -261,7 +358,7 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(memberID! ,input: CreateMedicalRecordInput!): MedicalRecord
+    createMedicalRecord(memberID: ID!, input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!
@@ -280,5 +377,11 @@ type Mutation {
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
     updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!
+
+    # Appointment mutations
+    createAppointment(input: CreateAppointmentInput!): Appointment!
+    updateAppointment(input: UpdateAppointmentInput!): Appointment!
+    updateAppointmentStatus(appointmentID: Int!, status: AppointmentStatus!): Appointment!
+    cancelAppointment(appointmentID: Int!, reason: String): Appointment!
 
 }

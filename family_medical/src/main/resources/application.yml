@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/demo?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+    username: root
+    password: 123456
 
   jpa:
     hibernate:
@@ -27,8 +27,14 @@ spring:
       allow-credentials: true
 
   graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
     schema:
       locations: classpath:graphql/
+      printer:
+        enabled: true
 
   security:
     oauth2:
@@ -70,8 +76,8 @@ file:
 
 momo:
   partnerCode: ${MOMO_PARTNER_CODE:MOMO}
-  accessKey: ${MOMO_ACCESS_KEY}
-  secretKey: ${MOMO_SECRET_KEY}
+  accessKey: ${MOMO_ACCESS_KEY:F8BBA842ECF85}
+  secretKey: ${MOMO_SECRET_KEY:K951B6PE1waDMi640xX08PD3vg6EkVlz}
   endpoint: ${MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
   returnUrl: ${MOMO_RETURN_URL:http://localhost:3000/payment/callback}
   ipnUrl: ${MOMO_IPN_URL:http://localhost:8080/api/payment/momo/ipn}
