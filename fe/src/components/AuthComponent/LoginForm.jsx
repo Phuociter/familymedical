@@ -53,6 +53,12 @@ const LoginForm = ({ onLoginSuccess }) => {
                         error={errors.password} // Truyền lỗi của trường password
                     />
 
+                    <div className="flex items-center justify-end text-sm">
+                        <Link to="/forgot-password" className="font-medium text-blue hover:opacity-80">
+                            Quên mật khẩu?
+                        </Link>
+                    </div>
+
                     <div className="pt-4">
                         <button
                             type="submit"

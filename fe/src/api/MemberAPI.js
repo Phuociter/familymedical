@@ -2,8 +2,8 @@ import axios from 'axios';
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 import authApi from './authApi';
 const token = localStorage.getItem('userToken');
-const user = JSON.parse(localStorage.getItem('user'));
-const userID = user.userID;
+// const user = JSON.parse(localStorage.getItem('user'));
+// const userID = user.userID;
 const MemberAPI = {
   // const user = useSelector((state) => state.user.user);
   getMemberByFamilyID: async (familyID, token) => {

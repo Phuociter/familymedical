@@ -28,12 +28,17 @@ public class JwtService {
 
     // Hàm sinh Token JWT
     public String generateToken(User user) {
+        return generateToken(user, EXPIRATION_TIME);
+    }
+
+    // Overloaded method for generating token with custom expiration
+    public String generateToken(User user, long expirationTime) {
         return Jwts.builder()
                 .setSubject(user.getEmail()) // Tên chủ thể (email dùng để định danh)
                 .claim("userId", user.getUserID())
                 .claim("role", user.getRole().name())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey())
                 .compact();
     }

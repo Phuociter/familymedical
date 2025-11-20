@@ -10,6 +10,7 @@ import lombok.Data;
 public class DoctorRegisterInput {
     @NotBlank(message = "Họ và Tên không được để trống")
     @Size(max = 100, message = "Họ và Tên không quá 100 ký tự")
+    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Họ và Tên chỉ được chứa chữ cái và khoảng trắng")
     private String fullName;
 
     @NotBlank(message = "Email không được để trống")
@@ -28,4 +29,11 @@ public class DoctorRegisterInput {
 
     @Pattern(regexp = "^[0-9]{12}$", message = "CCCD phải có đúng 12 chữ số")
     private String cccd;
+
+    @NotBlank(message = "Tên bệnh viện không được để trống")
+    private String hospitalName;
+
+    @NotBlank(message = "Số năm kinh nghiệm không được để trống")
+    @Pattern(regexp = "^[1-9][0-9]?$", message = "Số năm kinh nghiệm phải là một số nguyên dương từ 1-99")
+    private String yearsOfExperience;
 }
