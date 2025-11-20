@@ -93,7 +93,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    treatmentPlan: recordDate
+    recordDate: LocalDate
 }
 
 input UpdateMemberInput {
@@ -174,7 +174,7 @@ type MedicalRecord {
     memberID: Int
     member: Member
     doctorID: Int
-    Doctor: Doctor
+    doctor: User
     fileType: String
     fileLink: String
     description: String
@@ -216,10 +216,7 @@ type MomoPaymentResponse {
     message: String
 }
 
-type Doctor {
-    userID: ID!
 
-}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -261,7 +258,7 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(memberID! ,input: CreateMedicalRecordInput!): MedicalRecord
+    createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

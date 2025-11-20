@@ -25,12 +25,12 @@ public class MedicalRecord {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberID")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "family"})
-    private Member memberID;
+    private Member member;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctorID", nullable = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User doctorID;
+    private User doctor;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "FileType", nullable = true)

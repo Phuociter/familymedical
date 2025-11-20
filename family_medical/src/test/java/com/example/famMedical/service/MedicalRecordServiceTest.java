@@ -84,7 +84,7 @@ public class MedicalRecordServiceTest {
         // Setup record
         record = new MedicalRecord();
         record.setRecordID(1);
-        record.setMemberID(member);
+        record.setMember(member);
         record.setFileLink("https://example.com/file.pdf");
     }
 
@@ -212,7 +212,7 @@ public class MedicalRecordServiceTest {
     @Test
     public void testGetDownloadUrl_MemberNotLinked() {
         // Arrange
-        record.setMemberID(null);
+        record.setMember(null);
         when(medicalRecordRepository.findById(1)).thenReturn(Optional.of(record));
 
         // Act & Assert

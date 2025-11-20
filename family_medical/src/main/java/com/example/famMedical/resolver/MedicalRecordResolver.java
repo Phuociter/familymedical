@@ -43,8 +43,8 @@ public class MedicalRecordResolver {
         medicalRecord.setRecordDate(input.getRecordDate());
         medicalRecord.setFileLink(input.getFileLink());
         medicalRecord.setFileLink(input.getFileLink());
-        medicalRecord.setDoctorID(user);
-        medicalRecord.setMemberID(member);
+        medicalRecord.setDoctor(user);
+        medicalRecord.setMember(member);
 
 ;
         return medicalRecordService.createMedicalRecord(medicalRecord);
