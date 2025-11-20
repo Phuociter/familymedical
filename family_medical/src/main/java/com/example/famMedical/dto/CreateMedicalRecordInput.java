@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class CreateMedicalRecordInput {
     private Integer memberID;
-    private Integer doctorID;
     private String fileType;
     private String fileLink;
     private String description;

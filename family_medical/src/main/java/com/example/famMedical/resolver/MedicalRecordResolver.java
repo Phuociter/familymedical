@@ -33,17 +33,14 @@ public class MedicalRecordResolver {
     @MutationMapping
     public MedicalRecord createMedicalRecord(@Argument @Valid Integer memberID,@Argument CreateMedicalRecordInput input){
         MedicalRecord medicalRecord = new MedicalRecord();
-        User user = userRepository.findById(input.getDoctorID())
-        .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + input.getDoctorID()));
 
         Member member = memberRepository.findById(input.getMemberID())
-        .orElseThrow(() -> new IllegalArgumentException("Member not found: " + input.getDoctorID()));
+        .orElseThrow(() -> new IllegalArgumentException("Member not found: " + input.getMemberID()));
 
         medicalRecord.setDescription(input.getDescription());
         medicalRecord.setRecordDate(input.getRecordDate());
         medicalRecord.setFileLink(input.getFileLink());
         medicalRecord.setFileLink(input.getFileLink());
-        medicalRecord.setDoctor(user);
         medicalRecord.setMember(member);
 
 ;

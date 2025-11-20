@@ -45,7 +45,7 @@ const FamilyList = () => {
   const [error, setError] = useState(null);
   const[loading, setLoading] = useState(null);
   const[members,setMembers] = useState([]);
-
+  const [reload, setReload] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(()=>{
@@ -62,8 +62,6 @@ const FamilyList = () => {
         const memberData = await MemberAPI.getMemberByFamilyID(response.familyID);
         setMembers(memberData);
         console.log("FamilyID data:",memberData);
-        // console.log("members",members);
-        // console.log("response:",response.familyID);
       }catch(err){
         setError(err);
         console.log("Failed to fetch family members:", err);
@@ -72,15 +70,9 @@ const FamilyList = () => {
       }
     };
     fetchMembers();
-    // setMembers(memberData);
-  },[user?.userID]);
+  },[user?.userID,reload]);
 
-  // useEffect(()=>{
-  //   if(members.length>0){
 
-  //   }
-
-  // },members)
 
   const handleViewDetails = (member) => {
     setSelectedMember(member);
@@ -92,16 +84,13 @@ const FamilyList = () => {
 
   const handleAddMember = async (memberData) => {
     try {
-      console.log("memberData",memberData);
+      // console.log("memberData",memberData);
         const responseData = await MemberAPI.createMember(memberData, token);
         setFamilyMembers(prevMembers => [...prevMembers, responseData]);
-        // alert('Thêm thành viên mới thành công!');
-        // const newMember = responseData.addFamilyMember;
-        // Cập nhật state để hiển thị thành viên mới ngay lập tức
-        // console.log("members",members);
+        setReload(prev => !prev);
     } catch (error) {
         console.error("Failed to add family member:", error);
-        alert('Thêm thành viên thất bại. Vui lòng thử lại.');
+        // alert('Thêm thành viên thất bại. Vui lòng thử lại.');
         // Ném lỗi để modal biết và không tự đóng
         throw error;
     }
@@ -172,7 +161,6 @@ const FamilyList = () => {
         <MedicalRecordModal 
           member={selectedMember} 
           onClose={handleCloseModal} 
-
         />
       )}
       <AddMemberModal 

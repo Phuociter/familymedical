@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MedicalRecordTypes } from '../../type.js';
-
+import { generateSelectOptions } from '../../type.js';
+import MemberAPI from '../../api/MemberAPI.js'
+import { windowWhen } from 'rxjs';
+import ActionAlert from '../ActionAlert.jsx';
 const MedicalRecordModal = ({ member, onClose }) => {
   const [records, setRecords] = useState(member.records || []);
   const [stagedFiles, setStagedFiles] = useState([]);
   const fileInputRef = useRef(null);
   const modalRef = useRef(null);
+  const [reload, setReload] = useState(false);
+  // alert
+  const [message, setMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleEsc = (event) => {
@@ -18,7 +24,13 @@ const MedicalRecordModal = ({ member, onClose }) => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  const handleFileSelect = (event) => {
+  // useEffect(()=>{
+  //   const fetchRecordList = async()=>{
+  //     const recordList = await authApi.getRecordsOfMember(member.memberID);
+  //   }
+  // },[reload]);
+
+  const handleFileSelect = async (event) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files).map(file => ({ file, type: '' }));
       setStagedFiles(prev => [...prev, ...newFiles]);
@@ -31,17 +43,37 @@ const MedicalRecordModal = ({ member, onClose }) => {
 
   const handleStagedFileTypeChange = (index, type) => {
     setStagedFiles(prev => prev.map((item, i) => i === index ? { ...item, type } : item));
+    // console.log("stage file:",stagedFiles);
   };
 
-  const handleSaveFiles = () => {
-    const newRecords = stagedFiles.map((stagedFile, index) => ({
-      id: Date.now() + index,
-      name: stagedFile.file.name,
-      type: stagedFile.type,
-      date: new Date().toISOString().split('T')[0],
-    }));
-    setRecords(prev => [...prev, ...newRecords]);
-    setStagedFiles([]);
+  const handleSaveFiles = async() => {
+    try{
+        const newRecords = stagedFiles.map((stagedFile, index) => ({
+          memberID:member.memberID,
+          fileLink: stagedFile.file.name,
+          fileType: stagedFile.type,
+          recordDate: new Date().toISOString().split('T')[0],
+        }));
+        
+        const recordResult = await MemberAPI.createMedicalRecord(stagedFiles,newRecords);
+        setStagedFiles([]); 
+
+        // Thêm các record mới vào danh sách hiện có trên UI
+        if (recordResult && recordResult.length > 0) {
+          setRecords(prev => [...prev, ...recordResult]);
+        }
+        setReload(prev => !prev);
+        showAlert("Thêm file bệnh án mới thành công");
+
+    }catch(error){
+      console.log("lỗi không thêm được record",error);  
+      throw error;
+    }
+  };
+
+  const showAlert = (content) => {
+    setMessage(content);
+    setIsOpen(true);
   };
 
   const isSaveDisabled = stagedFiles.length === 0 || stagedFiles.some(f => f.type === '');
@@ -82,9 +114,11 @@ const MedicalRecordModal = ({ member, onClose }) => {
             </div>
             <div>
               <label htmlFor="filter-type" className="block text-sm font-medium text-[#374151] mb-1">Lọc theo loại</label>
-              <select id="filter-type" className="w-full px-3 py-2 border border-[#D1D5DB] rounded-md focus:ring-[#3B82F6] focus:border-[#3B82F6] transition bg-[#FFFFFF]">
+              <select 
+              id="filter-type" 
+              className="w-full px-3 py-2 border border-[#D1D5DB] rounded-md focus:ring-[#3B82F6] focus:border-[#3B82F6] transition bg-[#FFFFFF]">
                 <option value="">Tất cả các loại</option>
-                {MedicalRecordTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                {generateSelectOptions().map(opt  => <option key={opt.value} value={opt.value }>{opt.label}</option>)}
               </select>
             </div>
           </div>
@@ -133,7 +167,7 @@ const MedicalRecordModal = ({ member, onClose }) => {
               </button>
 
               {stagedFiles.length > 0 && (
-                <div className="space-y-3">
+                <div className="max-h-64 overflow-y-auto space-y-3 py-2">
                   {stagedFiles.map((item, index) => (
                     <div key={index} className="bg-[#FFFFFF] p-3 rounded-lg border border-[#EEEEEE] flex flex-col sm:flex-row sm:items-center gap-3">
                       <div className="flex-grow flex items-center gap-3">
@@ -147,7 +181,7 @@ const MedicalRecordModal = ({ member, onClose }) => {
                           className={`w-full sm:w-48 px-2 py-1 border rounded-md text-sm bg-[#FFFFFF] transition ${item.type === '' ? 'border-[#F87171] text-[#6B7280]' : 'border-[#D1D5DB] text-[#111827]'}`}
                         >
                           <option value="" disabled>-- Chọn loại hồ sơ --</option>
-                          {MedicalRecordTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                          {generateSelectOptions().map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                         </select>
                         <button onClick={() => handleRemoveStagedFile(index)} className="p-2 rounded-full text-[#9CA3AF] hover:bg-[#FEE2E2] hover:text-[#DC2626] transition-colors" aria-label={`Xóa file ${item.file.name}`}>
                           <TrashIcon />
@@ -168,6 +202,12 @@ const MedicalRecordModal = ({ member, onClose }) => {
           </details>
         </div>
       </div>
+      <ActionAlert 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+      >
+        {message}
+      </ActionAlert>
     </div>
   );
 };

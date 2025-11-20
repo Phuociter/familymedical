@@ -89,7 +89,6 @@ input CompleteProfileInput {
 
 input CreateMedicalRecordInput {
     memberID: Int!
-    doctorID: Int
     fileType: String
     fileLink: String
     description: String
@@ -257,7 +256,8 @@ type Mutation {
     login(input: LoginInput!): AuthPayload!
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
-
+    
+    #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
