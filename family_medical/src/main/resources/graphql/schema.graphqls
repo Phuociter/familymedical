@@ -95,7 +95,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    treatmentPlan: String
+    recordDate: LocalDate
 }
 
 input UpdateMemberInput {
@@ -176,7 +176,7 @@ type MedicalRecord {
     memberID: Int
     member: Member
     doctorID: Int
-    Doctor: Doctor
+    doctor: User
     fileType: String
     fileLink: String
     description: String
@@ -218,10 +218,7 @@ type MomoPaymentResponse {
     message: String
 }
 
-type Doctor {
-    userID: ID!
 
-}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -271,8 +268,8 @@ type Mutation {
 
     # New mutation for resetting the password
     resetMyPassword(token: String!, newPassword: String!): String!
-
-    createMedicalRecord(memberID: Int!, input: CreateMedicalRecordInput!): MedicalRecord
+    
+    createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

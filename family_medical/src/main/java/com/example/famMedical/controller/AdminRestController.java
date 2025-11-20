@@ -132,15 +132,15 @@ public class AdminRestController {
     public ResponseEntity<List<MedicalRecord>> getMemberFiles(@PathVariable Integer memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
-        List<MedicalRecord> records = medicalRecordRepository.findByMemberID_MemberID(memberId);
+        List<MedicalRecord> records = medicalRecordRepository.findByMember_MemberID(memberId);
         
         // Force load các quan hệ để tránh lỗi lazy loading khi serialize
         for (MedicalRecord record : records) {
-            if (record.getMemberID() != null) {
-                record.getMemberID().getFullName(); // Trigger load
+            if (record.getMember() != null) {
+                record.getMember().getFullName(); // Trigger load
             }
-            if (record.getDoctorID() != null) {
-                record.getDoctorID().getFullName(); // Trigger load
+            if (record.getDoctor() != null) {
+                record.getDoctor().getFullName(); // Trigger load
             }
         }
         
