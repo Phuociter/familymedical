@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import MedicalRecordModal from './MedicalRecordModal.jsx';
 import AddMemberModal from './AddMemberModal.jsx';
 import MemberAPI from '../../api/MemberAPI.js'
-const token = localStorage.getItem('userToken');
+
 
 const FamilyMemberCard = ({ member, onViewDetails }) => {
+
     const formatName = (name) => {
         if (!name) return '';
         return name
@@ -37,6 +38,7 @@ const FamilyMemberCard = ({ member, onViewDetails }) => {
 };
 
 const FamilyList = () => {
+  const token = localStorage.getItem('userToken');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

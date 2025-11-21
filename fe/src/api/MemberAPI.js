@@ -1,9 +1,6 @@
 import axios from 'axios';
-const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 import authApi from './authApi';
-// const token = localStorage.getItem('userToken');
-// const user = JSON.parse(localStorage.getItem('user'));
-// const userID = user.userID;
+
 const MemberAPI = {
   // const user = useSelector((state) => state.user.user);
   getMemberByFamilyID: async (familyID, token) => {
@@ -34,6 +31,7 @@ const MemberAPI = {
       return[];
     }
   },
+
   updateMember: async (memberID, memberData, token) => {
     try {
       const UPDATE_MEMBER_MUTATION = `
@@ -57,6 +55,7 @@ const MemberAPI = {
       throw error;
     }
   },
+
   createMember: async (memberData, token) => {
     try{
       const CREATE_MEMBER_MUTATIOIN  = `
@@ -80,7 +79,7 @@ const MemberAPI = {
       throw error;
     }
   },
-
+  //Medical records API
   getFamilyByHeadOfFamilyID: async (userID, token) => {
     try{
       // console.log("userID:",userID);
@@ -122,10 +121,26 @@ const MemberAPI = {
     }
   },
 
-  getRecordsOfMember: async (memberID,token) =>{
+  getRecordsByMember: async (memberID) =>{
     try{
+      const token = localStorage.getItem('userToken');
+      const GET_MEDICAL_RECORDS_QUERY = `
+        query GetMedicalRecordsByMember($memberID: ID!) {
+          getMedicalRecordsByMember(memberID: $memberID) {
+            recordID
+            fileType
+            fileLink
+            description
+            recordDate
+          }
+        }
+      `;
+      const variables = { memberID };
+      const data = await authApi.sendGraphQLRequest(GET_MEDICAL_RECORDS_QUERY, variables, token);
+      return data.getMedicalRecordsByMember;
 
     }catch(error){
+      console.error("Lỗi khi lấy danh sách record:", error);
       throw error;
     }
   },
@@ -202,6 +217,34 @@ const MemberAPI = {
       console.error("Lỗi khi thêm file y tế:", error);
       throw(error);
     }
+  },
+
+  deleteMedicalRecord: async (recordID) => {
+    try {
+      // Sửa mutation: tên mutation đúng (theo schema) và dùng variables
+      const DELETE_MEDICAL_RECORD_MUTATION = `
+        mutation DeleteRecord($recordID: ID!) {
+          deleteRecord(recordID: $recordID)
+        }
+      `;
+
+      const variables = { recordID };
+      const token = localStorage.getItem('userToken');
+
+      // Gọi API
+      const data = await authApi.sendGraphQLRequest(
+        DELETE_MEDICAL_RECORD_MUTATION,
+        variables,
+        token
+      );
+
+      // data.deleteRecord là Boolean trực tiếp
+      return data.deleteRecord;
+    } catch (error) {
+      console.error("Lỗi khi xóa record:", error);
+      throw error;
+    }
   }
+
 }
 export default MemberAPI;

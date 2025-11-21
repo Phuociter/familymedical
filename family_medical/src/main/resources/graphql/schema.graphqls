@@ -229,9 +229,10 @@ type Query {
     getDoctorList: [User!]!
 
     #Truy vấn gia đình
-    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+    getMedicalRecordsByMember(memberID: ID!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
     getFamilyByHeadOfFamilyID(userID: ID!): Family
+    getSignedUrlForMedicalRecord(recordID: ID!): String
 
 
     # Admin queries
@@ -259,7 +260,7 @@ type Mutation {
     
     #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
-
+    deleteRecord(recordID: ID!): Boolean
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!
     

@@ -51,8 +51,9 @@ public class MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
-    public void deleteRecord(Integer id) {
+    public Boolean deleteMedicalRecord(Integer id) {
         medicalRecordRepository.deleteById(id);
+        return true;
     }
 
     /**
