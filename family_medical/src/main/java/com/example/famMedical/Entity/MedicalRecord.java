@@ -19,18 +19,18 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "RecordID", nullable = true)
+    @Column(name = "RecordID", nullable = false)
     private Integer recordID;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberID")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "family"})
-    private Member memberID;
+    private Member member;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctorID", nullable = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User doctorID;
+    private User doctor;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "FileType", nullable = true)
@@ -83,7 +83,6 @@ public class MedicalRecord {
         Kham_Thi_Luc,        
         Kham_Thinh_Luc,
         Test_Di_Ung,
-
     }
 }
 

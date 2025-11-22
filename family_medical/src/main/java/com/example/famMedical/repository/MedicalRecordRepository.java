@@ -12,10 +12,14 @@ import java.util.List;
 @Repository
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Integer> {
     
-    List<MedicalRecord> findByMemberID_MemberID(Integer memberID);
+    List<MedicalRecord> findByMember_MemberID(Integer memberID);
+    List<MedicalRecord> findByDoctor_UserID(Integer memberID);
 
-    @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.memberID.memberID = :memberId")
-    List<String> findFileLinksByMemberId(@Param("memberId") Integer memberId);
+
+
+    @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.member.memberID = :memberId")
+    List<String> findFileLinksByMember_MemberID(@Param("memberId") Integer memberId);
+
 }
 
 

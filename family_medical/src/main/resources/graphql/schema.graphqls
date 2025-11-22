@@ -89,7 +89,6 @@ input CompleteProfileInput {
 
 input CreateMedicalRecordInput {
     memberID: Int!
-    doctorID: Int
     fileType: String
     fileLink: String
     description: String
@@ -175,7 +174,7 @@ type MedicalRecord {
     memberID: Int
     member: Member
     doctorID: Int
-    Doctor: Doctor
+    doctor: User
     fileType: String
     fileLink: String
     description: String
@@ -217,10 +216,7 @@ type MomoPaymentResponse {
     message: String
 }
 
-type Doctor {
-    userID: ID!
 
-}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -234,9 +230,10 @@ type Query {
     getDoctorList: [User!]!
 
     #Truy vấn gia đình
-    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+    getMedicalRecordsByMember(memberID: ID!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
     getFamilyByHeadOfFamilyID(userID: ID!): Family
+    getSignedUrlForMedicalRecord(recordID: ID!): String
 
 
     # Admin queries
@@ -262,7 +259,10 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(memberID: Int!, input: CreateMedicalRecordInput!): MedicalRecord
+    
+    #MedicalRecord
+    createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
+    deleteRecord(recordID: ID!): Boolean
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

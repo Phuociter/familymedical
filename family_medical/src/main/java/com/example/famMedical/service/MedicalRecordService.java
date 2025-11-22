@@ -35,12 +35,12 @@ public class MedicalRecordService {
     }
 
     public List<MedicalRecord> getRecordsByMemberId(Integer memberId) {
-        return medicalRecordRepository.findByMemberID_MemberID(memberId);
+        return medicalRecordRepository.findByMember_MemberID(memberId);
     }
 
     // Trả về chỉ danh sách link file PDF
     public List<String> getFileLinksByMemberId(Integer memberId) {
-        return medicalRecordRepository.findFileLinksByMemberId(memberId);
+        return medicalRecordRepository.findFileLinksByMember_MemberID(memberId);
     }
 
     public MedicalRecord createMedicalRecord(MedicalRecord record) {
@@ -51,8 +51,9 @@ public class MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
-    public void deleteRecord(Integer id) {
+    public Boolean deleteMedicalRecord(Integer id) {
         medicalRecordRepository.deleteById(id);
+        return true;
     }
 
     /**
@@ -71,7 +72,7 @@ public class MedicalRecordService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
 
         // Ensure record is linked to a member and family
-        if (record.getMemberID() == null || record.getMemberID().getFamily() == null) {
+        if (record.getMember() == null || record.getMember().getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Family not found for this record");
         }
 
@@ -110,7 +111,7 @@ public class MedicalRecordService {
      * @return true if allowed, false otherwise
      */
     public boolean canUserDownloadRecord(User user, MedicalRecord record) {
-        Integer familyId = record.getMemberID().getFamily().getFamilyID();
+        Integer familyId = record.getMember().getFamily().getFamilyID();
 
         switch (user.getRole()) {
             case BacSi:
@@ -125,8 +126,8 @@ public class MedicalRecordService {
 
             case ChuHo:
                 // Head of family allowed if they are the head of this family
-                if (record.getMemberID().getFamily().getHeadOfFamily() != null
-                    && record.getMemberID().getFamily().getHeadOfFamily().getUserID().equals(user.getUserID())) {
+                if (record.getMember().getFamily().getHeadOfFamily() != null
+                    && record.getMember().getFamily().getHeadOfFamily().getUserID().equals(user.getUserID())) {
                     return true;
                 }
                 return false;
