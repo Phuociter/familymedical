@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { FAMILY_MEMBERS } from '../../constants.js';
+// import { FAMILY_MEMBERS } from '../../constants.js';
 import MedicalRecordModal from './MedicalRecordModal.jsx';
 import AddMemberModal from './AddMemberModal.jsx';
+import MemberAPI from '../../api/MemberAPI.js'
+
 
 const FamilyMemberCard = ({ member, onViewDetails }) => {
-    const initials = member.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+    const formatName = (name) => {
+        if (!name) return '';
+        return name
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
+    const formattedName = formatName(member.fullName);
+    const initials = (formattedName || '').split(' ').map(n => n[0]).join('').toUpperCase();
+
     return (
         <div className="bg-[#FFFFFF] p-4 rounded-lg shadow-sm border border-[#EEEEEE] flex items-center justify-between transition-shadow hover:shadow-md">
             <div className="flex items-center">
@@ -12,7 +26,7 @@ const FamilyMemberCard = ({ member, onViewDetails }) => {
                     {initials}
                 </div>
                 <div>
-                    <p className="font-semibold text-[#111827]">{member.name}</p>
+                    <p className="font-semibold text-[#111827]">{formattedName}</p>
                     <p className="text-sm text-[#6B7280]">{member.relationship}</p>
                 </div>
             </div>
@@ -24,16 +38,43 @@ const FamilyMemberCard = ({ member, onViewDetails }) => {
 };
 
 const FamilyList = () => {
+  const token = localStorage.getItem('userToken');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const[loading, setLoading] = useState(null);
+  const[members,setMembers] = useState([]);
+  const [reload, setReload] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
 
-  const filteredMembers = FAMILY_MEMBERS.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(()=>{
+    if(user==null || user.userID==null){
+      console.log("không tìm thấy user");
+      setLoading(false);
+      return;
+    }
+
+    const fetchMembers =  async()=>{
+      try{
+        setLoading(true);
+        const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
+        const memberData = await MemberAPI.getMemberByFamilyID(response.familyID);
+        setMembers(memberData);
+        console.log("FamilyID data:",memberData);
+      }catch(err){
+        setError(err);
+        console.log("Failed to fetch family members:", err);
+      }finally{
+        setLoading(false);
+      }
+    };
+    fetchMembers();
+  },[user?.userID,reload]);
+
+
 
   const handleViewDetails = (member) => {
     setSelectedMember(member);
@@ -43,37 +84,15 @@ const FamilyList = () => {
     setSelectedMember(null);
   };
 
-  useEffect(() => {
-    // const fetchMembers = async () => {
-    //   try {
-    //     setIsLoading(true);
-    //     setError(null);
-    //     const responseData = await graphqlRequest({ query: GET_FAMILY_MEMBERS_QUERY });
-    //     setFamilyMembers(responseData.familyMembers || []);
-    //   } catch (error) {
-    //     console.error("Failed to fetch family members:", error);
-    //     setError("Không thể tải danh sách thành viên. Vui lòng thử lại.");
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-
-    // fetchMembers();
-  }, []);
-
   const handleAddMember = async (memberData) => {
     try {
-        const responseData = await graphqlRequest({
-            query: ADD_FAMILY_MEMBER_MUTATION,
-            variables: { input: memberData }
-        });
-        const newMember = responseData.addFamilyMember;
-        // Cập nhật state để hiển thị thành viên mới ngay lập tức
-        setFamilyMembers(prevMembers => [...prevMembers, newMember]);
-        alert('Thêm thành viên mới thành công!');
+      // console.log("memberData",memberData);
+        const responseData = await MemberAPI.createMember(memberData, token);
+        setFamilyMembers(prevMembers => [...prevMembers, responseData]);
+        setReload(prev => !prev);
     } catch (error) {
         console.error("Failed to add family member:", error);
-        alert('Thêm thành viên thất bại. Vui lòng thử lại.');
+        // alert('Thêm thành viên thất bại. Vui lòng thử lại.');
         // Ném lỗi để modal biết và không tự đóng
         throw error;
     }
@@ -91,10 +110,10 @@ const FamilyList = () => {
         </div>
       );
     }
-    if (filteredMembers.length > 0) {
+    if (members.length > 0) {
       return (
         <div className="space-y-4">
-          {filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)}
+          {members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)}
         </div>
       );
     }
@@ -131,8 +150,8 @@ const FamilyList = () => {
         </div>
 
         <div className="space-y-4">
-          {filteredMembers.length > 0 ? (
-            filteredMembers.map(member => <FamilyMemberCard key={member.id} member={member} onViewDetails={handleViewDetails} />)
+          {members.length > 0 ? (
+            members.map(member => <FamilyMemberCard key={member.membersID} member={member} onViewDetails={handleViewDetails} />)
           ) : (
             <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
               <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>

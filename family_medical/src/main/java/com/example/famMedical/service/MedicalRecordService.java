@@ -6,6 +6,8 @@ import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.repository.MedicalRecordRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
+
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;  
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
@@ -15,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+// @RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MedicalRecordService {
 
@@ -37,10 +40,10 @@ public class MedicalRecordService {
 
     // Trả về chỉ danh sách link file PDF
     public List<String> getFileLinksByMemberId(Integer memberId) {
-        return medicalRecordRepository.findFileLinksByMemberId(memberId);
+        return medicalRecordRepository.findFileLinksByMember_MemberID(memberId);
     }
 
-    public MedicalRecord createRecord(MedicalRecord record) {
+    public MedicalRecord createMedicalRecord(MedicalRecord record) {
         return medicalRecordRepository.save(record);
     }
 
@@ -48,8 +51,9 @@ public class MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
-    public void deleteRecord(Integer id) {
+    public Boolean deleteMedicalRecord(Integer id) {
         medicalRecordRepository.deleteById(id);
+        return true;
     }
 
     /**

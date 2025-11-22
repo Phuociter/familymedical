@@ -89,10 +89,10 @@ input CompleteProfileInput {
 
 input CreateMedicalRecordInput {
     memberID: Int!
-    symptoms: String
-    diagnosis: String
-    treatmentPlan: String
+    fileType: String
     fileLink: String
+    description: String
+    recordDate: LocalDate
 }
 
 input UpdateMemberInput {
@@ -105,6 +105,7 @@ input UpdateMemberInput {
 }
 
 input CreateMemberInput {
+    familyID: Int
     fullName: String 
     dateOfBirth: LocalDate
     gender: String 
@@ -165,18 +166,18 @@ type Member {
     dateOfBirth: LocalDate
     gender: String
     phoneNumber: String
-    createdAt: String
 }
 
 type MedicalRecord {
     recordID: ID!
-    # memberID: ID! # Thường nên dùng Member Type để Resolver có thể fetch chi tiết
-    member: Member!
-    symptoms: String
-    diagnosis: String
-    treatmentPlan: String
-    recordDate: String
+    memberID: Int
+    member: Member
+    doctorID: Int
+    doctor: User
+    fileType: String
     fileLink: String
+    description: String
+    recordDate: Date
 }
 
 type DoctorRequest {
@@ -214,10 +215,7 @@ type MomoPaymentResponse {
     message: String
 }
 
-type Doctor {
-    userID: ID!
 
-}
 # =======================================================
 # 4. QUERY
 # =======================================================
@@ -231,8 +229,11 @@ type Query {
     getDoctorList: [User!]!
 
     #Truy vấn gia đình
-    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+    getMedicalRecordsByMember(memberID: ID!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
+    getFamilyByHeadOfFamilyID(userID: ID!): Family
+    getSignedUrlForMedicalRecord(recordID: ID!): String
+
 
     # Admin queries
     allMembers: [Member]
@@ -256,9 +257,10 @@ type Mutation {
     login(input: LoginInput!): AuthPayload!
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
-
+    
+    #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
-
+    deleteRecord(recordID: ID!): Boolean
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!
     

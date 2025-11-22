@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import MemberAPI from '../../api/MemberAPI.js'
+import ActionAlert from '../ActionAlert.jsx';
 
 const AddMemberModal = ({ isOpen, onClose, onSave }) => {
+  const token = localStorage.getItem('userToken');
+  const user = JSON.parse(localStorage.getItem('user'));
   if (!isOpen) return null;
+  // console.log(user);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -11,23 +16,25 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
     cccd: '',
     phoneNumber: '',
   });
-
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setFormData({
-        name: '',
-        relationship: '',
-        dateOfBirth: '',
-        gender: '',
-        cccd: '',
-        phoneNumber: '',
-      });
-      setError('');
-      setIsSaving(false);
-    }
+  // alert
+  const [message, setMessage] = useState("");
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
+    useEffect(() => {
+      if (!isOpen) {
+        setFormData({
+          name: '',
+          relationship: '',
+          dateOfBirth: '',
+          gender: '',
+          cccd: '',
+          phoneNumber: '',
+        });
+        setError('');
+        setIsSaving(false);
+      }
   }, [isOpen]);
 
   const handleChange = (e) => {
@@ -36,29 +43,45 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim() || !formData.relationship.trim) {
-      setError('Họ và tên và Mối quan hệ là bắt buộc.');
+    const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
+
+    const familyId = response.familyID; 
+    if (
+      !formData.name.trim() ||
+      !formData.relationship.trim() ||
+      !formData.dateOfBirth ||
+      !formData.gender
+    ) {
+      setError('Họ và tên, Mối quan hệ, Ngày sinh và Giới tính là bắt buộc.');
       return;
     }
-    setError('');
-    setIsSaving(true);
-    try {
-      const memberDataToSend = {
-        name: formData.name.trim(),
-        relationship: formData.relationship.trim(),
-        ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
-        ...(formData.gender && { gender: formData.gender }),
-        ...(formData.cccd.trim() && { cccd: formData.cccd.trim() }),
-        ...(formData.phoneNumber.trim() && { phoneNumber: formData.phoneNumber.trim() }),
-      };
-      await onSave(memberDataToSend);
-      onClose(); // Đóng modal sau khi lưu thành công
-    } catch (err) {
-      // Lỗi đã được xử lý ở component cha, chỉ cần dừng trạng thái loading
-      console.error(err);
-    } finally {
-      setIsSaving(false);
-    }
+
+      setError('');
+      setIsSaving(true);
+      try {
+        const memberDataToSend = {
+          familyID: parseInt(familyId),
+          relationship: formData.relationship.trim(),
+          familyId:user.familyId,
+          fullName: formData.name.trim(),
+          ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
+          ...(formData.gender && { gender: formData.gender }),
+          ...(formData.phoneNumber.trim() && { phoneNumber: formData.phoneNumber.trim() }),
+          ...(formData.cccd.trim() && { cccd: formData.cccd.trim() }),
+        };
+        await onSave(memberDataToSend);
+        onClose(); 
+      } catch (err) {
+        console.error(err);
+      } finally {
+        showAlert("Thêm thành viên mới thành công")
+        setIsSaving(false);
+      }
+  };
+
+  const showAlert = (content) => {
+    setMessage(content);
+    setIsOpenAlert(true);
   };
 
   return (
@@ -160,6 +183,12 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
             </button>
         </div>
       </div>
+      <ActionAlert 
+        isOpen={isOpenAlert} 
+        onClose={() => setIsOpenAlert(false)}
+      >
+        {message}
+      </ActionAlert>
     </div>
   );
 };

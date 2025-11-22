@@ -5,6 +5,7 @@ import com.example.famMedical.Entity.DoctorRequest;
 import jakarta.validation.Valid;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -21,6 +22,17 @@ public class DoctorRequestResolver {
         return doctorRequestService.createDoctorRequest(doctorID,userID);
     }
     
-    // Các schema mapping cho familyID và doctorID đã được xử lý bởi AdminGraphQLResolver
-    // để tránh conflict mapping
+        // Map familyID từ entity Family → GraphQL Int
+    @SchemaMapping(typeName = "DoctorRequest", field = "familyID")
+    public Integer getFamilyID(DoctorRequest dr) {
+        return dr.getFamily() != null ? dr.getFamily().getFamilyID() : null;
+    }
+
+    // Map doctorID từ entity User → GraphQL Int
+    @SchemaMapping(typeName = "DoctorRequest", field = "doctorID")
+    public Integer getDoctorID(DoctorRequest dr) {
+        //code mới nhất
+        return dr.getDoctor() != null ? dr.getDoctor().getUserID() : null;
+        
+    }
 }

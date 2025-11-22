@@ -1,29 +1,32 @@
 package com.example.famMedical.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import com.cloudinary.Cloudinary;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class CloudinaryConfig {
 
+    @Value("${cloudinary.cloud_name}")
+    private String cloudName;
+
+    @Value("${cloudinary.api_key}")
+    private String apiKey;
+
+    @Value("${cloudinary.api_secret}")
+    private String apiSecret;
+
     @Bean
     public Cloudinary cloudinary() {
-        Dotenv dotenv = Dotenv.load();
-        String cloudinaryUrl = dotenv.get("CLOUDINARY_URL");
-        
-        // Nếu không có CLOUDINARY_URL trong .env, thử đọc từ environment variable
-        if (cloudinaryUrl == null || cloudinaryUrl.isEmpty()) {
-            cloudinaryUrl = System.getenv("CLOUDINARY_URL");
-        }
-        
-        // Nếu vẫn không có, trả về instance với config rỗng (không crash app)
-        if (cloudinaryUrl == null || cloudinaryUrl.isEmpty()) {
-            return new Cloudinary(new java.util.HashMap<>());
-        }
-        
-        return new Cloudinary(cloudinaryUrl);
+        Map<String, String> config = new HashMap<>();
+        config.put("cloud_name", cloudName);
+        config.put("api_key", apiKey);
+        config.put("api_secret", apiSecret);
+        config.put("secure", "true"); // Luôn sử dụng https
+        return new Cloudinary(config);
     }
 }
-
