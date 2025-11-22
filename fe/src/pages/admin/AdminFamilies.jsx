@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getFamilies, createFamily, updateFamily, deleteFamily } from '../../api/AdminAPI';
-import { FiEdit, FiTrash2, FiX, FiSave, FiPlus, FiSearch, FiDownload, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiX, FiSave, FiPlus, FiSearch, FiDownload, FiArrowUp, FiArrowDown, FiHome, FiActivity } from 'react-icons/fi';
 import { validators } from '../../utils/validation';
 
 const AdminFamilies = () => {
@@ -211,20 +211,30 @@ const AdminFamilies = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Quản lý Gia đình</h1>
-          <p className="text-gray-600 mt-2">Quản lý thông tin gia đình trong hệ thống</p>
+          <div className="flex items-center gap-4 mb-2">
+            <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
+              <FiHome className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Quản lý Gia đình</h1>
+              <p className="text-gray-600 mt-2 flex items-center gap-2">
+                <FiActivity size={16} />
+                Quản lý thông tin gia đình trong hệ thống
+              </p>
+            </div>
+          </div>
         </div>
         <div className="flex gap-2">
           <button
             onClick={handleExportCSV}
-            className="bg-green-600 text-black px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+            className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-100 flex items-center gap-2 transition-colors border border-emerald-200 shadow-sm"
           >
             <FiDownload size={20} />
             Xuất CSV
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 text-black px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+            className="bg-[rgb(25,118,210)] text-white px-4 py-2 rounded-lg hover:bg-[rgb(20,95,170)] flex items-center gap-2 transition-colors shadow-md"
           >
             <FiPlus size={20} />
             Thêm Gia đình
@@ -245,7 +255,7 @@ const AdminFamilies = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
             />
           </div>
           <div></div>
@@ -257,7 +267,7 @@ const AdminFamilies = () => {
                 setItemsPerPage(parseInt(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -313,7 +323,7 @@ const AdminFamilies = () => {
             <div className="flex gap-2 mt-6">
               <button
                 onClick={handleCreate}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="flex-1 bg-[rgb(25,118,210)] text-white px-4 py-2 rounded-lg hover:bg-[rgb(20,95,170)]"
               >
                 Tạo
               </button>
@@ -449,7 +459,7 @@ const AdminFamilies = () => {
                         <>
                           <button
                             onClick={() => handleEdit(family)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)]"
                             title="Sửa"
                           >
                             <FiEdit size={18} />
@@ -498,7 +508,7 @@ const AdminFamilies = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`px-4 py-2 border border-gray-300 rounded-lg ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white border-blue-600'
+                          ? 'bg-[rgb(25,118,210)] text-white border-[rgb(25,118,210)]'
                           : 'hover:bg-gray-100'
                       }`}
                     >
