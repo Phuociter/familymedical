@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMembers, getFamilies, updateMember, uploadFiles, getMemberFiles, updateMedicalRecord, deleteFile, createMember, deleteMember } from '../../api/AdminAPI';
-import { FiEdit, FiSave, FiX, FiFileText, FiUpload, FiArrowLeft, FiUsers, FiPlus, FiExternalLink, FiTrash2 } from 'react-icons/fi';
+import { FiEdit, FiSave, FiX, FiFileText, FiUpload, FiArrowLeft, FiUsers, FiPlus, FiExternalLink, FiTrash2, FiActivity, FiHome } from 'react-icons/fi';
 import { validators } from '../../utils/validation';
 
 const AdminFamilyMembers = () => {
@@ -325,16 +325,26 @@ const AdminFamilyMembers = () => {
             <FiArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <FiUsers size={32} />
-              Thành viên gia đình: {familyName}
-            </h1>
-            <p className="text-gray-500 mt-1">Tổng số thành viên: {familyMembers.length}</p>
+            <div className="flex items-center gap-4 mb-2">
+              <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
+                <FiUsers className="text-white" size={32} />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: 'rgb(25, 118, 210)' }}>
+                  <FiHome size={24} />
+                  Thành viên gia đình: {familyName}
+                </h1>
+                <p className="text-gray-500 mt-1 flex items-center gap-2">
+                  <FiActivity size={14} />
+                  Tổng số thành viên: {familyMembers.length}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-blue-100 text-black px-4 py-2 rounded-lg hover:bg-blue-200 flex items-center gap-2 transition-colors whitespace-nowrap border border-blue-300"
+          className="bg-[rgb(25,118,210)] text-white px-4 py-2 rounded-lg hover:bg-[rgb(20,95,170)] flex items-center gap-2 transition-colors whitespace-nowrap shadow-md"
         >
           <FiPlus size={20} />
           <span>Thêm thành viên</span>
@@ -393,7 +403,7 @@ const AdminFamilyMembers = () => {
                         <div className="text-sm font-medium text-gray-900">
                           {member.fullName || 'N/A'}
                           {member.relationship === 'Chủ hộ' && (
-                            <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Chủ hộ</span>
+                            <span className="ml-2 px-2 py-1 text-xs bg-[rgba(25,118,210,0.15)] text-[rgb(25,118,210)] rounded-full">Chủ hộ</span>
                           )}
                         </div>
                       )}
@@ -541,7 +551,7 @@ const AdminFamilyMembers = () => {
                           <>
                             <button
                               onClick={() => handleEditFamilyMember(member)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)]"
                               title="Sửa thông tin"
                             >
                               <FiEdit size={18} />
@@ -613,7 +623,7 @@ const AdminFamilyMembers = () => {
               </h2>
               <div className="flex items-center gap-3">
                 <label 
-                  className="text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors border border-blue-200"
+                  className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-[rgba(25,118,210,0.1)] transition-colors border border-[rgba(25,118,210,0.3)]"
                   title="Tải lên bệnh án mới"
                 >
                   <FiUpload size={18} />
@@ -725,7 +735,7 @@ const AdminFamilyMembers = () => {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEditRecord(record)}
-                                className="text-blue-600 hover:text-blue-900 text-sm"
+                                className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)] text-sm"
                               >
                                 <FiEdit size={16} />
                               </button>
@@ -759,13 +769,13 @@ const AdminFamilyMembers = () => {
                             <div className="mt-3 pt-3 border-t border-gray-200">
                               <div className="flex items-center justify-between mb-2">
                                 <h4 className="font-semibold text-gray-700 flex items-center gap-2">
-                                  <span className="text-blue-500">📄</span> File PDF đính kèm:
+                                  <span className="text-[rgb(25,118,210)]">📄</span> File PDF đính kèm:
                                 </h4>
                                 <a
                                   href={record.fileLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 hover:underline"
+                                  className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] text-sm flex items-center gap-1 hover:underline"
                                   title="Mở PDF trong tab mới"
                                 >
                                   <FiExternalLink size={14} />
@@ -933,7 +943,7 @@ const AdminFamilyMembers = () => {
             <div className="flex gap-2 mt-6 pt-4 border-t border-gray-200">
               <button
                 onClick={handleCreateMember}
-                className="flex-1 bg-blue-100 text-black px-4 py-2 rounded-lg hover:bg-blue-200 border border-blue-300 font-medium"
+                className="flex-1 bg-[rgba(25,118,210,0.15)] text-black px-4 py-2 rounded-lg hover:bg-[rgba(25,118,210,0.25)] border border-[rgba(25,118,210,0.4)] font-medium"
               >
                 Tạo
               </button>
