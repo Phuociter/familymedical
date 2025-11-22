@@ -166,6 +166,7 @@ type Member {
     dateOfBirth: LocalDate
     gender: String
     phoneNumber: String
+    createdAt: String
 }
 
 type MedicalRecord {
@@ -257,10 +258,12 @@ type Mutation {
     login(input: LoginInput!): AuthPayload!
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
+
     
     #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
     deleteRecord(recordID: ID!): Boolean
+
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!
     
