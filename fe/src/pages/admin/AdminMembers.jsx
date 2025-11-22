@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getMembers, updateMember, deleteMember, uploadFiles, deleteFile, assignDoctor, getMemberFiles, updateMedicalRecord, getAssignedDoctors } from '../../api/AdminAPI';
 import { getFamilies } from '../../api/AdminAPI';
 import { getDoctors } from '../../api/AdminAPI';
-import { FiEdit, FiTrash2, FiUpload, FiX, FiSave, FiSearch, FiDownload, FiArrowUp, FiArrowDown, FiFileText, FiExternalLink, FiUsers, FiUserCheck, FiHeart, FiActivity } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiUpload, FiX, FiSave, FiSearch, FiDownload, FiArrowUp, FiArrowDown, FiFileText, FiExternalLink, FiUsers, FiUserCheck } from 'react-icons/fi';
 import { validators } from '../../utils/validation';
 
 const AdminMembers = () => {
@@ -500,23 +500,13 @@ const AdminMembers = () => {
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
           <div className="flex-1">
-            <div className="flex items-center gap-4 mb-2">
-              <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
-                <FiHeart className="text-white" size={32} />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Quản lý Chủ hộ</h1>
-                <p className="text-gray-600 mt-2 flex items-center gap-2">
-                  <FiActivity size={16} />
-                  Quản lý thông tin chủ hộ trong hệ thống. Click nút <FiUsers className="inline" size={16} /> để xem danh sách thành viên gia đình
-                </p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-800">Quản lý Chủ hộ</h1>
+            <p className="text-gray-600 mt-2">Quản lý thông tin chủ hộ trong hệ thống. Click nút <FiUsers className="inline" size={16} /> để xem danh sách thành viên gia đình</p>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
             <button
               onClick={handleExportCSV}
-              className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-100 flex items-center gap-2 transition-colors whitespace-nowrap border border-emerald-200 shadow-sm"
+              className="bg-green-100 text-black px-4 py-2 rounded-lg hover:bg-green-200 flex items-center gap-2 transition-colors whitespace-nowrap border border-green-300"
             >
               <FiDownload size={20} />
               <span>Xuất CSV</span>
@@ -538,7 +528,7 @@ const AdminMembers = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -548,7 +538,7 @@ const AdminMembers = () => {
                 setFilterFamilyId(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả gia đình</option>
               {families.map((family) => (
@@ -566,7 +556,7 @@ const AdminMembers = () => {
                 setItemsPerPage(parseInt(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -757,7 +747,7 @@ const AdminMembers = () => {
                         {familyAssignments[member.familyID].map((assignment) => (
                           <div
                             key={assignment.assignmentId}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[rgba(25,118,210,0.1)] text-[rgb(25,118,210)] rounded-md text-xs border border-[rgba(25,118,210,0.3)]"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-200"
                           >
                             <FiUserCheck size={14} />
                             <span className="font-medium">{assignment.doctorName}</span>
@@ -791,7 +781,7 @@ const AdminMembers = () => {
                         <>
                           <button
                             onClick={() => handleEdit(member)}
-                            className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)]"
+                            className="text-blue-600 hover:text-blue-900"
                             title="Sửa"
                           >
                             <FiEdit size={18} />
@@ -847,7 +837,7 @@ const AdminMembers = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`px-4 py-2 border border-gray-300 rounded-lg ${
                         currentPage === page
-                          ? 'bg-[rgb(25,118,210)] text-white border-[rgb(25,118,210)]'
+                          ? 'bg-blue-600 text-white border-blue-600'
                           : 'hover:bg-gray-100'
                       }`}
                     >
@@ -899,7 +889,7 @@ const AdminMembers = () => {
               </h2>
               <div className="flex items-center gap-3">
                 <label 
-                  className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-[rgba(25,118,210,0.1)] transition-colors border border-[rgba(25,118,210,0.3)]"
+                  className="text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors border border-blue-200"
                   title="Tải lên bệnh án mới"
                 >
                   <FiUpload size={18} />
@@ -935,13 +925,13 @@ const AdminMembers = () => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto pr-2">
               {uploadingFiles[selectedMemberId] && (
-                <div className="mb-4 p-3 bg-[rgba(25,118,210,0.1)] border border-[rgba(25,118,210,0.3)] rounded-lg flex items-center gap-2">
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
                   <div className="dots-container">
                     <div className="dot"></div>
                     <div className="dot"></div>
                     <div className="dot"></div>
                   </div>
-                  <span className="text-sm text-[rgb(25,118,210)]">Đang tải lên file...</span>
+                  <span className="text-sm text-blue-700">Đang tải lên file...</span>
                 </div>
               )}
               {loadingRecords ? (
@@ -989,7 +979,7 @@ const AdminMembers = () => {
                               href={record.fileLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgba(25,118,210,0.1)] transition-colors"
+                              className="text-blue-600 hover:text-blue-800 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
                               title="Mở PDF trong tab mới"
                             >
                               <FiExternalLink size={18} />
@@ -1020,7 +1010,7 @@ const AdminMembers = () => {
                             <>
                               <button
                                 onClick={() => handleEditRecord(record)}
-                                className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] px-3 py-2 rounded-lg hover:bg-[rgba(25,118,210,0.1)] transition-colors"
+                                className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
                                 title="Sửa bệnh án"
                               >
                                 <FiEdit size={18} />
@@ -1101,13 +1091,13 @@ const AdminMembers = () => {
                         <div className="mt-4 pt-4 border-t border-gray-200">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-semibold text-gray-700 flex items-center gap-2">
-                              <span className="text-[rgb(25,118,210)]">📄</span> File PDF đính kèm:
+                              <span className="text-blue-500">📄</span> File PDF đính kèm:
                             </h4>
                             <a
                               href={record.fileLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[rgb(25,118,210)] hover:text-[rgb(25,118,210)] text-sm flex items-center gap-1 hover:underline"
+                              className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 hover:underline"
                               title="Mở PDF trong tab mới"
                             >
                               <FiExternalLink size={14} />
@@ -1241,7 +1231,7 @@ const AdminMembers = () => {
                               <div className="text-sm font-medium text-gray-900">
                                 {member.fullName || 'N/A'}
                                 {member.relationship === 'Chủ hộ' && (
-                                  <span className="ml-2 px-2 py-1 text-xs bg-[rgba(25,118,210,0.15)] text-[rgb(25,118,210)] rounded-full">Chủ hộ</span>
+                                  <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Chủ hộ</span>
                                 )}
                               </div>
                             )}
@@ -1389,7 +1379,7 @@ const AdminMembers = () => {
                                 <>
                                   <button
                                     onClick={() => handleEditFamilyMember(member)}
-                                    className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)]"
+                                    className="text-blue-600 hover:text-blue-900"
                                     title="Sửa thông tin"
                                   >
                                     <FiEdit size={18} />

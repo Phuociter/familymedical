@@ -93,7 +93,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    recordDate: LocalDate
+    treatmentPlan: recordDate
 }
 
 input UpdateMemberInput {
@@ -167,7 +167,6 @@ type Member {
     dateOfBirth: LocalDate
     gender: String
     phoneNumber: String
-    createdAt: String
 }
 
 type MedicalRecord {
@@ -262,7 +261,7 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(memberID: Int!, input: CreateMedicalRecordInput!): MedicalRecord
+    createMedicalRecord(memberID! ,input: CreateMedicalRecordInput!): MedicalRecord
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

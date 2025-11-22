@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getDoctorRequests, approveDoctorRequestREST, rejectDoctorRequestREST, getFamilies, getDoctors, getDoctorRequestById } from '../../api/AdminAPI';
-import { FiCheck, FiX, FiSearch, FiArrowUp, FiArrowDown, FiEye, FiInfo, FiFileText, FiActivity, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
+import { FiCheck, FiX, FiSearch, FiArrowUp, FiArrowDown, FiEye, FiInfo } from 'react-icons/fi';
 
 const AdminDoctorRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -258,18 +258,8 @@ const AdminDoctorRequests = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
-            <FiFileText className="text-white" size={32} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Quản lý Yêu cầu Bác sĩ</h1>
-            <p className="text-gray-600 mt-2 flex items-center gap-2">
-              <FiActivity size={16} />
-              Duyệt các yêu cầu bác sĩ từ gia đình
-            </p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800">Quản lý Yêu cầu Bác sĩ</h1>
+        <p className="text-gray-600 mt-2">Duyệt các yêu cầu bác sĩ từ gia đình</p>
       </div>
 
       {/* Thống kê */}
@@ -277,52 +267,37 @@ const AdminDoctorRequests = () => {
         <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
-                <FiClock size={16} />
-                Chờ duyệt
-              </p>
+              <p className="text-sm text-gray-600">Chờ duyệt</p>
               <p className="text-2xl font-bold text-yellow-600">{statistics.pending}</p>
             </div>
-            <div className="bg-yellow-100 p-2 rounded-lg">
-              <FiClock className="text-yellow-600" size={24} />
-            </div>
+            <FiInfo className="text-yellow-500" size={24} />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
-                <FiCheckCircle size={16} />
-                Đã chấp nhận
-              </p>
+              <p className="text-sm text-gray-600">Đã chấp nhận</p>
               <p className="text-2xl font-bold text-green-600">{statistics.accepted}</p>
             </div>
-            <div className="bg-green-100 p-2 rounded-lg">
-              <FiCheckCircle className="text-green-600" size={24} />
-            </div>
+            <FiCheck className="text-green-500" size={24} />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
-                <FiXCircle size={16} />
-                Đã từ chối
-              </p>
+              <p className="text-sm text-gray-600">Đã từ chối</p>
               <p className="text-2xl font-bold text-red-600">{statistics.rejected}</p>
             </div>
-            <div className="bg-red-100 p-2 rounded-lg">
-              <FiXCircle className="text-red-600" size={24} />
-            </div>
+            <FiX className="text-red-500" size={24} />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-[rgb(25,118,210)]">
+        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Tổng số</p>
-              <p className="text-2xl font-bold text-[rgb(25,118,210)]">{statistics.total}</p>
+              <p className="text-2xl font-bold text-blue-600">{statistics.total}</p>
             </div>
-            <FiInfo className="text-[rgb(25,118,210)]" size={24} />
+            <FiInfo className="text-blue-500" size={24} />
           </div>
         </div>
       </div>
@@ -340,7 +315,7 @@ const AdminDoctorRequests = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -350,7 +325,7 @@ const AdminDoctorRequests = () => {
                 setFilterStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả trạng thái</option>
               <option value="pending">Chờ duyệt</option>
@@ -365,7 +340,7 @@ const AdminDoctorRequests = () => {
                 setFilterFamily(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả gia đình</option>
               {families.map(family => (
@@ -382,7 +357,7 @@ const AdminDoctorRequests = () => {
                 setFilterDoctor(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Tất cả bác sĩ</option>
               {doctors.map(doctor => (
@@ -400,7 +375,7 @@ const AdminDoctorRequests = () => {
                 setItemsPerPage(parseInt(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -497,7 +472,7 @@ const AdminDoctorRequests = () => {
                           <button
                             onClick={() => handleViewDetail(request.requestID)}
                             disabled={loadingDetail}
-                            className="text-[rgb(25,118,210)] hover:text-[rgb(20,95,170)] disabled:opacity-50"
+                            className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
                             title="Xem chi tiết"
                           >
                             <FiEye size={18} />
@@ -559,7 +534,7 @@ const AdminDoctorRequests = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`px-4 py-2 border border-gray-300 rounded-lg ${
                         currentPage === page
-                          ? 'bg-[rgb(25,118,210)] text-white border-[rgb(25,118,210)]'
+                          ? 'bg-blue-600 text-white border-blue-600'
                           : 'hover:bg-gray-100'
                       }`}
                     >

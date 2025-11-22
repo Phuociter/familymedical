@@ -38,7 +38,7 @@ const AdminLayout = () => {
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {sidebarOpen && (
-            <h1 className="text-xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Admin Panel</h1>
+            <h1 className="text-xl font-bold text-blue-600">Admin Panel</h1>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -58,10 +58,9 @@ const AdminLayout = () => {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'font-semibold text-white'
+                    ? 'bg-blue-50 text-blue-600 font-semibold'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                style={isActive(item.path) ? { backgroundColor: 'rgb(25, 118, 210)' } : {}}
               >
                 <Icon size={20} />
                 {sidebarOpen && <span>{item.label}</span>}
