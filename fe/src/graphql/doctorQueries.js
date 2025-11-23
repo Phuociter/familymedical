@@ -349,3 +349,70 @@ export const GET_APPOINTMENT_DETAIL = gql`
     }
   }
 `;
+
+// Dashboard query
+export const GET_DOCTOR_DASHBOARD = gql`
+  query GetDoctorDashboard {
+    doctorDashboard {
+      stats {
+        totalFamilies
+        totalPatients
+        newRecordsThisMonth
+        todayAppointments
+        pendingRequests
+      }
+      weeklyStats {
+        week
+        appointments
+        newRecords
+      }
+      recentActivities {
+        activityID
+        type
+        description
+        timestamp
+        relatedEntity
+        relatedEntityID
+      }
+      todayAppointments {
+        appointmentID
+        title
+        type
+        appointmentDateTime
+        duration
+        status
+        location
+        notes
+        member {
+          memberID
+          fullName
+        }
+        family {
+          familyID
+          familyName
+        }
+      }
+      pendingRequests {
+        requestID
+        message
+        status
+        requestDate
+        family {
+          familyID
+          familyName
+          familyAddress
+          headOfFamily {
+            userID
+            fullName
+            phoneNumber
+            avatarUrl
+          }
+          members {
+            memberID
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;

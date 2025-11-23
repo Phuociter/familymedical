@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   Box,
   Grid,
@@ -22,9 +21,8 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { GET_ASSIGNED_FAMILIES } from '../../graphql/doctorQueries';
-import { MOCK_REQUEST_STATS, getRequestsByStatus } from '../../mocks/doctorRequestsMockData';
-import { getMockDashboardData } from '../../mocks/dashboardMockData';
+import { GET_DOCTOR_DASHBOARD } from '../../graphql/doctorQueries';
+import { RESPOND_TO_DOCTOR_REQUEST } from '../../graphql/doctorMutations';
 import StatCardSkeleton from '../../components/Doctor/Dashboard/StatCardSkeleton';
 import ChartSkeleton from '../../components/Doctor/Dashboard/ChartSkeleton';
 import AppointmentListSkeleton from '../../components/Doctor/Dashboard/AppointmentListSkeleton';
@@ -97,75 +95,101 @@ const TodayAppointmentItem = ({ appointment }) => (
   </Box>
 );
 
-const PendingRequestItem = ({ request }) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      py: 2,
-      borderBottom: '1px solid',
-      borderColor: 'divider',
-      '&:last-child': { borderBottom: 'none' },
-    }}
-  >
-    <Box sx={{ flex: 1, mr: 2 }}>
-      <Typography variant="body1" fontWeight={600}>
-        {request.familyName}
-      </Typography>
-      <Typography
-        variant="body2"
-        color="textSecondary"
-        sx={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          maxWidth: 300,
-        }}
-      >
-        {request.message || 'Không có tin nhắn'}
-      </Typography>
+const PendingRequestItem = ({ request, onRespond }) => {
+  const handleAccept = () => {
+    onRespond(request.requestID, 'ACCEPTED');
+  };
+
+  const handleReject = () => {
+    onRespond(request.requestID, 'REJECTED');
+  };
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        py: 2,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        '&:last-child': { borderBottom: 'none' },
+      }}
+    >
+      <Box sx={{ flex: 1, mr: 2 }}>
+        <Typography variant="body1" fontWeight={600}>
+          {request.family?.familyName || 'N/A'}
+        </Typography>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: 300,
+          }}
+        >
+          {request.message || 'Không có tin nhắn'}
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <IconButton
+          size="small"
+          onClick={handleAccept}
+          sx={{
+            bgcolor: 'success.light',
+            color: 'success.dark',
+            '&:hover': { bgcolor: 'success.main', color: 'white' },
+          }}
+        >
+          <CheckCircleIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={handleReject}
+          sx={{
+            bgcolor: 'error.light',
+            color: 'error.dark',
+            '&:hover': { bgcolor: 'error.main', color: 'white' },
+          }}
+        >
+          <CancelIcon fontSize="small" />
+        </IconButton>
+      </Box>
     </Box>
-    <Box sx={{ display: 'flex', gap: 1 }}>
-      <IconButton
-        size="small"
-        sx={{
-          bgcolor: 'success.light',
-          color: 'success.dark',
-          '&:hover': { bgcolor: 'success.main', color: 'white' },
-        }}
-      >
-        <CheckCircleIcon fontSize="small" />
-      </IconButton>
-      <IconButton
-        size="small"
-        sx={{
-          bgcolor: 'error.light',
-          color: 'error.dark',
-          '&:hover': { bgcolor: 'error.main', color: 'white' },
-        }}
-      >
-        <CancelIcon fontSize="small" />
-      </IconButton>
-    </Box>
-  </Box>
-);
+  );
+};
 
 export default function DoctorDashboard() {
-  const [dashboardData, setDashboardData] = useState(null);
-  const { data, loading } = useQuery(GET_ASSIGNED_FAMILIES, {
+  const { data, loading, refetch } = useQuery(GET_DOCTOR_DASHBOARD, {
     fetchPolicy: 'cache-and-network',
   });
 
-  const families = data?.doctorAssignedFamilies || [];
-  const totalMembers = families.reduce((sum, family) => sum + (family.members?.length || 0), 0);
+  const [respondToRequest] = useMutation(RESPOND_TO_DOCTOR_REQUEST, {
+    onCompleted: () => {
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error responding to request:', error);
+    },
+  });
 
-  useEffect(() => {
-    const mockData = getMockDashboardData();
-    setDashboardData(mockData);
-  }, []);
+  const handleRespondToRequest = async (requestId, status) => {
+    try {
+      await respondToRequest({
+        variables: {
+          requestId: requestId.toString(),
+          status,
+          message: status === 'ACCEPTED' ? 'Đã chấp nhận yêu cầu' : 'Đã từ chối yêu cầu',
+        },
+      });
+    } catch (error) {
+      console.error('Failed to respond to request:', error);
+    }
+  };
 
-  if (loading || !dashboardData) {
+  if (loading) {
     return (
       <Box container maxWidth="lg">
         {/* Header */}
@@ -210,10 +234,18 @@ export default function DoctorDashboard() {
     );
   }
 
-  const pendingRequests = getRequestsByStatus('PENDING');
-  const formattedWeeklyStats = dashboardData.weeklyStats.map(stat => ({
-    ...stat,
-    date: format(parseISO(stat.date), 'EEE', { locale: vi }),
+  const dashboardData = data?.doctorDashboard;
+  const stats = dashboardData?.stats;
+  const weeklyStats = dashboardData?.weeklyStats || [];
+  const todayAppointments = dashboardData?.todayAppointments || [];
+  const pendingRequests = dashboardData?.pendingRequests || [];
+  const recentActivities = dashboardData?.recentActivities || [];
+
+  // Format weekly stats for chart
+  const formattedWeeklyStats = weeklyStats.map(stat => ({
+    week: stat.week,
+    appointmentsCount: stat.appointments,
+    consultationsCount: stat.newRecords,
   }));
 
   return (
@@ -233,7 +265,7 @@ export default function DoctorDashboard() {
         <Grid size={{ xs:12, sm:6, lg:3 }}>
           <StatCard
             title="Lịch hẹn hôm nay"
-            value={dashboardData.todayAppointmentsCount}
+            value={stats?.todayAppointments || 0}
             icon={<CalendarIcon sx={{ fontSize: 28, color: '#3b82f6' }} />}
             color="#3b82f6"
           />
@@ -241,7 +273,7 @@ export default function DoctorDashboard() {
         <Grid size={{ xs:12, sm:6, lg:3 }}>
           <StatCard
             title="Yêu cầu chờ xử lý"
-            value={MOCK_REQUEST_STATS.pending}
+            value={stats?.pendingRequests || 0}
             icon={<AssignmentIndIcon sx={{ fontSize: 28, color: '#f59e0b' }} />}
             color="#f59e0b"
           />
@@ -249,7 +281,7 @@ export default function DoctorDashboard() {
         <Grid size={{ xs:12, sm:6, lg:3 }}>
           <StatCard
             title="Gia đình được gán"
-            value={families.length}
+            value={stats?.totalFamilies || 0}
             icon={<PeopleIcon sx={{ fontSize: 28, color: '#10b981' }} />}
             color="#10b981"
           />
@@ -257,7 +289,7 @@ export default function DoctorDashboard() {
         <Grid size={{ xs:12, sm:6, lg:3 }}>
           <StatCard
             title="Tổng bệnh nhân"
-            value={totalMembers}
+            value={stats?.totalPatients || 0}
             icon={<PersonIcon sx={{ fontSize: 28, color: '#8b5cf6' }} />}
             color="#8b5cf6"
           />
@@ -301,8 +333,8 @@ export default function DoctorDashboard() {
               Lịch hẹn hôm nay
             </Typography>
             <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
-              {dashboardData.todayAppointments.length > 0 ? (
-                dashboardData.todayAppointments.map(appt => (
+              {todayAppointments.length > 0 ? (
+                todayAppointments.map(appt => (
                   <TodayAppointmentItem key={appt.appointmentID} appointment={appt} />
                 ))
               ) : (
@@ -325,7 +357,11 @@ export default function DoctorDashboard() {
             <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
               {pendingRequests.length > 0 ? (
                 pendingRequests.slice(0, 4).map(req => (
-                  <PendingRequestItem key={req.requestID} request={req} />
+                  <PendingRequestItem 
+                    key={req.requestID} 
+                    request={req} 
+                    onRespond={handleRespondToRequest}
+                  />
                 ))
               ) : (
                 <Typography color="textSecondary" textAlign="center" sx={{ py: 4 }}>
@@ -339,32 +375,38 @@ export default function DoctorDashboard() {
         <Grid size={{ xs:12, lg:6 }}>
           <Paper sx={{ p: 2.5, height: '100%' }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              Hồ sơ y tế gần đây
+              Hoạt động gần đây
             </Typography>
             <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
-              {dashboardData.recentMedicalRecords.map(record => (
-                <Box
-                  key={record.recordID}
-                  sx={{
-                    py: 2,
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    '&:last-child': { borderBottom: 'none' },
-                  }}
-                >
-                  <Typography variant="body1" fontWeight={600}>
-                    {record.member.fullName}
-                  </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      {record.diagnosis}
+              {recentActivities.length > 0 ? (
+                recentActivities.map(activity => (
+                  <Box
+                    key={activity.activityID}
+                    sx={{
+                      py: 2,
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      '&:last-child': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={600}>
+                      {activity.type}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {format(parseISO(record.recordDate), 'dd/MM/yyyy')}
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                      <Typography variant="body2" color="textSecondary">
+                        {activity.description}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {format(parseISO(activity.timestamp), 'dd/MM/yyyy HH:mm')}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              ))}
+                ))
+              ) : (
+                <Typography color="textSecondary" textAlign="center" sx={{ py: 4 }}>
+                  Chưa có hoạt động nào.
+                </Typography>
+              )}
             </Box>
           </Paper>
         </Grid>

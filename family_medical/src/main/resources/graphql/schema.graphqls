@@ -359,7 +359,7 @@ type Activity {
     activityID: ID!
     type: String!
     description: String!
-    timestamp: DateTime!
+    timestamp: LocalDateTime!
     relatedEntity: String
     relatedEntityID: Int
 }
