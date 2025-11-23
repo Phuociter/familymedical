@@ -49,6 +49,8 @@ public class MedicalRecord {
     private String diagnosis;
     private String treatmentPlan;
     
+    
+
     public enum FileType{
         Chup_XQuang,
         Sieu_Am,

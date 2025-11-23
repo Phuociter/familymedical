@@ -60,7 +60,7 @@ public class MemberQueryResolver {
     // Field resolver for medicalRecords
     @SchemaMapping(typeName = "Member", field = "medicalRecords")
     public List<MedicalRecord> medicalRecords(Member member) {
-        return medicalRecordRepository.findByMemberID_MemberID(member.getMemberID());
+        return medicalRecordRepository.findByMember_MemberID(member.getMemberID());
     }
 
     // Field resolver for appointments

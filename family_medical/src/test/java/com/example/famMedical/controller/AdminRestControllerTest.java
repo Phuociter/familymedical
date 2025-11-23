@@ -236,7 +236,7 @@ public class AdminRestControllerTest {
             Integer memberId = 10;
             List<MedicalRecord> expectedRecords = Arrays.asList(medicalRecord);
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(memberId)).thenReturn(expectedRecords);
+            when(medicalRecordRepository.findByMember_MemberID(memberId)).thenReturn(expectedRecords);
 
             // Act
             ResponseEntity<List<MedicalRecord>> response = adminRestController.getMemberFiles(memberId);
@@ -246,7 +246,7 @@ public class AdminRestControllerTest {
             assertNotNull(response.getBody());
             assertEquals(1, response.getBody().size());
             verify(memberRepository).findById(memberId);
-            verify(medicalRecordRepository).findByMemberID_MemberID(memberId);
+            verify(medicalRecordRepository).findByMember_MemberID(memberId);
         }
 
         @Test
@@ -890,7 +890,7 @@ public class AdminRestControllerTest {
             // Arrange
             Integer memberId = 10;
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(memberId)).thenReturn(Arrays.asList());
+            when(medicalRecordRepository.findByMember_MemberID(memberId)).thenReturn(Arrays.asList());
 
             // Act
             ResponseEntity<List<MedicalRecord>> response = adminRestController.getMemberFiles(memberId);
@@ -900,7 +900,7 @@ public class AdminRestControllerTest {
             assertNotNull(response.getBody());
             assertTrue(response.getBody().isEmpty());
             verify(memberRepository).findById(memberId);
-            verify(medicalRecordRepository).findByMemberID_MemberID(memberId);
+            verify(medicalRecordRepository).findByMember_MemberID(memberId);
         }
 
         @Test
@@ -915,7 +915,7 @@ public class AdminRestControllerTest {
                 adminRestController.getMemberFiles(memberId));
             
             verify(memberRepository).findById(memberId);
-            verify(medicalRecordRepository, never()).findByMemberID_MemberID(anyInt());
+            verify(medicalRecordRepository, never()).findByMember_MemberID(anyInt());
         }
 
         @Test
