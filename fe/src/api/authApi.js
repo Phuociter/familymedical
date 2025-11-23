@@ -235,22 +235,31 @@ const authApi = {
             return { success: false, message: "Cập nhật thất bại." };
         }
     },
-    uploadAvatarToCloudinary: async (file) => {
+    uploadFileToCloudinary: async (file) => {
         try {
             const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
             const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
+            // Kiểm tra loại file
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+            
+            if (!allowedTypes.includes(file.type)) throw new Error(`File không hợp lệ: ${file.name}`);
 
             const formData = new FormData();
             formData.append("file", file);
             formData.append("upload_preset", uploadPreset);
 
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            // Dùng raw/upload cho PDF, image/upload cho hình ảnh
+            const endpoint = file.type === 'application/pdf'
+                ? `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`
+                : `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+            const response = await fetch(endpoint, {
                 method: "POST",
                 body: formData,
             });
 
             if (!response.ok) throw new Error(`Upload failed with status ${response.status}`);
-
             const data = await response.json();
             return data.secure_url;
         } catch (err) {
@@ -258,11 +267,12 @@ const authApi = {
             throw err;
         }
     },
+
      handleUpdateProfile: async function(userID, data, file){
         const token = localStorage.getItem('userToken');
         // Nếu có avatar, upload trước
         if (file) {
-            const avatarUrl = await this.uploadAvatarToCloudinary(file);
+            const avatarUrl = await this.uploadFileToCloudinary(file);
             data.avatarUrl = avatarUrl;
         }
 

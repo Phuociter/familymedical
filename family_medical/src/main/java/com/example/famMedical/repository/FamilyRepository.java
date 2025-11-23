@@ -33,5 +33,6 @@ public interface FamilyRepository extends JpaRepository<Family, Integer> {
     );
 
     Family findByHeadOfFamily_UserID(Integer userID);
+    
     // Family findByMembersMemberID(Integer memberID);
 }

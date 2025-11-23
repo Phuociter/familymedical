@@ -19,7 +19,7 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "RecordID", nullable = true)
+    @Column(name = "RecordID", nullable = false)
     private Integer recordID;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -83,7 +83,6 @@ public class MedicalRecord {
         Kham_Thi_Luc,        
         Kham_Thinh_Luc,
         Test_Di_Ung,
-
     }
 }
 

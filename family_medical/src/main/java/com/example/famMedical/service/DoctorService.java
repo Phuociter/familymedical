@@ -70,7 +70,7 @@ public class DoctorService {
         
         validateDoctorAccessToFamily(doctorId, member.getFamily().getFamilyID());
         
-        return medicalRecordRepo.findByMemberID_MemberID(memberId);
+        return medicalRecordRepo.findByMember_MemberID(memberId);
     }
 
     // Doctor Request methods

@@ -17,7 +17,13 @@ import {
   FiXCircle,
   FiClock,
   FiAlertCircle,
-  FiTrendingUp
+  FiTrendingUp,
+  FiHeart,
+  FiHome,
+  FiCreditCard,
+  FiBarChart2,
+  FiUserPlus,
+  FiShield
 } from 'react-icons/fi';
 
 const AdminDashboard = () => {
@@ -129,40 +135,45 @@ const AdminDashboard = () => {
     {
       title: 'Tổng Bệnh nhân',
       value: stats.members,
-      icon: FiUsers,
-      color: 'bg-blue-500',
-      textColor: 'text-blue-600',
+      icon: FiHeart,
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
     {
       title: 'Tổng Bác sĩ',
       value: stats.doctors,
       icon: FiUserCheck,
-      color: 'bg-green-500',
-      textColor: 'text-green-600',
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
       subtitle: `${stats.verifiedDoctors} đã xác thực`,
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
     {
       title: 'Tổng Gia đình',
       value: stats.families,
-      icon: FiFolder,
-      color: 'bg-purple-500',
-      textColor: 'text-purple-600',
+      icon: FiHome,
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
     {
       title: 'Yêu cầu Bác sĩ',
       value: stats.doctorRequests.total,
       icon: FiFileText,
-      color: 'bg-orange-500',
-      textColor: 'text-orange-600',
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
       subtitle: `${stats.doctorRequests.pending} đang chờ`,
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
     {
       title: 'Tổng Thanh toán',
       value: stats.payments.total,
-      icon: FiDollarSign,
-      color: 'bg-emerald-500',
-      textColor: 'text-emerald-600',
+      icon: FiCreditCard,
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
       subtitle: `${stats.payments.success} thành công`,
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
     {
       title: 'Doanh thu',
@@ -171,17 +182,28 @@ const AdminDashboard = () => {
         currency: 'VND' 
       }).format(stats.payments.totalAmount),
       icon: FiTrendingUp,
-      color: 'bg-indigo-500',
-      textColor: 'text-indigo-600',
+      color: 'bg-[rgb(25,118,210)]',
+      textColor: 'text-[rgb(25,118,210)]',
       subtitle: 'Tổng doanh thu',
+      bgGradient: 'from-[rgba(25,118,210,0.1)] to-[rgba(25,118,210,0.05)]',
     },
   ];
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Bảng điều khiển Admin</h1>
-        <p className="text-gray-600 mt-2">Tổng quan hệ thống quản lý y tế gia đình</p>
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
+            <FiBarChart2 className="text-white" size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Bảng điều khiển Admin</h1>
+            <p className="text-gray-600 mt-2 flex items-center gap-2">
+              <FiActivity size={16} />
+              Tổng quan hệ thống quản lý y tế gia đình
+            </p>
+          </div>
+        </div>
       </div>
 
       {stats.loading ? (
@@ -201,20 +223,28 @@ const AdminDashboard = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                  className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[rgba(25,118,210,0.3)]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`${stat.color} p-2 rounded-lg`}>
+                          <Icon size={18} className="text-white" />
+                        </div>
+                        <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+                      </div>
                       <p className={`text-3xl font-bold mt-2 ${stat.textColor}`}>
                         {stat.value}
                       </p>
                       {stat.subtitle && (
-                        <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
+                        <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                          <FiBarChart2 size={12} />
+                          {stat.subtitle}
+                        </p>
                       )}
                     </div>
-                    <div className={`${stat.color} p-4 rounded-lg`}>
-                      <Icon size={28} className="text-white" />
+                    <div className={`${stat.color} p-5 rounded-xl shadow-lg`}>
+                      <Icon size={32} className="text-white" />
                     </div>
                   </div>
                 </div>
@@ -225,33 +255,41 @@ const AdminDashboard = () => {
           {/* Detailed Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Doctor Requests Statistics */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FiFileText className="text-orange-500" />
+            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+                <div className="bg-[rgba(25,118,210,0.1)] p-2 rounded-lg">
+                  <FiFileText style={{ color: 'rgb(25, 118, 210)' }} size={24} />
+                </div>
                 Thống kê Yêu cầu Bác sĩ
               </h2>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiClock className="text-orange-500" size={20} />
+                    <div className="bg-orange-500 p-2 rounded-lg">
+                      <FiClock className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Đang chờ xử lý</span>
                   </div>
                   <span className="text-2xl font-bold text-orange-600">
                     {stats.doctorRequests.pending}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiCheckCircle className="text-green-500" size={20} />
+                    <div className="bg-green-500 p-2 rounded-lg">
+                      <FiCheckCircle className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Đã chấp nhận</span>
                   </div>
                   <span className="text-2xl font-bold text-green-600">
                     {stats.doctorRequests.accepted}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiXCircle className="text-red-500" size={20} />
+                    <div className="bg-red-500 p-2 rounded-lg">
+                      <FiXCircle className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Đã từ chối</span>
                   </div>
                   <span className="text-2xl font-bold text-red-600">
@@ -270,33 +308,41 @@ const AdminDashboard = () => {
             </div>
 
             {/* Payments Statistics */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FiDollarSign className="text-emerald-500" />
+            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+                <div className="bg-[rgba(25,118,210,0.1)] p-2 rounded-lg">
+                  <FiDollarSign style={{ color: 'rgb(25, 118, 210)' }} size={24} />
+                </div>
                 Thống kê Thanh toán
               </h2>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiCheckCircle className="text-emerald-500" size={20} />
+                    <div className="bg-emerald-500 p-2 rounded-lg">
+                      <FiCheckCircle className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Thành công</span>
                   </div>
                   <span className="text-2xl font-bold text-emerald-600">
                     {stats.payments.success}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiXCircle className="text-red-500" size={20} />
+                    <div className="bg-red-500 p-2 rounded-lg">
+                      <FiXCircle className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Thất bại</span>
                   </div>
                   <span className="text-2xl font-bold text-red-600">
                     {stats.payments.failed}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <FiClock className="text-yellow-500" size={20} />
+                    <div className="bg-yellow-500 p-2 rounded-lg">
+                      <FiClock className="text-white" size={20} />
+                    </div>
                     <span className="text-gray-700 font-medium">Đang chờ</span>
                   </div>
                   <span className="text-2xl font-bold text-yellow-600">
@@ -325,64 +371,82 @@ const AdminDashboard = () => {
           </div>
 
           {/* Doctor Verification Status */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FiUserCheck className="text-green-500" />
+          <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+              <div className="bg-[rgba(25,118,210,0.1)] p-2 rounded-lg">
+                <FiShield style={{ color: 'rgb(25, 118, 210)' }} size={24} />
+              </div>
               Trạng thái Xác thực Bác sĩ
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                <div className="flex items-center justify-between">
+              <div className="p-5 bg-green-50 rounded-xl border-2 border-green-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <FiCheckCircle className="text-green-500" size={24} />
-                    <span className="text-gray-700 font-medium">Đã xác thực</span>
+                    <div className="bg-green-500 p-3 rounded-lg">
+                      <FiCheckCircle className="text-white" size={24} />
+                    </div>
+                    <span className="text-gray-700 font-semibold text-lg">Đã xác thực</span>
                   </div>
                   <span className="text-3xl font-bold text-green-600">
                     {stats.verifiedDoctors}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  {stats.doctors > 0 
-                    ? `${Math.round((stats.verifiedDoctors / stats.doctors) * 100)}% tổng số bác sĩ`
-                    : '0% tổng số bác sĩ'}
-                </p>
+                <div className="flex items-center gap-2">
+                  <FiBarChart2 className="text-green-500" size={14} />
+                  <p className="text-sm text-gray-500">
+                    {stats.doctors > 0 
+                      ? `${Math.round((stats.verifiedDoctors / stats.doctors) * 100)}% tổng số bác sĩ`
+                      : '0% tổng số bác sĩ'}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
-                <div className="flex items-center justify-between">
+              <div className="p-5 bg-yellow-50 rounded-xl border-2 border-yellow-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <FiAlertCircle className="text-yellow-500" size={24} />
-                    <span className="text-gray-700 font-medium">Chưa xác thực</span>
+                    <div className="bg-yellow-500 p-3 rounded-lg">
+                      <FiAlertCircle className="text-white" size={24} />
+                    </div>
+                    <span className="text-gray-700 font-semibold text-lg">Chưa xác thực</span>
                   </div>
                   <span className="text-3xl font-bold text-yellow-600">
                     {stats.unverifiedDoctors}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  {stats.doctors > 0 
-                    ? `${Math.round((stats.unverifiedDoctors / stats.doctors) * 100)}% tổng số bác sĩ`
-                    : '0% tổng số bác sĩ'}
-                </p>
+                <div className="flex items-center gap-2">
+                  <FiBarChart2 className="text-yellow-500" size={14} />
+                  <p className="text-sm text-gray-500">
+                    {stats.doctors > 0 
+                      ? `${Math.round((stats.unverifiedDoctors / stats.doctors) * 100)}% tổng số bác sĩ`
+                      : '0% tổng số bác sĩ'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Recent Activity Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FiActivity className="text-blue-500" />
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+              <div className="bg-[rgba(25,118,210,0.1)] p-2 rounded-lg">
+                <FiActivity style={{ color: 'rgb(25, 118, 210)' }} size={24} />
+              </div>
               Hoạt động gần đây
             </h2>
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                <FiActivity className="text-blue-500" size={20} />
+              <div className="flex items-center gap-4 p-4 bg-[rgba(25,118,210,0.05)] rounded-lg border-l-4 border-[rgb(25,118,210)]">
+                <div className="bg-[rgb(25,118,210)] p-2 rounded-lg">
+                  <FiCheckCircle className="text-white" size={20} />
+                </div>
                 <div className="flex-1">
                   <p className="font-medium text-gray-800">Hệ thống đang hoạt động bình thường</p>
                   <p className="text-sm text-gray-500">Tất cả các module đã được tải thành công</p>
                 </div>
               </div>
               {stats.doctorRequests.pending > 0 && (
-                <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
-                  <FiClock className="text-orange-500" size={20} />
+                <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500 hover:shadow-md transition-shadow">
+                  <div className="bg-orange-500 p-2 rounded-lg">
+                    <FiClock className="text-white" size={20} />
+                  </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">
                       Có {stats.doctorRequests.pending} yêu cầu bác sĩ đang chờ xử lý
@@ -394,8 +458,10 @@ const AdminDashboard = () => {
                 </div>
               )}
               {stats.unverifiedDoctors > 0 && (
-                <div className="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
-                  <FiAlertCircle className="text-yellow-500" size={20} />
+                <div className="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
+                  <div className="bg-yellow-500 p-2 rounded-lg">
+                    <FiAlertCircle className="text-white" size={20} />
+                  </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">
                       Có {stats.unverifiedDoctors} bác sĩ chưa được xác thực
@@ -407,8 +473,10 @@ const AdminDashboard = () => {
                 </div>
               )}
               {stats.payments.pending > 0 && (
-                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                  <FiClock className="text-blue-500" size={20} />
+                <div className="flex items-center gap-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: 'rgba(25, 118, 210, 0.1)', borderColor: 'rgb(25, 118, 210)' }}>
+                  <div className="bg-[rgb(25,118,210)] p-2 rounded-lg">
+                    <FiClock className="text-white" size={20} />
+                  </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">
                       Có {stats.payments.pending} giao dịch thanh toán đang chờ xử lý

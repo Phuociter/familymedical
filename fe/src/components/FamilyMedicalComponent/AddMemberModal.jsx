@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import MemberAPI from '../../api/MemberAPI.js'
-
-const token = localStorage.getItem('userToken');
-const user = JSON.parse(localStorage.getItem('user'));
+import ActionAlert from '../ActionAlert.jsx';
 
 const AddMemberModal = ({ isOpen, onClose, onSave }) => {
+  const token = localStorage.getItem('userToken');
+  const user = JSON.parse(localStorage.getItem('user'));
   if (!isOpen) return null;
   // console.log(user);
 
@@ -19,6 +19,9 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // alert
+  const [message, setMessage] = useState("");
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
     useEffect(() => {
       if (!isOpen) {
         setFormData({
@@ -41,10 +44,8 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
 
   const handleSave = async () => {
     const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
-    // console.log("response:",response);
 
     const familyId = response.familyID; 
-    // console.log("family//////////////////////////////////////////",familyId); // '3'
     if (
       !formData.name.trim() ||
       !formData.relationship.trim() ||
@@ -69,13 +70,18 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
           ...(formData.cccd.trim() && { cccd: formData.cccd.trim() }),
         };
         await onSave(memberDataToSend);
-        onClose(); // Đóng modal sau khi lưu thành công
+        onClose(); 
       } catch (err) {
-        // Lỗi đã được xử lý ở component cha, chỉ cần dừng trạng thái loading
         console.error(err);
       } finally {
+        showAlert("Thêm thành viên mới thành công")
         setIsSaving(false);
       }
+  };
+
+  const showAlert = (content) => {
+    setMessage(content);
+    setIsOpenAlert(true);
   };
 
   return (
@@ -177,6 +183,12 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
             </button>
         </div>
       </div>
+      <ActionAlert 
+        isOpen={isOpenAlert} 
+        onClose={() => setIsOpenAlert(false)}
+      >
+        {message}
+      </ActionAlert>
     </div>
   );
 };

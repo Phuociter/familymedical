@@ -17,13 +17,16 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
     
     // Legacy method - kept for backward compatibility
     @Query("SELECT m FROM MedicalRecord m WHERE m.member.memberID = :memberID ORDER BY m.uploadDate DESC")
-    List<MedicalRecord> findByMemberID_MemberID(@Param("memberID") Integer memberID);
+    List<MedicalRecord> findByMember_MemberID(@Param("memberID") Integer memberID);
 
     // New method with proper naming
     List<MedicalRecord> findByMemberOrderByUploadDateDesc(Member member);
+    List<MedicalRecord> findByDoctor_UserID(Integer memberID);
+
+
 
     @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.member.memberID = :memberId")
-    List<String> findFileLinksByMemberId(@Param("memberId") Integer memberId);
+    List<String> findFileLinksByMember_MemberID(@Param("memberId") Integer memberId);
     
     // Find top N records by doctor
     @Query("SELECT m FROM MedicalRecord m WHERE m.doctor = :doctor " +
@@ -53,6 +56,7 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
     @Query("SELECT m FROM MedicalRecord m WHERE m.doctor = :doctor " +
            "ORDER BY m.uploadDate DESC LIMIT 5")
     List<MedicalRecord> findTop5ByDoctorOrderByUploadDateDesc(@Param("doctor") User doctor);
+
 }
 
 

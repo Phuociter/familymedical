@@ -85,7 +85,7 @@ public class AdminService {
 
     public List<MedicalRecord> getMedicalRecordsForPatient(Integer memberId) {
         Member member = getPatientById(memberId);
-        return medicalRecordRepository.findByMemberID_MemberID(memberId);
+        return medicalRecordRepository.findByMember_MemberID(memberId);
     }
 
     public void lockUserAccount(Integer userId) {

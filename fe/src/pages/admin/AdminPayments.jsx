@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getPayments, deletePayment } from '../../api/AdminAPI';
-import { FiTrash2, FiSearch, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiTrash2, FiSearch, FiArrowUp, FiArrowDown, FiCreditCard, FiActivity, FiDollarSign } from 'react-icons/fi';
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
@@ -187,25 +187,65 @@ const AdminPayments = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Quản lý Thanh toán</h1>
-        <p className="text-gray-600 mt-2">Quản lý các giao dịch thanh toán trong hệ thống</p>
+        <div className="flex items-center gap-4 mb-2">
+          <div className="bg-[rgb(25,118,210)] p-3 rounded-xl shadow-lg">
+            <FiCreditCard className="text-white" size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold" style={{ color: 'rgb(25, 118, 210)' }}>Quản lý Thanh toán</h1>
+            <p className="text-gray-600 mt-2 flex items-center gap-2">
+              <FiActivity size={16} />
+              Quản lý các giao dịch thanh toán trong hệ thống
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-gray-600 text-sm">Tổng số thanh toán</p>
-          <p className="text-2xl font-bold text-gray-800">{filteredPayments.length}</p>
+        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-[rgb(25,118,210)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm flex items-center gap-2">
+                <FiCreditCard size={16} />
+                Tổng số thanh toán
+              </p>
+              <p className="text-2xl font-bold text-gray-800">{filteredPayments.length}</p>
+            </div>
+            <div className="bg-[rgba(25,118,210,0.1)] p-2 rounded-lg">
+              <FiCreditCard className="text-[rgb(25,118,210)]" size={24} />
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-gray-600 text-sm">Tổng số tiền</p>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalAmount)}</p>
+        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-emerald-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm flex items-center gap-2">
+                <FiDollarSign size={16} />
+                Tổng số tiền
+              </p>
+              <p className="text-2xl font-bold text-emerald-600">{formatCurrency(totalAmount)}</p>
+            </div>
+            <div className="bg-emerald-100 p-2 rounded-lg">
+              <FiDollarSign className="text-emerald-600" size={24} />
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-gray-600 text-sm">Đang chờ xử lý</p>
-          <p className="text-2xl font-bold text-yellow-600">
-            {filteredPayments.filter(p => p.paymentStatus && p.paymentStatus.toUpperCase() === 'PENDING').length}
-          </p>
+        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm flex items-center gap-2">
+                <FiActivity size={16} />
+                Đang chờ xử lý
+              </p>
+              <p className="text-2xl font-bold text-yellow-600">
+                {filteredPayments.filter(p => p.paymentStatus && p.paymentStatus.toUpperCase() === 'PENDING').length}
+              </p>
+            </div>
+            <div className="bg-yellow-100 p-2 rounded-lg">
+              <FiActivity className="text-yellow-600" size={24} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -222,7 +262,7 @@ const AdminPayments = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
             />
           </div>
           <div>
@@ -232,7 +272,7 @@ const AdminPayments = () => {
                 setFilterStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
             >
               <option value="">Tất cả trạng thái</option>
               <option value="COMPLETED">Thành công</option>
@@ -248,7 +288,7 @@ const AdminPayments = () => {
                 setItemsPerPage(parseInt(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(25,118,210)] focus:border-transparent"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -351,7 +391,7 @@ const AdminPayments = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`px-4 py-2 border border-gray-300 rounded-lg ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white border-blue-600'
+                          ? 'bg-[rgb(25,118,210)] text-white border-[rgb(25,118,210)]'
                           : 'hover:bg-gray-100'
                       }`}
                     >

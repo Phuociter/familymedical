@@ -46,12 +46,12 @@ public class MedicalRecordService {
     }
 
     public List<MedicalRecord> getRecordsByMemberId(Integer memberId) {
-        return medicalRecordRepository.findByMemberID_MemberID(memberId);
+        return medicalRecordRepository.findByMember_MemberID(memberId);
     }
 
     // Trả về chỉ danh sách link file PDF
     public List<String> getFileLinksByMemberId(Integer memberId) {
-        return medicalRecordRepository.findFileLinksByMemberId(memberId);
+        return medicalRecordRepository.findFileLinksByMember_MemberID(memberId);
     }
 
     /**
@@ -191,8 +191,9 @@ public class MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
-    public void deleteRecord(Integer id) {
+    public Boolean deleteMedicalRecord(Integer id) {
         medicalRecordRepository.deleteById(id);
+        return true;
     }
 
     /**

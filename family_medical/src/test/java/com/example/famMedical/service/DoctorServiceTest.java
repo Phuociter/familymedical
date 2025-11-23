@@ -319,7 +319,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
+            when(medicalRecordRepo.findByMember_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());
@@ -329,7 +329,7 @@ public class DoctorServiceTest {
             assertEquals(expectedRecords, result);
             verify(userRepo).findById(doctor.getUserID());
             verify(memberRepo).findById(member1.getMemberID());
-            verify(medicalRecordRepo).findByMemberID_MemberID(member1.getMemberID());
+            verify(medicalRecordRepo).findByMember_MemberID(member1.getMemberID());
         }
 
         @Test
@@ -368,7 +368,7 @@ public class DoctorServiceTest {
                 doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID()));
             
             assertEquals("Member không tồn tại", exception.getMessage());
-            verify(medicalRecordRepo, never()).findByMemberID_MemberID(anyInt());
+            verify(medicalRecordRepo, never()).findByMember_MemberID(anyInt());
         }
 
         @Test
@@ -386,7 +386,7 @@ public class DoctorServiceTest {
                 doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID()));
             
             assertEquals("Bạn không có quyền truy cập gia đình này", exception.getMessage());
-            verify(medicalRecordRepo, never()).findByMemberID_MemberID(anyInt());
+            verify(medicalRecordRepo, never()).findByMember_MemberID(anyInt());
         }
 
         @Test
@@ -399,7 +399,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(emptyList);
+            when(medicalRecordRepo.findByMember_MemberID(member1.getMemberID())).thenReturn(emptyList);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());
@@ -418,7 +418,7 @@ public class DoctorServiceTest {
             when(assignmentRepo.existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctor.getUserID(), family1.getFamilyID(), AssignmentStatus.ACTIVE))
                 .thenReturn(true);
-            when(medicalRecordRepo.findByMemberID_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
+            when(medicalRecordRepo.findByMember_MemberID(member1.getMemberID())).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = doctorService.getMemberMedicalRecords(doctor.getUserID(), member1.getMemberID());

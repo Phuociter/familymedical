@@ -145,7 +145,6 @@ input CompleteProfileInput {
 
 input CreateMedicalRecordInput {
     memberID: Int!
-    doctorID: Int
     fileType: String
     fileLink: String
     description: String
@@ -256,12 +255,14 @@ type Member {
     gender: String
     phoneNumber: String
     medicalRecords: [MedicalRecord]
+    createdAt: String
 }
 
 type MedicalRecord {
     recordID: ID!
     member: Member
-    doctor: Doctor
+    doctorID: Int
+    doctor: User
     fileType: String
     fileLink: String
     description: String
@@ -391,7 +392,7 @@ type Query {
     getDoctorList: [User!]!
 
     #Truy vấn gia đình
-    medicalRecordsByMember(memberID: Int!): [MedicalRecord]
+    getMedicalRecordsByMember(memberID: ID!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
     getFamilyByHeadOfFamilyID(userID: ID!): Family
 
@@ -445,7 +446,10 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
-    createMedicalRecord(memberID: ID!, input: CreateMedicalRecordInput!): MedicalRecord
+    
+    #MedicalRecord
+    createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
+    deleteRecord(recordID: ID!): Boolean
 
     # SỬA:
     completeOAuth2Profile(input: CompleteProfileInput!): User!

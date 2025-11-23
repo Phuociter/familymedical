@@ -9,10 +9,7 @@ import lombok.Data;
 public class CreateMedicalRecordInput {
     @NotNull(message = "Member ID is required")
     private Integer memberID;
-    
-    private FileType fileType;
-    
-    @NotBlank(message = "File link is required")
+    private String fileType;
     private String fileLink;
     
     @NotBlank(message = "File name is required")
