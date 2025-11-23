@@ -1,4 +1,3 @@
-export { default as FamilyList } from './FamilyList';
 export { default as FamilyCard } from './FamilyCard';
 export { default as FamilyResultsCount } from './FamilyResultsCount';
 export { default as FamilyEmptyState } from './FamilyEmptyState';

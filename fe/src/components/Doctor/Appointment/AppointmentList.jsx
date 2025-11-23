@@ -23,6 +23,24 @@ import { APPOINTMENT_STATUS } from '../../../mocks/appointmentsMockData';
 export default function AppointmentList({ appointments, onAppointmentClick, selectedTab }) {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const calcAge = (dateOfBirth) => {
+    if (!dateOfBirth) return null; // hoặc 0, hoặc giá trị mặc định bạn muốn
+
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+
+    // Nếu chưa đến sinh nhật năm nay thì giảm 1 tuổi
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+
+    return age;
+  }
+
   // Filter appointments based on selected tab
   const filterAppointments = () => {
     const now = new Date();
@@ -130,10 +148,10 @@ export default function AppointmentList({ appointments, onAppointmentClick, sele
                       />
                       <Box>
                         <Typography variant="body2" fontWeight={600}>
-                          {apt.memberName}
+                          {apt.member.fullName}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
-                          {apt.memberGender}, {apt.memberAge} tuổi
+                          {apt.member.gender}, {calcAge(apt.member.dateOfBirth)} tuổi
                         </Typography>
                       </Box>
                     </Box>
@@ -142,7 +160,7 @@ export default function AppointmentList({ appointments, onAppointmentClick, sele
                   {/* Family */}
                   <TableCell>
                     <Typography variant="body2">
-                      {apt.familyName}
+                      {apt.family.familyName}
                     </Typography>
                   </TableCell>
 

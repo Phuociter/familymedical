@@ -117,7 +117,6 @@ const authApi = {
             mutation RegisterFamily($input: FamilyRegisterInput!) {
                 registerFamily(input: $input) {
                     userID
-                    familyID
                     email
                     fullName
                     role

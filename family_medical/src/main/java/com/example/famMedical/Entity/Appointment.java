@@ -21,15 +21,15 @@ public class Appointment {
     private Integer appointmentID;
 
     @ManyToOne
-    @JoinColumn(name = "doctorID", nullable = false)
+    @JoinColumn(name = "doctor", nullable = false)
     private User doctor;
 
     @ManyToOne
-    @JoinColumn(name = "familyID", nullable = false)
+    @JoinColumn(name = "family", nullable = false)
     private Family family;
 
     @ManyToOne
-    @JoinColumn(name = "memberID", nullable = false)
+    @JoinColumn(name = "member", nullable = false)
     private Member member;
 
     @Column(nullable = false)
@@ -66,6 +66,12 @@ public class Appointment {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt =  LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Helper method to calculate end time

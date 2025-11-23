@@ -1,7 +1,6 @@
 package com.example.famMedical.Entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +25,9 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserID")
     private Integer userID;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Appointment> appointments;
 
     @Column(name = "FullName", nullable = false, length = 100)
     private String fullName;
@@ -61,10 +63,10 @@ public class User implements UserDetails {
     @Column(name = "FacebookID", length = 255, nullable = true)
     private String facebookId;
 
-    @Column(name = "HospitalName" ,nullable = false, length = 255)
+    @Column(name = "HospitalName" ,nullable = true, length = 255)
     private String HospitalName; 
     
-    @Column(name = "yearsOfExperience", nullable = false, length = 255)
+    @Column(name = "yearsOfExperience", nullable = true, length = 255)
     private String yearsOfExperience;
 
     @Column(name = "IsProfileComplete", nullable = false)

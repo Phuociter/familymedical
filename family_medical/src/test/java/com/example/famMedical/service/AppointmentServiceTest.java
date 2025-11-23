@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -239,7 +240,7 @@ class AppointmentServiceTest {
         input.setMemberID(1);
         input.setTitle("New Appointment");
         input.setType(AppointmentType.GENERAL_CHECKUP);
-        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(30);
         input.setLocation("Test Clinic");
         input.setNotes("Test notes");
@@ -267,7 +268,7 @@ class AppointmentServiceTest {
         input.setFamilyID(1);
         input.setMemberID(1);
         input.setTitle("Past Appointment");
-        input.setAppointmentDateTime(LocalDateTime.now().minusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().minusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(30);
 
         when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
@@ -288,7 +289,7 @@ class AppointmentServiceTest {
         input.setFamilyID(1);
         input.setMemberID(1);
         input.setTitle("Invalid Duration");
-        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(500); // Invalid: > 480
 
         when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
@@ -309,7 +310,7 @@ class AppointmentServiceTest {
         input.setFamilyID(1);
         input.setMemberID(1);
         input.setTitle("Overlapping Appointment");
-        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(30);
 
         when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
@@ -442,7 +443,7 @@ class AppointmentServiceTest {
         CreateAppointmentInput input = new CreateAppointmentInput();
         input.setFamilyID(999);
         input.setMemberID(1);
-        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(30);
 
         when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
@@ -461,7 +462,7 @@ class AppointmentServiceTest {
         CreateAppointmentInput input = new CreateAppointmentInput();
         input.setFamilyID(1);
         input.setMemberID(999);
-        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1));
+        input.setAppointmentDateTime(LocalDateTime.now().plusDays(1).atOffset(ZoneOffset.ofHours(7)));
         input.setDuration(30);
 
         when(userRepository.findById(1)).thenReturn(Optional.of(doctor));

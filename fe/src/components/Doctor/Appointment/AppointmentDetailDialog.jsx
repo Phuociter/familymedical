@@ -28,6 +28,19 @@ import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { APPOINTMENT_STATUS } from '../../../mocks/appointmentsMockData';
 
+// Mapping for appointment types
+const APPOINTMENT_TYPE_LABELS = {
+  'GENERAL_CHECKUP': 'Khám tổng quát',
+  'FOLLOW_UP': 'Tái khám',
+  'CONSULTATION': 'Tư vấn',
+  'EXAMINATION': 'Khám bệnh',
+  'VACCINATION': 'Tiêm chủng',
+  'SPECIALIST': 'Khám chuyên khoa',
+  'MATERNITY': 'Khám sản',
+  'PEDIATRIC': 'Khám nhi',
+  'DENTAL': 'Khám răng hàm mặt',
+};
+
 export default function AppointmentDetailDialog({ open, appointment, onClose }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedStatus, setEditedStatus] = useState(appointment.status);
@@ -93,7 +106,7 @@ export default function AppointmentDetailDialog({ open, appointment, onClose }) 
               {appointment.title}
             </Typography>
             <Chip
-              label={appointment.type}
+              label={APPOINTMENT_TYPE_LABELS[appointment.type] || appointment.type}
               size="small"
               variant="outlined"
               sx={{ mr: 1 }}

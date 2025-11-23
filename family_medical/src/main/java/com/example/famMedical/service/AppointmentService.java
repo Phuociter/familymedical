@@ -18,10 +18,12 @@ import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.MemberRepository;
 import com.example.famMedical.repository.UserRepository;
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,8 +83,10 @@ public class AppointmentService {
         Member member = memberRepository.findById(input.getMemberID())
             .orElseThrow(() -> new NotFoundException("Member not found"));
         
+        LocalDateTime appointmenLocalDateTime = input.getAppointmentDateTime().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+
         // Validate appointment datetime is not in the past
-        if (input.getAppointmentDateTime().isBefore(LocalDateTime.now())) {
+        if (appointmenLocalDateTime.isBefore(LocalDateTime.now())) {
             throw new ValidationException("Appointment datetime cannot be in the past");
         }
         
@@ -92,7 +96,7 @@ public class AppointmentService {
         }
         
         // Check for overlapping appointments
-        checkOverlappingAppointments(doctor, input.getAppointmentDateTime(), input.getDuration(), null);
+        checkOverlappingAppointments(doctor, input.getAppointmentDateTime().toLocalDateTime(), input.getDuration(), null);
         
         Appointment appointment = Appointment.builder()
             .family(family)
@@ -100,7 +104,7 @@ public class AppointmentService {
             .doctor(doctor)
             .title(input.getTitle())
             .type(input.getType())
-            .appointmentDateTime(input.getAppointmentDateTime())
+            .appointmentDateTime(appointmenLocalDateTime)
             .duration(input.getDuration())
             .location(input.getLocation())
             .notes(input.getNotes())
@@ -108,7 +112,6 @@ public class AppointmentService {
             .status(AppointmentStatus.SCHEDULED)
             .createdAt(LocalDateTime.now())
             .build();
-        
         return appointmentRepository.save(appointment);
     }
     

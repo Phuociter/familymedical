@@ -4,6 +4,7 @@
 scalar Date
 scalar DateTime
 scalar LocalDate
+scalar LocalDateTime
 
 # =======================================================
 # 1. ENUMS
@@ -269,9 +270,7 @@ type MedicalRecord {
 
 type DoctorRequest {
     requestID: ID!
-    familyID: Int!
     family: Family!
-    doctorID: Int!
     doctor: User!
     message: String
     status: RequestStatus!
@@ -317,14 +316,14 @@ type Appointment {
     doctor: User!
     title: String!
     type: AppointmentType
-    appointmentDateTime: DateTime!
+    appointmentDateTime: LocalDateTime!
     duration: Int!
     status: AppointmentStatus!
     location: String
     notes: String
     doctorNotes: String
-    createdAt: DateTime!
-    updatedAt: DateTime
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime
 }
 
 type PatientAppointment {

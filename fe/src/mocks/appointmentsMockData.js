@@ -221,7 +221,7 @@ export const APPOINTMENT_TYPES = [
 
 export const APPOINTMENT_STATUS = {
   PENDING: { label: 'Chờ khám', color: 'warning' },
-  CONFIRMED: { label: 'Sắp tới', color: 'info' },
+  SCHEDULED: { label: 'Sắp tới', color: 'info' },
   COMPLETED: { label: 'Đã khám', color: 'success' },
   CANCELLED: { label: 'Đã hủy', color: 'error' },
 };
