@@ -88,21 +88,21 @@ export default function RequestDetailDialog({ open, onClose, request, onRespond,
                 Tên gia đình
               </Typography>
               <Typography variant="body1" fontWeight={600}>
-                {request.familyName}
+                {request.family.familyName}
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <HomeIcon fontSize="small" color="action" />
-              <Typography variant="body2">{request.familyAddress}</Typography>
+              <Typography variant="body2">{request.family.familyAddress}</Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PeopleIcon fontSize="small" color="action" />
-              <Typography variant="body2">{request.memberCount} thành viên</Typography>
+              <Typography variant="body2">{request.family.members.length} thành viên</Typography>
             </Box>
 
-            {request.headOfFamily && (
+            {request.family.headOfFamily && (
               <>
                 <Divider />
                 <Box>
@@ -110,18 +110,18 @@ export default function RequestDetailDialog({ open, onClose, request, onRespond,
                     Thông tin chủ hộ
                   </Typography>
                   <Typography variant="body1" fontWeight={600} gutterBottom>
-                    {request.headOfFamily.fullName}
+                    {request.family.headOfFamily.fullName}
                   </Typography>
-                  {request.headOfFamily.phoneNumber && (
+                  {request.family.headOfFamily.phoneNumber && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                       <PhoneIcon fontSize="small" color="action" />
-                      <Typography variant="body2">{request.headOfFamily.phoneNumber}</Typography>
+                      <Typography variant="body2">{request.family.headOfFamily.phoneNumber}</Typography>
                     </Box>
                   )}
-                  {request.headOfFamily.email && (
+                  {request.family.headOfFamily.email && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <EmailIcon fontSize="small" color="action" />
-                      <Typography variant="body2">{request.headOfFamily.email}</Typography>
+                      <Typography variant="body2">{request.family.headOfFamily.email}</Typography>
                     </Box>
                   )}
                 </Box>
@@ -168,7 +168,7 @@ export default function RequestDetailDialog({ open, onClose, request, onRespond,
                 ? 'Bạn đang chấp nhận yêu cầu từ gia đình: '
                 : 'Bạn đang từ chối yêu cầu từ gia đình: '
               }
-              <strong>{request.familyName}</strong>
+              <strong>{request.family.familyName}</strong>
             </Typography>
             <TextField
               fullWidth

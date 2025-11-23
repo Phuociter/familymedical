@@ -39,33 +39,15 @@ const filterByDateRange = (records, dateFrom, dateTo) => {
 };
 
 /**
- * Filter records by disease type (simplified matching)
+ * Filter records by file type
  * @param {Array} records - Medical records
- * @param {string} diseaseType - Disease type filter
+ * @param {string} fileType - File type filter
  * @returns {Array} Filtered records
  */
-const filterByDiseaseType = (records, diseaseType) => {
-  if (!diseaseType || diseaseType === 'all') return records;
-
-  const diseaseKeywords = {
-    cardiovascular: ['tim', 'mạch', 'huyết áp', 'cao huyết áp', 'tăng huyết áp'],
-    respiratory: ['phổi', 'hô hấp', 'ho', 'viêm phế quản', 'hen', 'suyễn'],
-    digestive: ['dạ dày', 'ruột', 'tiêu hóa', 'gan', 'đại tràng'],
-    musculoskeletal: ['xương', 'khớp', 'cơ', 'thoái hóa', 'viêm khớp', 'gãy'],
-    endocrine: ['đái tháo đường', 'tuyến giáp', 'nội tiết', 'hormone'],
-    infectious: ['nhiễm trùng', 'viêm', 'cảm', 'sốt', 'vi khuẩn', 'virus'],
-  };
-
-  const keywords = diseaseKeywords[diseaseType] || [];
+const filterByFileType = (records, fileType) => {
+  if (!fileType || fileType === 'all') return records;
   
-  return records.filter((record) => {
-    const diagnosis = record.diagnosis.toLowerCase();
-    const symptoms = record.symptoms.toLowerCase();
-    
-    return keywords.some(keyword => 
-      diagnosis.includes(keyword) || symptoms.includes(keyword)
-    );
-  });
+  return records.filter((record) => record.fileType === fileType);
 };
 
 /**
@@ -92,7 +74,7 @@ export default function MedicalRecordTimeline({
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
-    diseaseType: 'all',
+    fileType: 'all',
   });
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
@@ -104,8 +86,8 @@ export default function MedicalRecordTimeline({
     // Filter by date range
     filtered = filterByDateRange(filtered, filters.dateFrom, filters.dateTo);
     
-    // Filter by disease type
-    filtered = filterByDiseaseType(filtered, filters.diseaseType);
+    // Filter by file type
+    filtered = filterByFileType(filtered, filters.fileType);
     
     // Sort by date (newest first)
     filtered.sort((a, b) => new Date(b.recordDate) - new Date(a.recordDate));

@@ -91,14 +91,8 @@ MembersTab.propTypes = {
     PropTypes.shape({
       memberID: PropTypes.string.isRequired,
       fullName: PropTypes.string.isRequired,
-      relationship: PropTypes.string,
       dateOfBirth: PropTypes.string,
       gender: PropTypes.string,
-      phoneNumber: PropTypes.string,
-      email: PropTypes.string,
-      healthStatus: PropTypes.string,
-      recentVisitCount: PropTypes.number,
-      lastVisitDate: PropTypes.string,
     })
   ).isRequired,
 };

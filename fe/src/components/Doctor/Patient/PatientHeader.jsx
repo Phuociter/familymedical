@@ -69,14 +69,24 @@ const getStatusInfo = (status) => {
 export default function PatientHeader({ patient }) {
 
   const age = useMemo(() => calculateAge(patient.dateOfBirth), [patient.dateOfBirth]);
-  const statusInfo = useMemo(() => getStatusInfo(patient.currentStatus), [patient.currentStatus]);
+  
+  // Calculate total visits from medical records
+  const totalVisits = patient.medicalRecords?.length || 0;
+  
+  // Get last visit date from medical records
+  const lastVisitDate = useMemo(() => {
+    if (!patient.medicalRecords || patient.medicalRecords.length === 0) return null;
+    const sortedRecords = [...patient.medicalRecords].sort(
+      (a, b) => new Date(b.recordDate) - new Date(a.recordDate)
+    );
+    return sortedRecords[0]?.recordDate;
+  }, [patient.medicalRecords]);
 
   return (
     <Box>
       {/* Patient Photo - Centered - Responsive */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 1.5, sm: 2 } }}>
         <Avatar
-          src={patient.photoURL}
           alt={patient.fullName}
           sx={{
             width: { xs: 80, sm: 90, md: 100 },
@@ -85,11 +95,11 @@ export default function PatientHeader({ patient }) {
             fontSize: { xs: '2rem', sm: '2.25rem', md: '2.5rem' },
           }}
         >
-          {patient.photoURL ? null : <PersonIcon fontSize="large" />}
+          <PersonIcon fontSize="large" />
         </Avatar>
       </Box>
 
-      {/* Name and Status - Centered - Responsive */}
+      {/* Name - Centered - Responsive */}
       <Box sx={{ textAlign: 'center', mb: { xs: 1.5, sm: 2 } }}>
         <Typography
           variant="h6"
@@ -97,21 +107,11 @@ export default function PatientHeader({ patient }) {
           sx={{
             fontWeight: 600,
             color: 'text.primary',
-            mb: 1,
             fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
           }}
         >
           {patient.fullName}
         </Typography>
-        <Chip
-          label={statusInfo.label}
-          color={statusInfo.color}
-          size="small"
-          sx={{ 
-            fontWeight: 500,
-            fontSize: { xs: '0.75rem', sm: '0.813rem' },
-          }}
-        />
       </Box>
 
       {/* Basic Info - Vertical Stack - Responsive */}
@@ -182,7 +182,7 @@ export default function PatientHeader({ patient }) {
             gutterBottom
             sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
           >
-            Tổng số lần khám
+            Tổng số hồ sơ
           </Typography>
           <Typography 
             variant="h6" 
@@ -190,7 +190,7 @@ export default function PatientHeader({ patient }) {
             fontWeight={600}
             sx={{ fontSize: { xs: '1.125rem', sm: '1.25rem' } }}
           >
-            {patient.totalVisits || 0}
+            {totalVisits}
           </Typography>
         </Box>
         <Box>
@@ -209,28 +209,51 @@ export default function PatientHeader({ patient }) {
             fontWeight={500}
             sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
           >
-            {formatDate(patient.lastVisitDate)}
+            {formatDate(lastVisitDate)}
           </Typography>
         </Box>
-        <Box>
-          <Typography 
-            variant="caption" 
-            color="text.secondary" 
-            display="block" 
-            gutterBottom
-            sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
-          >
-            Trạng thái
-          </Typography>
-          <Typography
-            variant="body2"
-            color={`${statusInfo.color}.main`}
-            fontWeight={600}
-            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
-          >
-            {statusInfo.label}
-          </Typography>
-        </Box>
+        {patient.cccd && (
+          <Box>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              display="block" 
+              gutterBottom
+              sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+            >
+              CCCD
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.primary"
+              fontWeight={500}
+              sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+            >
+              {patient.cccd}
+            </Typography>
+          </Box>
+        )}
+        {patient.phoneNumber && (
+          <Box>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              display="block" 
+              gutterBottom
+              sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+            >
+              Số điện thoại
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.primary"
+              fontWeight={500}
+              sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+            >
+              {patient.phoneNumber}
+            </Typography>
+          </Box>
+        )}
       </Stack>
     </Box>
   );

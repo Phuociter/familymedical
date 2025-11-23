@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client/react';
 import {
@@ -15,64 +14,39 @@ import {
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import { GET_PATIENT_DETAIL } from '../../graphql/doctorQueries';
-import {
-  MOCK_PATIENT_DETAILS,
-  MOCK_FAMILY_DETAILS,
-  MOCK_MEDICAL_RECORDS_ENHANCED,
-} from '../../mocks/familyMockData';
 import PatientHeader from '../../components/Doctor/Patient/PatientHeader';
 import MedicalRecordTimeline from '../../components/Doctor/Patient/MedicalRecordTimeline';
 
-/**
- * PatientDetailPage - Comprehensive patient information with tabbed interface
- * Displays patient details with six tabs: Overview, Medical Records, Prescriptions, Tests, Images, Background
- * 
- * Requirements: 4.1, 4.2, 14.2, 14.3
- * 
- * @component
- */
 export default function PatientDetailPage() {
   const { familyId, memberId } = useParams();
   const navigate = useNavigate();
-  
-  const [useMockData, setUseMockData] = useState(false);
 
   // Query patient details
-  const { data: patientData, loading, error } = useQuery(GET_PATIENT_DETAIL, {
-    variables: { memberId },
-    skip: useMockData || !memberId,
+  const { data, loading, error } = useQuery(GET_PATIENT_DETAIL, {
+    variables: { memberId: parseInt(memberId) },
+    skip: !memberId,
     fetchPolicy: 'cache-and-network',
   });
 
-  // Auto-switch to mock data if backend returns error
-  useEffect(() => {
-    if (error) {
-      setUseMockData(true);
-    }
-  }, [error]);
+  const patient = data?.memberDetail;
+  const family = data?.memberDetail?.family;
+  const medicalRecords = data?.memberDetail?.medicalRecords || [];
 
-  // Get patient data from backend or mock
-  const patient = useMockData
-    ? MOCK_PATIENT_DETAILS[memberId]
-    : patientData?.patientDetail;
-
-  // Get family data for breadcrumb
-  const family = useMockData
-    ? MOCK_FAMILY_DETAILS[familyId]
-    : null;
-
-  // Get medical records for patient
-  const medicalRecords = useMockData
-    ? MOCK_MEDICAL_RECORDS_ENHANCED[memberId] || []
-    : [];
-
-
-
-  if (loading && !useMockData) {
+  if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Alert severity="error">
+          Lỗi khi tải dữ liệu: {error.message}
+        </Alert>
+      </Container>
     );
   }
 
@@ -88,13 +62,6 @@ export default function PatientDetailPage() {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      {/* Mock Data Indicator */}
-      {useMockData && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          Đang sử dụng dữ liệu demo (Backend chưa kết nối)
-        </Alert>
-      )}
-
       {/* Header with breadcrumb and back button - Responsive */}
       <Box sx={{ mb: { xs: 2, sm: 3 }, px: { xs: 2, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
         <IconButton
@@ -206,45 +173,7 @@ export default function PatientDetailPage() {
               </Box>
             </Box>
 
-            {/* Doctor Notes Card */}
-            <Box
-              sx={{
-                backgroundColor: 'white',
-                borderRadius: 2,
-                boxShadow: 1,
-                overflow: 'hidden',
-              }}
-            >
-              <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
-                <Typography 
-                  variant="h6" 
-                  gutterBottom 
-                  sx={{ 
-                    mb: 2,
-                    fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
-                  }}
-                >
-                  Ghi chú của bác sĩ
-                </Typography>
-                <Box
-                  sx={{
-                    p: { xs: 1.5, sm: 2 },
-                    backgroundColor: '#f9f9f9',
-                    borderRadius: 1,
-                    border: '1px solid #e0e0e0',
-                    minHeight: { xs: 100, sm: 120 },
-                  }}
-                >
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary"
-                    sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
-                  >
-                    {patient.notes || 'Chưa có ghi chú nào'}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+
           </Box>
 
           {/* Right Column: Medical Records */}
@@ -276,8 +205,8 @@ export default function PatientDetailPage() {
                 <MedicalRecordTimeline
                   memberId={memberId}
                   records={medicalRecords}
-                  loading={false}
-                  error={null}
+                  loading={loading}
+                  error={error}
                 />
               </Box>
             </Box>

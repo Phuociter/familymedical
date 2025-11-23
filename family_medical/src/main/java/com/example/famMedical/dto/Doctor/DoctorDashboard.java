@@ -1,21 +1,22 @@
 package com.example.famMedical.dto.Doctor;
 
+import com.example.famMedical.Entity.Appointment;
+import com.example.famMedical.Entity.DoctorRequest;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-import com.example.famMedical.Entity.DoctorRequest;
-import com.example.famMedical.Entity.Family;
-import com.example.famMedical.Entity.MedicalRecord;
-
-public record DoctorDashboard(
-    // Tong quan
-    Integer assignedFamiliesCount,
-    Integer pendingRequestsCount,
-    Integer recentRecordsCount,
-    Integer totalPatientsCount,
-
-    List<MedicalRecord> recentMedicalRecords,
-    List<DoctorRequest> pendingRequests,
-    List<Family> assignedFamilies,
-
-    List<WeeklyStat> weeklyStat
-) {}
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DoctorDashboard {
+    private DoctorStats stats;
+    private List<WeeklyStats> weeklyStats;
+    private List<Activity> recentActivities;
+    private List<Appointment> todayAppointments;
+    private List<DoctorRequest> pendingRequests;
+}

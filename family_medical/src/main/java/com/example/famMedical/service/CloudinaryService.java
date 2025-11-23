@@ -35,17 +35,35 @@ public class CloudinaryService {
         }
     }
 
-    public String getDownloadUrl(String publicId) {
+    /**
+     * Generate a signed download URL for a Cloudinary resource
+     * @param publicId The Cloudinary public ID (e.g., "user123/medical_record.pdf")
+     * @param expirationSeconds URL expiration time in seconds (default: 1 hour)
+     * @return Signed URL that expires after the specified time
+     */
+    public String getSignedDownloadUrl(String publicId, int expirationSeconds) {
         try {
-            String downloadUrl = cloudinary.url()
+            long expiresAt = Instant.now().getEpochSecond() + expirationSeconds;
+            
+            String signedUrl = cloudinary.url()
                 .resourceType("auto")
                 .type("authenticated")
+                .signed(true)
                 .generate(publicId);
-            return downloadUrl;
+                
+            log.info("Generated signed URL for publicId: {}, expires at: {}", publicId, expiresAt);
+            return signedUrl;
         } catch (Exception e) {
-            log.error("Lỗi khi tạo URL tải xuống từ Cloudinary: {}", e.getMessage());
-            throw new RuntimeException("Không thể tạo URL tải xuống từ Cloudinary", e);
+            log.error("Error generating signed download URL from Cloudinary: {}", e.getMessage());
+            throw new RuntimeException("Cannot generate signed download URL from Cloudinary", e);
         }
+    }
+    
+    /**
+     * Generate a signed download URL with default 1-hour expiration
+     */
+    public String getSignedDownloadUrl(String publicId) {
+        return getSignedDownloadUrl(publicId, 3600); // 1 hour default
     }
 
     private String getCloudName() {

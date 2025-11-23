@@ -3,19 +3,20 @@ package com.example.famMedical.controller;
 import java.util.List;
 
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.ContextValue;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
+import com.example.famMedical.dto.Doctor.DoctorDashboard;
 import com.example.famMedical.Entity.DoctorRequest;
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.Entity.MedicalRecord;
 import com.example.famMedical.Entity.Member;
 import com.example.famMedical.Entity.User;
 import com.example.famMedical.service.DoctorService;
+import com.example.famMedical.service.FamilyService;
+import com.example.famMedical.service.MemberService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 public class DoctorController {
     
     private DoctorService doctorService;
+    private FamilyService familyService;
+    private MemberService memberService;
 
     @QueryMapping
-    public List<Family> doctorAssignedFamilies(
+    public List<Family> getDoctorAssignedFamilies(
             @AuthenticationPrincipal User user,
             @Argument String search) {
         
@@ -71,14 +74,37 @@ public class DoctorController {
         return doctorService.getDoctorRequestDetail(requestID, user.getUserID());
     }
     
-    @MutationMapping
+    
+    // Doctor Dashboard Resolver
+    @QueryMapping
     @PreAuthorize("hasAuthority('BacSi')")
-    public DoctorRequest respondToDoctorRequest(
+    public DoctorDashboard doctorDashboard(@AuthenticationPrincipal User user) {
+        log.info("Getting dashboard for doctor: {}", user.getUserID());
+        return doctorService.getDoctorDashboard(user.getUserID());
+    }
+    
+    @QueryMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public List<Family> assignedFamilies(@AuthenticationPrincipal User user) {
+        log.info("Getting assigned families for doctor: {}", user.getUserID());
+        return familyService.getAssignedFamilies(user.getUserID());
+    }
+    
+    @QueryMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public Family familyDetail(
             @AuthenticationPrincipal User user,
-            @Argument Integer requestID,
-            @Argument DoctorRequest.RequestStatus status,
-            @Argument String responseMessage) {
-        log.info("Doctor {} responding to request {}, status: {}", user.getUserID(), requestID, status);
-        return doctorService.respondToRequest(requestID, status, responseMessage, user.getUserID());
+            @Argument Integer familyID) {
+        log.info("Getting family detail for doctor: {}, familyID: {}", user.getUserID(), familyID);
+        return familyService.getFamilyDetail(familyID, user.getUserID());
+    }
+    
+    @QueryMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public Member memberDetail(
+            @AuthenticationPrincipal User user,
+            @Argument Integer memberID) {
+        log.info("Getting member detail for doctor: {}, memberID: {}", user.getUserID(), memberID);
+        return memberService.getMemberDetail(memberID, user.getUserID());
     }
 }

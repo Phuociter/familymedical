@@ -101,11 +101,11 @@ public class DoctorServiceTest {
         // Setup medical records
         record1 = new MedicalRecord();
         record1.setRecordID(1000);
-        record1.setMemberID(member1);
+        record1.setMember(member1);
 
         record2 = new MedicalRecord();
         record2.setRecordID(1001);
-        record2.setMemberID(member1);
+        record2.setMember(member1);
     }
 
     @Nested

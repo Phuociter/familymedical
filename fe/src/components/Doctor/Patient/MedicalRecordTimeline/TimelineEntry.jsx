@@ -38,32 +38,48 @@ const getFileName = (fileLink) => {
 };
 
 /**
- * Determine file type from diagnosis or file link
- * @param {string} diagnosis - Diagnosis text
- * @param {string} fileLink - File URL
- * @returns {string} File type
+ * Get file type label from FileType enum
+ * @param {string} fileType - FileType enum value
+ * @returns {string} Vietnamese label
  */
-const getFileType = (diagnosis, fileLink) => {
-  const diagnosisLower = (diagnosis || '').toLowerCase();
-  const fileLinkLower = (fileLink || '').toLowerCase();
+const getFileTypeLabel = (fileType) => {
+  const typeMap = {
+    X_RAY: 'X-Quang',
+    ULTRASOUND: 'Siêu âm',
+    CT_SCAN: 'CT Scan',
+    MRI_SCAN: 'MRI',
+    MAMMOGRAPHY: 'Chụp nhũ ảnh',
+    PET_CT: 'PET-CT',
+    BLOOD_TEST: 'Xét nghiệm máu',
+    URINE_TEST: 'Xét nghiệm nước tiểu',
+    BLOOD_CHEMISTRY: 'Sinh hóa máu',
+    IMMUNOHEMATOLOGY: 'Huyết học miễn dịch',
+    MICROBIOLOGY_TEST: 'Xét nghiệm vi sinh',
+    GENETIC_TEST: 'Xét nghiệm gen',
+    COVID19_PCR_ANTIGEN: 'Xét nghiệm COVID-19',
+    PATHOLOGY: 'Giải phẫu bệnh',
+    ECG: 'Điện tâm đồ',
+    EEG: 'Điện não đồ',
+    EMG: 'Điện cơ đồ',
+    SPIROMETRY: 'Đo chức năng hô hấp',
+    HOLTER_ECG: 'Holter điện tâm đồ',
+    HOLTER_BP: 'Holter huyết áp',
+    MEDICAL_EXAMINATION: 'Khám bệnh',
+    PRESCRIPTION: 'Đơn thuốc',
+    ADMISSION_FORM: 'Giấy nhập viện',
+    DISCHARGE_FORM: 'Giấy xuất viện',
+    REFERRAL_FORM: 'Giấy chuyển viện',
+    VACCINATION_RECORD: 'Phiếu tiêm chủng',
+    SURGERY_REPORT: 'Báo cáo phẫu thuật',
+    TREATMENT_PLAN: 'Kế hoạch điều trị',
+    DENTAL_RECORD: 'Hồ sơ nha khoa',
+    OBSTETRIC_ULTRASOUND: 'Siêu âm sản khoa',
+    VISION_TEST: 'Khám mắt',
+    HEARING_TEST: 'Khám tai',
+    ALLERGY_TEST: 'Test dị ứng',
+  };
   
-  if (diagnosisLower.includes('x-quang') || diagnosisLower.includes('xquang') || fileLinkLower.includes('xray') || fileLinkLower.includes('x-ray')) {
-    return 'X-Quang';
-  }
-  if (diagnosisLower.includes('siêu âm') || diagnosisLower.includes('sieu am') || fileLinkLower.includes('ultrasound')) {
-    return 'Siêu âm';
-  }
-  if (diagnosisLower.includes('ct scan') || diagnosisLower.includes('ct') || fileLinkLower.includes('ct')) {
-    return 'CT Scan';
-  }
-  if (diagnosisLower.includes('mri') || fileLinkLower.includes('mri')) {
-    return 'MRI';
-  }
-  if (diagnosisLower.includes('xét nghiệm') || diagnosisLower.includes('xet nghiem') || fileLinkLower.includes('test')) {
-    return 'Xét nghiệm';
-  }
-  
-  return 'Hồ sơ khác';
+  return typeMap[fileType] || 'Hồ sơ khác';
 };
 
 /**
@@ -79,7 +95,7 @@ const getFileType = (diagnosis, fileLink) => {
  */
 export default function TimelineEntry({ record, isLast = false }) {
   const fileName = getFileName(record.fileLink);
-  const fileType = getFileType(record.diagnosis, record.fileLink);
+  const fileTypeLabel = getFileTypeLabel(record.fileType);
 
   return (
     <Box sx={{ display: 'flex', position: 'relative', pb: isLast ? 0 : { xs: 2, sm: 2.5, md: 3 } }}>
@@ -158,36 +174,45 @@ export default function TimelineEntry({ record, isLast = false }) {
               {formatDate(record.recordDate)}
             </Typography>
             
-            {/* File Name - Responsive */}
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight: 500,
-                color: 'text.primary',
-                mb: 0.5,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                fontSize: { xs: '0.875rem', sm: '1rem' },
-              }}
-            >
-              <DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 }, verticalAlign: 'middle', mr: 0.5 }} />
-              {fileName}
-            </Typography>
-
             {/* File Type Chip - Responsive */}
             <Chip
               icon={<ImageIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
-              label={fileType}
+              label={fileTypeLabel}
               size="small"
               color="primary"
               variant="outlined"
               sx={{ 
-                mt: 0.5,
+                mb: 0.5,
                 fontSize: { xs: '0.688rem', sm: '0.75rem' },
                 height: { xs: 20, sm: 24 },
               }}
             />
+
+            {/* Description - Responsive */}
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.primary',
+                mb: 0.5,
+                fontSize: { xs: '0.813rem', sm: '0.875rem' },
+              }}
+            >
+              {record.description || 'Không có mô tả'}
+            </Typography>
+
+            {/* Doctor Name - Responsive */}
+            {record.Doctor && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  display: 'block',
+                  fontSize: { xs: '0.75rem', sm: '0.813rem' },
+                }}
+              >
+                Bác sĩ: {record.Doctor.fullName}
+              </Typography>
+            )}
           </Box>
 
           {/* Right: View Button - Touch-Friendly */}

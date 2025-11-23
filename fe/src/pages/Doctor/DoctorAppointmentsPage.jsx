@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@apollo/client/react';
 import {
   Box,
   Tabs,
   Tab,
   Button,
   IconButton,
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -17,7 +19,11 @@ import AppointmentCalendarSkeleton from '../../components/Doctor/Appointment/App
 import AppointmentListSkeleton from '../../components/Doctor/Appointment/AppointmentListSkeleton';
 import CreateAppointmentDialog from '../../components/Doctor/Appointment/CreateAppointmentDialog';
 import AppointmentDetailDialog from '../../components/Doctor/Appointment/AppointmentDetailDialog';
-import { getMockAppointments } from '../../mocks/appointmentsMockData';
+import { 
+  GET_APPOINTMENTS, 
+  GET_TODAY_APPOINTMENTS, 
+  GET_UPCOMING_APPOINTMENTS 
+} from '../../graphql/doctorQueries';
 
 export default function DoctorAppointmentsPage() {
   // Load viewMode from localStorage, default to 'calendar'
@@ -29,22 +35,87 @@ export default function DoctorAppointmentsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  const appointments = getMockAppointments();
+  // GraphQL queries based on selected tab
+  const { data: allData, loading: allLoading, error: allError, refetch: refetchAll } = useQuery(
+    GET_APPOINTMENTS,
+    { 
+      skip: selectedTab !== 0,
+      fetchPolicy: 'cache-and-network'
+    }
+  );
+
+  const { data: todayData, loading: todayLoading, error: todayError, refetch: refetchToday } = useQuery(
+    GET_TODAY_APPOINTMENTS,
+    { 
+      skip: selectedTab !== 1,
+      fetchPolicy: 'cache-and-network'
+    }
+  );
+
+  const { data: upcomingData, loading: upcomingLoading, error: upcomingError, refetch: refetchUpcoming } = useQuery(
+    GET_UPCOMING_APPOINTMENTS,
+    { 
+      skip: selectedTab !== 2,
+      fetchPolicy: 'cache-and-network'
+    }
+  );
+
+  const { data: pastData, loading: pastLoading, error: pastError, refetch: refetchPast } = useQuery(
+    GET_APPOINTMENTS,
+    {
+      variables: {
+        filter: {
+          status: 'COMPLETED'
+        }
+      },
+      skip: selectedTab !== 3,
+      fetchPolicy: 'cache-and-network'
+    }
+  );
+
+  // Determine current data and loading state
+  const getCurrentData = () => {
+    switch (selectedTab) {
+      case 0:
+        return { data: allData?.appointments || [], loading: allLoading, error: allError };
+      case 1:
+        return { data: todayData?.todayAppointments || [], loading: todayLoading, error: todayError };
+      case 2:
+        return { data: upcomingData?.upcomingAppointments || [], loading: upcomingLoading, error: upcomingError };
+      case 3:
+        return { data: pastData?.appointments || [], loading: pastLoading, error: pastError };
+      default:
+        return { data: [], loading: false, error: null };
+    }
+  };
+
+  const { data: appointments, loading, error } = getCurrentData();
+
+  // Refetch function based on current tab
+  const refetchAppointments = () => {
+    switch (selectedTab) {
+      case 0:
+        refetchAll();
+        break;
+      case 1:
+        refetchToday();
+        break;
+      case 2:
+        refetchUpcoming();
+        break;
+      case 3:
+        refetchPast();
+        break;
+      default:
+        break;
+    }
+  };
 
   // Save viewMode to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('appointmentViewMode', viewMode);
   }, [viewMode]);
-
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleAppointmentClick = (appointment) => {
     setSelectedAppointment(appointment);
@@ -60,8 +131,22 @@ export default function DoctorAppointmentsPage() {
     setSelectedAppointment(null);
   };
 
+  const handleAppointmentCreated = () => {
+    refetchAppointments();
+  };
+
+  const handleAppointmentUpdated = () => {
+    refetchAppointments();
+  };
+
   return (
     <Box>
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Không thể tải danh sách lịch hẹn: {error.message}
+        </Alert>
+      )}
       {/* Tabs, View Mode & Actions */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box
@@ -221,6 +306,7 @@ export default function DoctorAppointmentsPage() {
       <CreateAppointmentDialog
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
+        onAppointmentCreated={handleAppointmentCreated}
       />
 
       {selectedAppointment && (
@@ -228,6 +314,7 @@ export default function DoctorAppointmentsPage() {
           open={detailDialogOpen}
           appointment={selectedAppointment}
           onClose={handleCloseDetailDialog}
+          onAppointmentUpdated={handleAppointmentUpdated}
         />
       )}
     </Box>

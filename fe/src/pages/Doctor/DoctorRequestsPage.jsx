@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { Box, Alert } from '@mui/material';
-import { GET_DOCTOR_REQUESTS, RESPOND_TO_DOCTOR_REQUEST } from '../../graphql/doctorMutations';
+import { RESPOND_TO_DOCTOR_REQUEST } from '../../graphql/doctorMutations';
+import { GET_DOCTOR_REQUESTS } from '../../graphql/doctorQueries';
 import { MOCK_DOCTOR_REQUESTS } from '../../mocks/doctorRequestsMockData';
 import RequestList from '../../components/Doctor/Request/RequestList';
 import RequestDetailDialog from '../../components/Doctor/Request/RequestDetailDialog';

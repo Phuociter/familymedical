@@ -13,36 +13,67 @@ export const RESPOND_TO_DOCTOR_REQUEST = gql`
       message: $message
     ) {
       requestID
-      familyID
-      familyName
-      requestDate
-      status
       message
+      status
       responseDate
       responseMessage
     }
   }
 `;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Query để lấy danh sách yêu cầu assign
 export const GET_DOCTOR_REQUESTS = gql`
   query GetDoctorRequests($status: RequestStatus) {
     doctorRequests(status: $status) {
       requestID
-      familyID
-      familyName
-      familyAddress
-      requestDate
-      status
+      doctorID
       message
+      status
       responseDate
       responseMessage
-      headOfFamily {
-        fullName
-        phoneNumber
-        email
+      family {
+        familyAddress
+        memberCount
+        familyName
+        headOfFamily {
+          userID
+          email
+          fullName
+          role
+          phoneNumber
+          address
+          cccd
+          hospitalName
+          yearsOfExperience
+          avatarUrl
+          doctorCode
+          isVerified
+          isLocked
+        }
       }
-      memberCount
     }
   }
 `;
@@ -287,6 +318,82 @@ export const RECORD_HEALTH_INDICATOR = gql`
         min
         max
       }
+    }
+  }
+`;
+
+// Appointment mutations
+export const CREATE_APPOINTMENT = gql`
+  mutation CreateAppointment($input: CreateAppointmentInput!) {
+    createAppointment(input: $input) {
+      appointmentID
+      title
+      type
+      appointmentDateTime
+      duration
+      status
+      location
+      notes
+      doctorNotes
+      createdAt
+      family {
+        familyID
+        familyName
+      }
+      member {
+        memberID
+        fullName
+      }
+      doctor {
+        userID
+        fullName
+      }
+    }
+  }
+`;
+
+export const UPDATE_APPOINTMENT = gql`
+  mutation UpdateAppointment($input: UpdateAppointmentInput!) {
+    updateAppointment(input: $input) {
+      appointmentID
+      title
+      type
+      appointmentDateTime
+      duration
+      status
+      location
+      notes
+      doctorNotes
+      updatedAt
+      family {
+        familyID
+        familyName
+      }
+      member {
+        memberID
+        fullName
+      }
+    }
+  }
+`;
+
+export const UPDATE_APPOINTMENT_STATUS = gql`
+  mutation UpdateAppointmentStatus($appointmentID: Int!, $status: AppointmentStatus!) {
+    updateAppointmentStatus(appointmentID: $appointmentID, status: $status) {
+      appointmentID
+      status
+      updatedAt
+    }
+  }
+`;
+
+export const CANCEL_APPOINTMENT = gql`
+  mutation CancelAppointment($appointmentID: Int!, $reason: String) {
+    cancelAppointment(appointmentID: $appointmentID, reason: $reason) {
+      appointmentID
+      status
+      doctorNotes
+      updatedAt
     }
   }
 `;

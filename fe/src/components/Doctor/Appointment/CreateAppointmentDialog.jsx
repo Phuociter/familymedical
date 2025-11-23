@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
   Dialog,
   DialogTitle,
@@ -11,21 +12,24 @@ import {
   Typography,
   Autocomplete,
   Avatar,
-  Chip,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import { format } from 'date-fns';
-import { APPOINTMENT_TYPES } from '../../../mocks/appointmentsMockData';
+import { CREATE_APPOINTMENT } from '../../../graphql/doctorMutations';
+import { GET_ASSIGNED_FAMILIES } from '../../../graphql/doctorQueries';
 
-// Mock patients data - In real app, fetch from API
-const MOCK_PATIENTS = [
-  { id: 'M001', name: 'Nguyễn Văn An', age: 45, gender: 'Nam', familyName: 'Gia đình Nguyễn Văn A' },
-  { id: 'M002', name: 'Trần Thị Bình', age: 32, gender: 'Nữ', familyName: 'Gia đình Trần Thị B' },
-  { id: 'M003', name: 'Lê Minh Châu', age: 28, gender: 'Nữ', familyName: 'Gia đình Lê Minh C' },
-  { id: 'M004', name: 'Phạm Thị Dung', age: 55, gender: 'Nữ', familyName: 'Gia đình Phạm Thị D' },
-  { id: 'M005', name: 'Hoàng Văn Em', age: 12, gender: 'Nam', familyName: 'Gia đình Hoàng Văn E' },
+// Appointment types mapping to GraphQL enum
+const APPOINTMENT_TYPES = [
+  { value: 'GENERAL_CHECKUP', label: 'Khám tổng quát' },
+  { value: 'FOLLOW_UP', label: 'Tái khám' },
+  { value: 'CONSULTATION', label: 'Tư vấn' },
+  { value: 'VACCINATION', label: 'Tiêm chủng' },
+  { value: 'HOME_VISIT', label: 'Khám tại nhà' },
+  { value: 'OTHER', label: 'Khác' },
 ];
 
-export default function CreateAppointmentDialog({ open, onClose }) {
+export default function CreateAppointmentDialog({ open, onClose, onAppointmentCreated }) {
   // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
   const getDefaultDateTime = () => {
     const now = new Date();
@@ -41,12 +45,79 @@ export default function CreateAppointmentDialog({ open, onClose }) {
     duration: 30,
     location: '',
     notes: '',
+    doctorNotes: '',
   });
 
-  const handleSubmit = () => {
-    console.log('Creating appointment:', formData);
-    // TODO: Call API to create appointment
-    onClose();
+  // Fetch assigned families and their members
+  const { data: familiesData, loading: familiesLoading } = useQuery(GET_ASSIGNED_FAMILIES, {
+    skip: !open,
+  });
+
+  // Create appointment mutation
+  const [createAppointment, { loading: creating, error: createError }] = useMutation(
+    CREATE_APPOINTMENT,
+    {
+      onCompleted: (data) => {
+        console.log('Appointment created:', data.createAppointment);
+        if (onAppointmentCreated) {
+          onAppointmentCreated(data.createAppointment);
+        }
+        handleClose();
+      },
+      onError: (error) => {
+        console.error('Error creating appointment:', error);
+      },
+    }
+  );
+
+  // Flatten all members from all families
+  const allPatients = useMemo(() => {
+    if (!familiesData?.getDoctorAssignedFamilies) return [];
+    
+    return familiesData.getDoctorAssignedFamilies.flatMap(family => 
+      family.members.map(member => ({
+        memberID: member.memberID,
+        familyID: family.familyID,
+        name: member.fullName,
+        familyName: family.familyName,
+        // Calculate age if dateOfBirth is available
+        age: member.dateOfBirth ? 
+          new Date().getFullYear() - new Date(member.dateOfBirth).getFullYear() : null,
+        gender: member.gender || 'Không rõ',
+      }))
+    );
+  }, [familiesData]);
+
+  const handleSubmit = async () => {
+    if (!formData.patient || !formData.title || !formData.type) {
+      return;
+    }
+
+    try {
+      // Convert datetime-local format to ISO DateTime
+      const appointmentDateTime = new Date(formData.appointmentDateTime).toISOString();
+
+      await createAppointment({
+        variables: {
+          input: {
+            familyID: parseInt(formData.patient.familyID),
+            memberID: parseInt(formData.patient.memberID),
+            title: formData.title,
+            type: formData.type,
+            appointmentDateTime: appointmentDateTime,
+            duration: parseInt(formData.duration),
+            location: formData.location || null,
+            notes: formData.notes || null,
+            doctorNotes: formData.doctorNotes || null,
+          },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to create appointment:', err);
+    }
+  };
+
+  const handleClose = () => {
     // Reset form
     setFormData({
       patient: null,
@@ -56,7 +127,9 @@ export default function CreateAppointmentDialog({ open, onClose }) {
       duration: 30,
       location: '',
       notes: '',
+      doctorNotes: '',
     });
+    onClose();
   };
 
   const handleChange = (field, value) => {
@@ -64,7 +137,7 @@ export default function CreateAppointmentDialog({ open, onClose }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Typography variant="h6" fontWeight={600}>
           Tạo lịch hẹn mới
@@ -72,33 +145,52 @@ export default function CreateAppointmentDialog({ open, onClose }) {
       </DialogTitle>
 
       <DialogContent dividers>
+        {createError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Không thể tạo lịch hẹn: {createError.message}
+          </Alert>
+        )}
+
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* Patient Selection */}
           <Autocomplete
-            options={MOCK_PATIENTS}
+            options={allPatients}
             value={formData.patient}
             onChange={(e, value) => handleChange('patient', value)}
             getOptionLabel={(option) => option.name}
+            loading={familiesLoading}
+            disabled={familiesLoading || creating}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Chọn bệnh nhân"
                 required
+                slotProps={{
+                  input: {
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {familiesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  },
+                }}
               />
             )}
             renderOption={(props, option) => (
               <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Avatar
-                  src={`https://i.pravatar.cc/150?u=${option.id}`}
-                  alt={option.name}
-                  sx={{ width: 40, height: 40 }}
-                />
+                  sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}
+                >
+                  {option.name.charAt(0)}
+                </Avatar>
                 <Box>
                   <Typography variant="body1" fontWeight={500}>
                     {option.name}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    {option.age} tuổi • {option.gender} • {option.familyName}
+                    {option.age ? `${option.age} tuổi • ` : ''}{option.gender} • {option.familyName}
                   </Typography>
                 </Box>
               </Box>
@@ -122,10 +214,11 @@ export default function CreateAppointmentDialog({ open, onClose }) {
             onChange={(e) => handleChange('type', e.target.value)}
             required
             fullWidth
+            disabled={creating}
           >
             {APPOINTMENT_TYPES.map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
+              <MenuItem key={type.value} value={type.value}>
+                {type.label}
               </MenuItem>
             ))}
           </TextField>
@@ -138,8 +231,11 @@ export default function CreateAppointmentDialog({ open, onClose }) {
             onChange={(e) => handleChange('appointmentDateTime', e.target.value)}
             required
             fullWidth
-            InputLabelProps={{
-              shrink: true,
+            disabled={creating}
+            slotProps={{
+              inputLabel: {
+                shrink: true,
+              },
             }}
           />
 
@@ -150,6 +246,7 @@ export default function CreateAppointmentDialog({ open, onClose }) {
             value={formData.duration}
             onChange={(e) => handleChange('duration', e.target.value)}
             fullWidth
+            disabled={creating}
           >
             <MenuItem value={15}>15 phút</MenuItem>
             <MenuItem value={30}>30 phút</MenuItem>
@@ -163,32 +260,47 @@ export default function CreateAppointmentDialog({ open, onClose }) {
             value={formData.location}
             onChange={(e) => handleChange('location', e.target.value)}
             fullWidth
+            disabled={creating}
             placeholder="Phòng khám 101"
           />
 
-          {/* Notes */}
+          {/* Patient Notes */}
           <TextField
-            label="Ghi chú"
+            label="Ghi chú cho bệnh nhân"
             value={formData.notes}
             onChange={(e) => handleChange('notes', e.target.value)}
             multiline
-            rows={3}
+            rows={2}
             fullWidth
-            placeholder="Thông tin bổ sung về lịch hẹn..."
+            disabled={creating}
+            placeholder="Thông tin bệnh nhân có thể xem..."
+          />
+
+          {/* Doctor Notes */}
+          <TextField
+            label="Ghi chú cho bác sĩ"
+            value={formData.doctorNotes}
+            onChange={(e) => handleChange('doctorNotes', e.target.value)}
+            multiline
+            rows={2}
+            fullWidth
+            disabled={creating}
+            placeholder="Ghi chú riêng của bác sĩ (bệnh nhân không thấy)..."
           />
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={handleClose} color="inherit" disabled={creating}>
           Hủy
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={!formData.patient || !formData.title || !formData.type}
+          disabled={!formData.patient || !formData.title || !formData.type || creating}
+          startIcon={creating ? <CircularProgress size={20} color="inherit" /> : null}
         >
-          Tạo lịch hẹn
+          {creating ? 'Đang tạo...' : 'Tạo lịch hẹn'}
         </Button>
       </DialogActions>
     </Dialog>

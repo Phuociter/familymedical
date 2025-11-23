@@ -1,18 +1,32 @@
 import { useState } from 'react';
 import { Box, Paper, Stack, Grid, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import FamilySearchAndFilter from './FamilySearchAndFilter';
 import FamilyResultsCount from './FamilyResultsCount';
 import FamilyErrorState from './FamilyErrorState';
 import FamilyEmptyState from './FamilyEmptyState';
 import FamilyCard from './FamilyCard';
 import FamilyCardSkeleton from './FamilyCardSkeleton';
+import { GET_ASSIGNED_FAMILIES } from '../';
 
-const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFamilySelect }) => {
+
+const FamilyList = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
+  const { data, loading, error } = useQuery(
+    GET_ASSIGNED_FAMILIES,
+    {
+      variables: { search: debouncedSearch },
+      fetchPolicy: 'cache-and-network', 
+    }
+  );
   const [statusFilter, setStatusFilter] = useState('');
+  const families = data?.getDoctorAssignedFamilies || []
+  console.log(families);
 
-  // Filter families based on search and filters
   const filteredFamilies = families.filter(family => {
-    // Search filter - matches family name, household head name, or address
     const matchesSearch = !searchTerm || 
       family.familyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       family.headOfFamily?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,7 +51,7 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
         <Stack spacing={2}>          
           <FamilySearchAndFilter
             searchValue={searchTerm}
-            onSearchChange={onSearchChange}
+            onSearchChange={setSearchTerm}
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
           />
@@ -94,7 +108,7 @@ const FamilyList = ({ families, loading, error, searchTerm, onSearchChange, onFa
             >
               <FamilyCard
                 family={family}
-                onSelect={onFamilySelect}
+                onSelect={(family) => navigate(`/doctor/families/${family.familyID}`)}
               />
             </Grid>
           ))}

@@ -164,9 +164,9 @@ export default function RequestList({
                     sx={{ cursor: 'pointer' }}
                     onClick={() => onRequestClick(request)}
                   >
-                    <TableCell>{request.familyName}</TableCell>
-                    <TableCell>{request.familyAddress}</TableCell>
-                    <TableCell align="center">{request.memberCount}</TableCell>
+                    <TableCell>{request.family.familyName}</TableCell>
+                    <TableCell>{request.family.familyAddress}</TableCell>
+                    <TableCell align="center">{request.family.members.length}</TableCell>
                     <TableCell>
                       {new Date(request.requestDate).toLocaleDateString('vi-VN')}
                     </TableCell>

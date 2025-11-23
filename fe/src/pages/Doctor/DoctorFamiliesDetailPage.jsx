@@ -1,76 +1,82 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
-import {
-  Container, Box, Typography, Breadcrumbs, Link,
-  Tabs, Tab, Alert, CircularProgress, IconButton
+import { useParams, useNavigate } from 'react-router-dom';
+
+import { Box, Alert, Container, Typography, Breadcrumbs, Link,
+  Tabs, Tab, CircularProgress, IconButton, 
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
-import { GET_FAMILY_DETAIL } from '../../../../graphql/doctorQueries'; 
-import InfoTab from './InfoTab';
-import MembersTab from './MembersTab';
+import { GET_FAMILY_DETAIL } from '../../graphql/doctorQueries';
+import InfoTab from '../../components/Doctor/Family/Detail/InfoTab';
+import MembersTab from '../../components/Doctor/Family/Detail/MembersTab';
 
-// --- Helper Components ---
 function TabPanel({ children, value, index, ...other }) {
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
-  );
+    return (
+        <div role="tabpanel" hidden={value !== index} {...other}>
+        {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+        </div>
+    );
 }
 
 function a11yProps(index) {
-  return { id: `family-tab-${index}`, 'aria-controls': `family-tabpanel-${index}` };
+    return { id: `family-tab-${index}`, 'aria-controls': `family-tabpanel-${index}` };
 }
 
-export default function FamilyDetailView({ familyId, onBack }) {
-  const [tabIndex, setTabIndex] = useState(0);
 
-  const { data, loading, error } = useQuery(GET_FAMILY_DETAIL, {
-    variables: { 
-        familyId: parseInt(familyId, 10)
-     },
-    fetchPolicy: 'cache-and-network'
-  });
+const DoctorFamiliesDetailPage = () => {
+    const { familyId } = useParams();
 
-  if (loading && !data) {
+    const navigate = useNavigate();
+    
+    const [tabIndex, setTabIndex] = useState(0);
+    
+    const { data, loading, error } = useQuery(GET_FAMILY_DETAIL, {
+        variables: { 
+            familyId: parseInt(familyId, 10)
+            },
+        fetchPolicy: 'cache-and-network'
+    });
+
+    const handleBackToFamilies = () => navigate('/doctor/families');
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 3 }}>
+                <IconButton onClick={handleBackToFamilies} sx={{ mb: 2 }}><ArrowBackIcon /></IconButton>
+                <Alert severity="error">Không thể tải dữ liệu: {error.message}</Alert>
+            </Container>
+        );
+    }
+
+    const familyDetail = data?.familyDetail || {};
+    console.log(familyDetail);
+    
+    if (!familyDetail.familyID) {
+        return (
+        <Container maxWidth="lg" sx={{ py: 3 }}>
+            <IconButton onClick={handleBackToFamilies} sx={{ mb: 2 }}><ArrowBackIcon /></IconButton>
+            <Alert severity="warning">Không tìm thấy thông tin gia đình này.</Alert>
+        </Container>
+        );
+    }
+
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-         <IconButton onClick={onBack} sx={{ mb: 2 }}><ArrowBackIcon /></IconButton>
-         <Alert severity="error">Không thể tải dữ liệu: {error.message}</Alert>
-      </Container>
-    );
-  }
-
-  const familyDetail = data?.familyDetail || {};
-  console.log(familyDetail);
-  
-  // Nếu server trả về null/empty
-  if (!familyDetail.familyID && !loading) {
-     return (
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-         <IconButton onClick={onBack} sx={{ mb: 2 }}><ArrowBackIcon /></IconButton>
-         <Alert severity="warning">Không tìm thấy thông tin gia đình này.</Alert>
-      </Container>
-    );
-  }
-
-  return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', pb: 4 }}>
       <Container maxWidth="lg" sx={{ pt: 3 }}>
         
         {/* HEADER & BREADCRUMBS */}
         <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton
-            onClick={onBack}
+            onClick={handleBackToFamilies}
             sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'action.hover' } }}
           >
             <ArrowBackIcon />
@@ -81,7 +87,7 @@ export default function FamilyDetailView({ familyId, onBack }) {
               <Link 
                 component="button" 
                 variant="body1" 
-                onClick={onBack} 
+                onClick={handleBackToFamilies} 
                 sx={{ textDecoration: 'none', color: 'primary.main' }}
               >
                 Danh sách gia đình
@@ -125,3 +131,5 @@ export default function FamilyDetailView({ familyId, onBack }) {
     </Box>
   );
 }
+
+export default DoctorFamiliesDetailPage;
