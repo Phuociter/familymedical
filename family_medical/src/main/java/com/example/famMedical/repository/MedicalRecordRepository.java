@@ -15,23 +15,18 @@ import java.util.List;
 @Repository
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Integer> {
     
-    // Legacy method - kept for backward compatibility
-    @Query("SELECT m FROM MedicalRecord m WHERE m.member.memberID = :memberID ORDER BY m.uploadDate DESC")
-    List<MedicalRecord> findByMember_MemberID(@Param("memberID") Integer memberID);
-
-    // New method with proper naming
-    List<MedicalRecord> findByMemberOrderByUploadDateDesc(Member member);
+    List<MedicalRecord> findByMember_MemberID(Integer memberID);
     List<MedicalRecord> findByDoctor_UserID(Integer memberID);
-
 
 
     @Query("SELECT m.fileLink FROM MedicalRecord m WHERE m.member.memberID = :memberId")
     List<String> findFileLinksByMember_MemberID(@Param("memberId") Integer memberId);
+
     
     // Find top N records by doctor
     @Query("SELECT m FROM MedicalRecord m WHERE m.doctor = :doctor " +
-           "ORDER BY m.uploadDate DESC LIMIT :limit")
-    List<MedicalRecord> findTopNByDoctorOrderByUploadDateDesc(
+           "ORDER BY m.recordDate DESC LIMIT :limit")
+    List<MedicalRecord> findTopNByDoctorOrderByRecordDateDesc(
         @Param("doctor") User doctor,
         @Param("limit") int limit
     );

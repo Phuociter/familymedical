@@ -1,5 +1,6 @@
 package com.example.famMedical.service;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.logging.Logger;
 
@@ -90,7 +91,7 @@ public class DoctorRequestService {
         
         // Set common fields
         request.setResponseMessage(message);
-        request.setResponseDate(OffsetDateTime.now());
+        request.setResponseDate(LocalDateTime.now());
         
         // Process based on status
         return status == RequestStatus.ACCEPTED 

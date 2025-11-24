@@ -106,7 +106,7 @@ public class AdminGraphQLResolverTest {
         doctorRequest.setFamily(family);
         doctorRequest.setDoctor(doctor);
         doctorRequest.setMessage("Request message");
-        doctorRequest.setStatus(RequestStatus.Pending);
+        doctorRequest.setStatus(RequestStatus.PENDING);
         doctorRequest.setRequestDate(LocalDateTime.now());
 
         // Setup Payment
@@ -340,7 +340,7 @@ public class AdminGraphQLResolverTest {
             // Arrange
             String status = "Pending";
             List<DoctorRequest> expectedRequests = Arrays.asList(doctorRequest);
-            when(adminService.listDoctorRequestsByStatus(RequestStatus.Pending)).thenReturn(expectedRequests);
+            when(adminService.listDoctorRequestsByStatus(RequestStatus.PENDING)).thenReturn(expectedRequests);
 
             // Act
             List<DoctorRequest> result = adminGraphQLResolver.doctorRequestsByStatus(status);
@@ -348,7 +348,7 @@ public class AdminGraphQLResolverTest {
             // Assert
             assertEquals(1, result.size());
             assertEquals(expectedRequests, result);
-            verify(adminService).listDoctorRequestsByStatus(RequestStatus.Pending);
+            verify(adminService).listDoctorRequestsByStatus(RequestStatus.PENDING);
         }
 
         @Test

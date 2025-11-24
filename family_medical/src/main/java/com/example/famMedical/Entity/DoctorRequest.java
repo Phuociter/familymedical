@@ -36,9 +36,9 @@ public class DoctorRequest {
     @Enumerated(EnumType.STRING)
     private RequestStatus status; // Pending, Accepted, Rejected
 
-    private OffsetDateTime requestDate;
+    private LocalDateTime requestDate;
     
-    private OffsetDateTime responseDate;
+    private LocalDateTime responseDate;
     
     private String responseMessage;
 

@@ -118,7 +118,7 @@ public class AdminRestControllerTest {
         doctorRequest.setFamily(family);
         doctorRequest.setDoctor(doctor);
         doctorRequest.setMessage("Request message");
-        doctorRequest.setStatus(RequestStatus.Pending);
+        doctorRequest.setStatus(RequestStatus.PENDING);
         doctorRequest.setRequestDate(LocalDateTime.now());
 
         // Setup Payment
@@ -136,8 +136,8 @@ public class AdminRestControllerTest {
         // Setup MedicalRecord
         medicalRecord = new MedicalRecord();
         medicalRecord.setRecordID(1);
-        medicalRecord.setMemberID(member);
-        medicalRecord.setDoctorID(doctor);
+        medicalRecord.setMember(member);
+        medicalRecord.setDoctor(doctor);
         medicalRecord.setFileLink("http://example.com/file.pdf");
         medicalRecord.setRecordDate(LocalDate.now());
     }
@@ -490,7 +490,7 @@ public class AdminRestControllerTest {
         public void shouldListDoctorRequestsByStatus() {
             // Arrange
             List<DoctorRequest> expectedRequests = Arrays.asList(doctorRequest);
-            when(adminService.listDoctorRequestsByStatus(RequestStatus.Pending)).thenReturn(expectedRequests);
+            when(adminService.listDoctorRequestsByStatus(RequestStatus.PENDING)).thenReturn(expectedRequests);
 
             // Act
             List<DoctorRequest> result = adminRestController.listDoctorRequests("Pending");
@@ -498,7 +498,7 @@ public class AdminRestControllerTest {
             // Assert
             assertEquals(1, result.size());
             assertEquals(expectedRequests, result);
-            verify(adminService).listDoctorRequestsByStatus(RequestStatus.Pending);
+            verify(adminService).listDoctorRequestsByStatus(RequestStatus.PENDING);
         }
 
         @Test

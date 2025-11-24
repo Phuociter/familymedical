@@ -103,7 +103,7 @@ public class DoctorService {
 
         request.setStatus(status);
         request.setResponseMessage(message);
-        request.setResponseDate(OffsetDateTime.now());
+        request.setResponseDate(LocalDateTime.now());
         
         return doctorRequestRepo.save(request);
     }
@@ -216,7 +216,7 @@ public class DoctorService {
             .activityID(String.valueOf(record.getRecordID()))
             .type("MEDICAL_RECORD_CREATED")
             .description("Uploaded medical record for " + record.getMember().getFullName())
-            .timestamp(record.getUploadDate())
+            .timestamp(record.getRecordDate().atTime(0, 0, 0))
             .relatedEntity("MedicalRecord")
             .relatedEntityID(record.getRecordID())
             .build()));
