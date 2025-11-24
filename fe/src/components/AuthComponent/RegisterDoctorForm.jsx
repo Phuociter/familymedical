@@ -10,8 +10,6 @@ const initialDoctorState = {
     password: '',
     confirmPassword: '',
     doctorCode: '',
-    hospitalName: '',
-    yearsOfExperience: '',
     phoneNumber: '',
     address: '',
     cccd: '',
@@ -49,9 +47,6 @@ const RegisterDoctorForm = () => {
 
                     <FormField label="Mã Bác sĩ" name="doctorCode" value={formData.doctorCode} onChange={handleChange} required hint="Mã đăng ký cấp bởi cơ quan y tế" error={errors.doctorCode} />
                     <FormField label="Họ và Tên" name="fullName" value={formData.fullName} onChange={handleChange} required error={errors.fullName} />
-                    <FormField label="Tên bệnh viện công tác" name="hospitalName" value={formData.hospitalName} onChange={handleChange} required error={errors.hospitalName} />
-                    <FormField label="Số năm kinh nghiệm" name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} required error={errors.yearsOfExperience} />
-
                     <FormField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required error={errors.email} />
                     <FormField label="Mật khẩu" name="password" value={formData.password} onChange={handleChange} type="password" required error={errors.password} />
                     <FormField label="Nhập lại Mật khẩu" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} type="password" required error={errors.confirmPassword} />

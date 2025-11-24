@@ -96,7 +96,7 @@ public class AuthService {
 
 
 
-    public User registerDoctor(String fullName, String email, String password, String doctorCode, String phoneNumber, String address, String cccd, String hospitalName, String yearsOfExperience) {
+    public User registerDoctor(String fullName, String email, String password, String doctorCode, String phoneNumber, String address, String cccd) {
         if (fullName == null || fullName.isBlank()) {
             throw new IllegalArgumentException("Họ và Tên không được để trống.");
         }
@@ -118,8 +118,6 @@ public class AuthService {
         user.setAddress(address);
         user.setCccd(cccd);
         user.setDoctorCode(doctorCode);
-        user.setHospitalName(hospitalName);
-        user.setYearsOfExperience(yearsOfExperience);
 
         return userRepository.save(user);
     }

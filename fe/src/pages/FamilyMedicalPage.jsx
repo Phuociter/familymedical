@@ -4,7 +4,6 @@ import Sidebar from '../components/FamilyMedicalComponent/Sidebar';
 import FamilyList from '../components/FamilyMedicalComponent/FamilyList';
 import DoctorList from '../components/FamilyMedicalComponent/DoctorList';
 import Messages from '../components/FamilyMedicalComponent/Messages';
-import Appointments from '../components/FamilyMedicalComponent/Appointments';
 import Header from '../components/FamilyMedicalComponent/Header';
 import UserProfileModal from '../components/FamilyMedicalComponent/UserProfileModal';
 import FamilyDoctorInfoModal from '../components/FamilyMedicalComponent/FamilyDoctorInfoModal';
@@ -61,8 +60,6 @@ const FamilyMedicalPage = () => {
       case View.Doctors:
         return <DoctorList familyDoctorId={familyDoctorId} />;
         // return <div>Tạm thời vô hiệu hóa DoctorList</div>;
-      case View.Appointments:
-        return <Appointments />;
       case View.Messages:
         return <Messages />;
       default:

@@ -399,15 +399,15 @@ const MedicalRecordModal = ({ member, onClose }) => {
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept=".pdf,.jpg,.png,.jpeg" multiple className="hidden" />
               
               {stagedFiles.length === 0 && (
-                <button onClick={() => fileInputRef.current?.click()} className="w-full flex flex-col items-center justify-center gap-3 px-6 py-8 border-2 border-dashed border-blue-200 rounded-xl bg-[#E3F2FD]/50 text-[#1E88E5] hover:border-[#42A5F5] hover:bg-[#E3F2FD] transition-all duration-300 group/btn">
+                <button onClick={() => fileInputRef.current?.click()} className="w-full flex flex-col items-center justify-center gap-3 px-6 py-8 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50/50 text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 group/btn">
                     <div className="p-3 bg-white rounded-full shadow-sm group-hover/btn:scale-110 transition-transform">
-                        <svg className="w-8 h-8 text-[#2196F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                     </div>
                     <div className="text-center">
                         <p className="font-medium">Nhấn để chọn file</p>
-                        <p className="text-xs text-[#42A5F5] mt-1">Hỗ trợ PDF, JPG, PNG</p>
+                        <p className="text-xs text-blue-400 mt-1">Hỗ trợ PDF, JPG, PNG</p>
                     </div>
                 </button>
               )}
