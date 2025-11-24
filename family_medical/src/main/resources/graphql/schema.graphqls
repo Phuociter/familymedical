@@ -79,6 +79,8 @@ input DoctorRegisterInput {
     phoneNumber: String
     address: String
     cccd: String
+    hospitalName: String!
+    yearsOfExperience: String!
 }
 
 input CompleteProfileInput {
@@ -259,6 +261,16 @@ type Mutation {
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
 
+
+    # New mutation for forgot password
+    forgotPassword(email: String!): String!
+
+    # New mutation for validating the reset code
+    validateResetCode(email: String!, code: String!): String!
+
+    # New mutation for resetting the password
+    resetMyPassword(token: String!, newPassword: String!): String!
+    
     
     #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
