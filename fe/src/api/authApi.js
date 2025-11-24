@@ -117,7 +117,6 @@ const authApi = {
             mutation RegisterFamily($input: FamilyRegisterInput!) {
                 registerFamily(input: $input) {
                     userID
-                    familyID
                     email
                     fullName
                     role
@@ -161,6 +160,8 @@ const authApi = {
                     address
                     cccd
                     doctorCode
+                    hospitalName
+                    yearsOfExperience
                 }
             }
         `;
@@ -279,6 +280,49 @@ const authApi = {
 
         // Gọi mutation update thông tin
         return await this.updateUserProfile(userID, data, token);
+    },
+
+    /**
+     * 5. Gửi yêu cầu mã reset mật khẩu
+     */
+    forgotPassword: async (email) => {
+        const FORGOT_PASSWORD_MUTATION = `
+            mutation ForgotPassword($email: String!) {
+                forgotPassword(email: $email)
+            }
+        `;
+        const variables = { email };
+        const result = await authApi.sendGraphQLRequest(FORGOT_PASSWORD_MUTATION, variables);
+        return { success: true, message: result.forgotPassword };
+    },
+
+    /**
+     * 6. Xác thực mã reset
+     */
+    validateResetCode: async (email, code) => {
+        const VALIDATE_RESET_CODE_MUTATION = `
+            mutation ValidateResetCode($email: String!, $code: String!) {
+                validateResetCode(email: $email, code: $code)
+            }
+        `;
+        const variables = { email, code };
+        const result = await authApi.sendGraphQLRequest(VALIDATE_RESET_CODE_MUTATION, variables);
+        // Trả về token tạm thời nếu thành công
+        return { success: true, token: result.validateResetCode };
+    },
+
+    /**
+     * 7. Đặt lại mật khẩu bằng token tạm thời
+     */
+    resetMyPassword: async (token, newPassword) => {
+        const RESET_PASSWORD_MUTATION = `
+            mutation ResetMyPassword($token: String!, $newPassword: String!) {
+                resetMyPassword(token: $token, newPassword: $newPassword)
+            }
+        `;
+        const variables = { token, newPassword };
+        const result = await authApi.sendGraphQLRequest(RESET_PASSWORD_MUTATION, variables);
+        return { success: true, message: result.resetMyPassword };
     }
 
 };
