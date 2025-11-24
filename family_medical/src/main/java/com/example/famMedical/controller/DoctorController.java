@@ -3,11 +3,13 @@ package com.example.famMedical.controller;
 import java.util.List;
 
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
+import com.example.famMedical.dto.Doctor.UpdateDoctorInput;
 import com.example.famMedical.dto.Doctor.DoctorDashboard;
 import com.example.famMedical.Entity.DoctorRequest;
 import com.example.famMedical.Entity.Family;
@@ -17,7 +19,7 @@ import com.example.famMedical.Entity.User;
 import com.example.famMedical.service.DoctorService;
 import com.example.famMedical.service.FamilyService;
 import com.example.famMedical.service.MemberService;
-
+import com.example.famMedical.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,10 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class DoctorController {
+
+    private final UserService userService;
     
     private DoctorService doctorService;
     private FamilyService familyService;
     private MemberService memberService;
+
 
     @QueryMapping
     public List<Family> getDoctorAssignedFamilies(
@@ -107,4 +112,18 @@ public class DoctorController {
         log.info("Getting member detail for doctor: {}, memberID: {}", user.getUserID(), memberID);
         return memberService.getMemberDetail(memberID, user.getUserID());
     }
+
+
+    @MutationMapping
+    @PreAuthorize("hasAuthority('BacSi')")
+    public User updateDoctorProfile(
+        @AuthenticationPrincipal User doctor,
+        @Argument UpdateDoctorInput input
+    ) {
+        log.info("Update Doctor Profile, Doctor id: {} with Input: ", doctor.getUserID(), input.toString());
+        
+        return doctorService.updateDoctorProfile(doctor.getUserID(), input);
+
+    }
+
 }

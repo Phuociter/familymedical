@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.dto.Doctor.Activity;
 import com.example.famMedical.dto.Doctor.DoctorDashboard;
 import com.example.famMedical.dto.Doctor.DoctorStats;
+import com.example.famMedical.dto.Doctor.UpdateDoctorInput;
 import com.example.famMedical.dto.Doctor.WeeklyStats;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
@@ -34,6 +36,7 @@ import com.example.famMedical.repository.MemberRepository;
 import com.example.famMedical.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 @Service
 @AllArgsConstructor
@@ -106,6 +109,28 @@ public class DoctorService {
         request.setResponseDate(LocalDateTime.now());
         
         return doctorRequestRepo.save(request);
+    }
+
+    public User updateDoctorProfile(@NonNull Integer doctorId, UpdateDoctorInput input) {
+        User doctor = userRepo.findById(doctorId)
+        .orElseThrow(() -> new NotFoundException("Không tìm thấy bác sĩ"));
+    
+        updateFieldIfPresent(input.getFullName(), doctor::setFullName);
+        updateFieldIfPresent(input.getPhoneNumber(), doctor::setPhoneNumber);
+        updateFieldIfPresent(input.getAddress(), doctor::setAddress);
+        updateFieldIfPresent(input.getCccd(), doctor::setCccd);
+        updateFieldIfPresent(input.getAvatarUrl(), doctor::setAvatarUrl);
+        updateFieldIfPresent(input.getDoctorCode(), doctor::setDoctorCode);
+        updateFieldIfPresent(input.getHospitalName(), doctor::setHospitalName);
+        updateFieldIfPresent(input.getYearsOfExperience(), doctor::setYearsOfExperience);
+        
+        return userRepo.save(doctor);
+    }
+
+    private void updateFieldIfPresent(String value, Consumer<String> setter) {
+        if (value != null) {
+            setter.accept(value.isEmpty() ? null : value.trim());
+        }
     }
 
     // Dashboard methods

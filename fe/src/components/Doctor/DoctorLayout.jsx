@@ -26,6 +26,7 @@ import {
   Logout as LogoutIcon,
   Person as PersonIcon,
   AssignmentInd as AssignmentIndIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/userSlice';
@@ -38,6 +39,7 @@ const menuItems = [
   { text: 'Gia đình', icon: <PeopleIcon />, path: '/doctor/families' },
   { text: 'Tin nhắn', icon: <MessageIcon />, path: '/doctor/messages' },
   { text: 'Lịch hẹn', icon: <CalendarIcon />, path: '/doctor/appointments' },
+  { text: 'Cài đặt', icon: <SettingsIcon />, path: '/doctor/settings' },
 ];
 
 export default function DoctorLayout() {
@@ -131,7 +133,7 @@ export default function DoctorLayout() {
             {menuItems.find(item => item.path === location.pathname)?.text || 'Doctor Portal'}
           </Typography>
           <IconButton onClick={handleProfileMenuOpen} sx={{ ml: 2 }}>
-            <Avatar sx={{ bgcolor: '#1976d2' }}>
+            <Avatar sx={{ bgcolor: '#1976d2' }} src={user.avatarUrl}>
               {user?.fullName?.charAt(0) || 'D'}
             </Avatar>
           </IconButton>
@@ -147,6 +149,10 @@ export default function DoctorLayout() {
               {user?.fullName || 'Bác sĩ'}
             </MenuItem>
             <Divider />
+            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/doctor/settings'); }}>
+              <SettingsIcon sx={{ mr: 1 }} />
+              Cài đặt
+            </MenuItem>
             <MenuItem onClick={handleLogout}>
               <LogoutIcon sx={{ mr: 1 }} />
               Đăng xuất

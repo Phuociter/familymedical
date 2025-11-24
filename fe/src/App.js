@@ -28,6 +28,7 @@ import DoctorFamiliesPage from "./pages/Doctor/DoctorFamiliesPage";
 import PatientDetailPage from "./pages/Doctor/PatientDetailPage";
 import DoctorMessagesPage from "./pages/Doctor/DoctorMessagesPage";
 import DoctorAppointmentsPage from "./pages/Doctor/DoctorAppointmentsPage";
+import DoctorSettingsPage from "./pages/Doctor/DoctorSettingsPage";
 import { doctorTheme } from "./theme/doctorTheme";
 import DoctorFamiliesDetailPage from "./pages/Doctor/DoctorFamiliesDetailPage.jsx";
 
@@ -85,6 +86,7 @@ export default function App() {
                 <Route path="families/:familyId/members/:memberId" element={<PatientDetailPage />} />
                 <Route path="messages" element={<DoctorMessagesPage />} />
                 <Route path="appointments" element={<DoctorAppointmentsPage />} />
+                <Route path="settings" element={<DoctorSettingsPage />} />
               </Route>
             </Routes>
           </ThemeProvider>

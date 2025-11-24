@@ -58,22 +58,6 @@ export const GET_FAMILY_MEMBERS = gql`
   }
 `;
 
-
-//////////////////////////
-
-export const GET_MEMBER_MEDICAL_RECORDS = gql`
-  query GetMemberMedicalRecords($memberId: ID!) {
-    memberMedicalRecords(memberId: $memberId) {
-      recordID
-      symptoms
-      diagnosis
-      treatmentPlan
-      recordDate
-      fileLink
-    }
-  }
-`;
-
 // New enhanced queries for family details
 export const GET_FAMILY_DETAIL = gql`
   query GetFamilyDetail($familyId: Int!) {
@@ -126,95 +110,6 @@ export const GET_PATIENT_DETAIL = gql`
         #   userID
         #   fullName
         # }
-      }
-    }
-  }
-`;
-
-
-
-
-// Query for patient medical history with filters
-export const GET_PATIENT_MEDICAL_HISTORY = gql`
-  query GetPatientMedicalHistory(
-    $memberId: ID!
-    $startDate: String
-    $endDate: String
-    $diseaseType: String
-  ) {
-    patientMedicalHistory(
-      memberId: $memberId
-      startDate: $startDate
-      endDate: $endDate
-      diseaseType: $diseaseType
-    ) {
-      recordID
-      memberID
-      recordDate
-      symptoms
-      clinicalFindings
-      diagnosis
-      diagnosisCodes
-      treatmentPlan
-      fileLink
-      doctorID
-      doctorName
-      followUpDate
-      notes
-      prescriptions {
-        prescriptionID
-        medicationName
-        dosage
-        frequency
-        duration
-        status
-      }
-      testResults {
-        testResultID
-        testType
-        testName
-        testDate
-        interpretation
-      }
-    }
-  }
-`;
-
-// Query for patient prescriptions
-export const GET_PATIENT_PRESCRIPTIONS = gql`
-  query GetPatientPrescriptions($memberId: ID!, $status: String) {
-    patientPrescriptions(memberId: $memberId, status: $status) {
-      prescriptionID
-      recordID
-      medicationName
-      dosage
-      frequency
-      duration
-      startDate
-      endDate
-      status
-      instructions
-    }
-  }
-`;
-
-// Query for patient test results
-export const GET_PATIENT_TEST_RESULTS = gql`
-  query GetPatientTestResults($memberId: ID!, $testType: String) {
-    patientTestResults(memberId: $memberId, testType: $testType) {
-      testResultID
-      recordID
-      testType
-      testName
-      testDate
-      interpretation
-      fileLink
-      results {
-        parameterName
-        value
-        unit
-        normalRange
-        status
       }
     }
   }

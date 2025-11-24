@@ -116,6 +116,11 @@ input UpdateUserInput {
     role: UserRole
 }
 
+input ChangePasswordInput {
+    currentPassword: String!
+    newPassword: String!
+}
+
 
 input FamilyRegisterInput {
     fullName: String!
@@ -277,8 +282,8 @@ type DoctorRequest {
     doctor: User!
     message: String
     status: RequestStatus!
-    requestDate: DateTime!
-    responseDate: DateTime
+    requestDate: LocalDateTime!
+    responseDate: LocalDateTime
     responseMessage: String
 }
 
@@ -467,6 +472,7 @@ type Mutation {
     
     # user
     updateUserProfile(userID: ID!, input: UpdateUserInput!): User
+    changePassword(input: ChangePasswordInput!): String
 
     #member
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member

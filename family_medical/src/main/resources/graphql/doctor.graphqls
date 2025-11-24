@@ -28,6 +28,20 @@ extend type Mutation {
     assignmentId: ID!
     status: AssignmentStatus!
   ): DoctorAssignment!
+
+  # Doctor Profile
+  updateDoctorProfile(input: UpdateDoctorInput): User
+}
+
+input UpdateDoctorInput {
+  fullName: String
+  phoneNumber: String
+  address: String 
+  cccd: String
+  avatarUrl: String
+  doctorCode: String
+  hospitalName: String
+  yearsOfExperience: String
 }
 
 type Subscription {
