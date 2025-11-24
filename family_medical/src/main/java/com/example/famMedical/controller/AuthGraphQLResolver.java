@@ -64,7 +64,9 @@ public class AuthGraphQLResolver {
                 input.getDoctorCode(),
                 input.getPhoneNumber(),
                 input.getAddress(),
-                input.getCccd()
+                input.getCccd(),
+                input.getHospitalName(),
+                input.getYearsOfExperience()
         );
     }
 
