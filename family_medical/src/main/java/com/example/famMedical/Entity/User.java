@@ -78,6 +78,12 @@ public class User implements UserDetails {
     @Column(name = "IsVerified", nullable = false)
     private boolean isVerified = false;
 
+    @Column(name = "PasswordResetCode", length = 10)
+    private String passwordResetCode;
+
+    @Column(name = "ResetCodeExpiry")
+    private LocalDateTime resetCodeExpiry;
+
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

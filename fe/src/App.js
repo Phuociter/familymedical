@@ -4,6 +4,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterFamilyPage from "./pages/Auth/RegisterFamilyPage";
 import RegisterDoctorPage from "./pages/Auth/RegisterDoctorPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import UpdatePasswordPage from "./pages/Auth/UpdatePasswordPage";
 import OAuth2CallbackPage from "./pages/Auth/OAuth2CallbackPage.jsx";
 import OAuth2CompleteProfilePage from "./pages/Auth/OAuth2CompleteProfilePage.jsx";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -34,6 +36,8 @@ export default function App() {
     <Routes>
       {/* Auth Routes */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/update-password" element={<UpdatePasswordPage />} />
       <Route path="/oauth/callback" element={<OAuth2CallbackPage />} />
       <Route path="/register/family" element={<RegisterFamilyPage />} />
       <Route path="/register/doctor" element={<RegisterDoctorPage />} />
