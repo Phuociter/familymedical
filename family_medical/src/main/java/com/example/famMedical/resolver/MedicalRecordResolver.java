@@ -30,23 +30,39 @@ public class MedicalRecordResolver {
 
     }
 
+    @QueryMapping
+    public List<MedicalRecord> getMedicalRecordsByMember(@Argument Integer memberID){
+        return medicalRecordService.getRecordsByMemberId(memberID);
+    }
+
     @MutationMapping
-    public MedicalRecord createMedicalRecord(@Argument @Valid Integer memberID,@Argument CreateMedicalRecordInput input){
+    public MedicalRecord createMedicalRecord(@Argument @Valid CreateMedicalRecordInput input) {
         MedicalRecord medicalRecord = new MedicalRecord();
-        User user = userRepository.findById(input.getDoctorID())
-        .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + input.getDoctorID()));
 
         Member member = memberRepository.findById(input.getMemberID())
-        .orElseThrow(() -> new IllegalArgumentException("Member not found: " + input.getDoctorID()));
+                .orElseThrow(() -> new IllegalArgumentException("Member not found: " + input.getMemberID()));
+
+        // Convert fileType from String to Enum
+        String fileTypeString = input.getFileType();
+        if (fileTypeString != null && !fileTypeString.trim().isEmpty()) {
+            try {
+                MedicalRecord.FileType fileTypeEnum = MedicalRecord.FileType.valueOf(fileTypeString);
+                medicalRecord.setFileType(fileTypeEnum);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid file type: " + fileTypeString);
+            }
+        }
 
         medicalRecord.setDescription(input.getDescription());
         medicalRecord.setRecordDate(input.getRecordDate());
         medicalRecord.setFileLink(input.getFileLink());
-        medicalRecord.setFileLink(input.getFileLink());
-        medicalRecord.setDoctor(user);
         medicalRecord.setMember(member);
 
-;
         return medicalRecordService.createMedicalRecord(medicalRecord);
+    }
+
+    @MutationMapping
+    public Boolean deleteRecord(@Argument Integer recordID) {
+        return medicalRecordService.deleteMedicalRecord(recordID);
     }
 }
