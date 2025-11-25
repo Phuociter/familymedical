@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "Members")
@@ -43,6 +44,14 @@ public class Member {
 
     @Column(name = "CreatedAt", nullable = true, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private java.time.LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("member")
+    private List<MedicalRecord> medicalRecords;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("member")
+    private List<Appointment> appointments;
 
     @PrePersist
     protected void onCreate() {

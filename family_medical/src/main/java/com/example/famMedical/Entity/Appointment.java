@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,41 +18,70 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int appointmentId;
+    private Integer appointmentID;
 
     @ManyToOne
-    @JoinColumn(name = "doctorID", nullable = false)
+    @JoinColumn(name = "doctor", nullable = false)
     private User doctor;
 
     @ManyToOne
-    @JoinColumn(name = "familyID", nullable = false)
+    @JoinColumn(name = "family", nullable = false)
     private Family family;
 
-    @Column(name = "appointmentDate", nullable = false)
-    private Date appointmentDate;
+    @ManyToOne
+    @JoinColumn(name = "member", nullable = false)
+    private Member member;
 
-    @Column(name = "startTime", nullable = false)
-    private LocalTime startTime;
-
-    @Column(name = "endTime", nullable = false)
-    private LocalTime endTime;
+    @Column(nullable = false)
+    private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private AppointmentStatus status;
+    private AppointmentType type;
 
-    @Column(name = "reason", columnDefinition = "TEXT")
-    private String reason;
+    @Column(nullable = false)
+    private LocalDateTime appointmentDateTime;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
+    @Column(nullable = false)
+    private Integer duration; // in minutes
 
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @lombok.Builder.Default
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+
+    private String location;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes; // Public notes for patients
+
+    @Column(columnDefinition = "TEXT")
+    private String doctorNotes; // Private notes for doctors only
+
+    @Column(nullable = false, updatable = false)
+    @lombok.Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt =  LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Helper method to calculate end time
+    public LocalDateTime getEndTime() {
+        return appointmentDateTime.plusMinutes(duration);
+    }
 
     public enum AppointmentStatus {
         SCHEDULED,
         COMPLETED,
-        CANCELED,
+        CANCELLED
     }
 }

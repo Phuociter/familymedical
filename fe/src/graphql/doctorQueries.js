@@ -1,14 +1,40 @@
 import { gql } from '@apollo/client';
 
-// Existing queries
+// Query để lấy danh sách yêu cầu assign
+export const GET_DOCTOR_REQUESTS = gql`
+  query GetDoctorRequests($status: RequestStatus) {
+    doctorRequests(status: $status) {
+      requestID
+      message
+      status
+      responseDate
+      responseMessage
+      family {
+        familyAddress
+        familyName
+        headOfFamily {
+          userID
+          email
+          fullName
+          phoneNumber
+          address
+          avatarUrl
+        }
+        members {
+          memberID
+          fullName
+        }
+      }
+    }
+  }
+`;
+
 export const GET_ASSIGNED_FAMILIES = gql`
   query GetAssignedFamilies($search: String) {
-    doctorAssignedFamilies(search: $search) {
+    getDoctorAssignedFamilies(search: $search) {
       familyID
       familyName
       familyAddress
-      status
-      lastVisit
       headOfFamily {
         fullName
         phoneNumber
@@ -32,52 +58,26 @@ export const GET_FAMILY_MEMBERS = gql`
   }
 `;
 
-export const GET_MEMBER_MEDICAL_RECORDS = gql`
-  query GetMemberMedicalRecords($memberId: ID!) {
-    memberMedicalRecords(memberId: $memberId) {
-      recordID
-      symptoms
-      diagnosis
-      treatmentPlan
-      recordDate
-      fileLink
-    }
-  }
-`;
-
 // New enhanced queries for family details
 export const GET_FAMILY_DETAIL = gql`
-  query GetFamilyDetail($familyId: ID!) {
-    familyDetail(familyId: $familyId) {
+  query GetFamilyDetail($familyId: Int!) {
+    familyDetail(familyID: $familyId) {
       familyID
       familyName
       familyAddress
-      status
-      lastVisit
-      registrationDate
-      assignedDoctor
-      visitCount
-      notes
-      headOfFamily {
-        memberID
-        fullName
-        phoneNumber
-        email
-        cccd
-        dateOfBirth
-      }
       members {
-        memberID
-        fullName
-        relationship
-        cccd
-        dateOfBirth
-        gender
-        phoneNumber
-        email
-        healthStatus
-        recentVisitCount
-        lastVisitDate
+          memberID
+          fullName
+          relationship
+          dateOfBirth
+          gender
+      }
+      headOfFamily {
+          email
+          fullName
+          phoneNumber
+          address
+          cccd
       }
     }
   }
@@ -85,268 +85,227 @@ export const GET_FAMILY_DETAIL = gql`
 
 // Query for patient detail information
 export const GET_PATIENT_DETAIL = gql`
-  query GetPatientDetail($memberId: ID!) {
-    patientDetail(memberId: $memberId) {
+  query GetPatientDetail($memberId: Int!) {
+    memberDetail(memberID: $memberId) {
       memberID
       fullName
       dateOfBirth
       gender
       cccd
       phoneNumber
-      email
-      photoURL
-      totalVisits
-      lastVisitDate
-      currentStatus
-      familyID
       relationship
-    }
-  }
-`;
-
-// Query for patient medical history with filters
-export const GET_PATIENT_MEDICAL_HISTORY = gql`
-  query GetPatientMedicalHistory(
-    $memberId: ID!
-    $startDate: String
-    $endDate: String
-    $diseaseType: String
-  ) {
-    patientMedicalHistory(
-      memberId: $memberId
-      startDate: $startDate
-      endDate: $endDate
-      diseaseType: $diseaseType
-    ) {
-      recordID
-      memberID
-      recordDate
-      symptoms
-      clinicalFindings
-      diagnosis
-      diagnosisCodes
-      treatmentPlan
-      fileLink
-      doctorID
-      doctorName
-      followUpDate
-      notes
-      prescriptions {
-        prescriptionID
-        medicationName
-        dosage
-        frequency
-        duration
-        status
+      familyID
+      family {
+        familyID
+        familyName
+        familyAddress
       }
-      testResults {
-        testResultID
-        testType
-        testName
-        testDate
-        interpretation
+      medicalRecords {
+        recordID
+        fileType
+        fileLink
+        description
+        recordDate
+        # doctor {
+        #   userID
+        #   fullName
+        # }
       }
     }
   }
 `;
 
-// Query for patient prescriptions
-export const GET_PATIENT_PRESCRIPTIONS = gql`
-  query GetPatientPrescriptions($memberId: ID!, $status: String) {
-    patientPrescriptions(memberId: $memberId, status: $status) {
-      prescriptionID
-      recordID
-      medicationName
-      dosage
-      frequency
+// Appointment queries
+export const GET_APPOINTMENTS = gql`
+  query GetAppointments($filter: AppointmentFilter) {
+    appointments(filter: $filter) {
+      appointmentID
+      title
+      type
+      appointmentDateTime
       duration
-      startDate
-      endDate
       status
-      instructions
-    }
-  }
-`;
-
-// Query for patient test results
-export const GET_PATIENT_TEST_RESULTS = gql`
-  query GetPatientTestResults($memberId: ID!, $testType: String) {
-    patientTestResults(memberId: $memberId, testType: $testType) {
-      testResultID
-      recordID
-      testType
-      testName
-      testDate
-      interpretation
-      fileLink
-      results {
-        parameterName
-        value
-        unit
-        normalRange
-        status
-      }
-    }
-  }
-`;
-
-// Query for patient health indicators
-export const GET_PATIENT_HEALTH_INDICATORS = gql`
-  query GetPatientHealthIndicators($memberId: ID!, $indicatorType: String) {
-    patientHealthIndicators(memberId: $memberId, indicatorType: $indicatorType) {
-      indicatorID
-      indicatorType
-      value
-      unit
-      measurementDate
-      status
-      normalRange {
-        min
-        max
-      }
-    }
-  }
-`;
-
-// Query for patient medical images
-export const GET_PATIENT_MEDICAL_IMAGES = gql`
-  query GetPatientMedicalImages($memberId: ID!, $imageType: String) {
-    patientMedicalImages(memberId: $memberId, imageType: $imageType) {
-      imageID
-      memberID
-      recordID
-      imageType
-      imageDate
-      imageURL
-      thumbnailURL
-      description
+      location
       notes
-    }
-  }
-`;
-
-// Query for patient medical background
-export const GET_PATIENT_BACKGROUND = gql`
-  query GetPatientBackground($memberId: ID!) {
-    patientBackground(memberId: $memberId) {
-      memberID
-      familyMedicalHistory
-      underlyingConditions {
-        conditionID
-        conditionName
-        diagnosisDate
-        status
-        notes
-      }
-      allergies {
-        allergyID
-        allergen
-        reactionType
-        severity
-        notes
-      }
-      pastSurgeries {
-        surgeryID
-        procedureName
-        surgeryDate
-        hospital
-        outcome
-        notes
-      }
-    }
-  }
-`;
-
-// Query for family medical background
-export const GET_FAMILY_BACKGROUND = gql`
-  query GetFamilyBackground($familyId: ID!) {
-    familyBackground(familyId: $familyId) {
-      familyID
       doctorNotes
-      hereditaryDiseases {
-        diseaseID
-        diseaseName
-        affectedMembers
-        notes
+      createdAt
+      updatedAt
+      family {
+        familyID
+        familyName
       }
-      riskFactors {
-        factorID
-        factorName
-        prevalence
-        affectedMembers
-      }
-    }
-  }
-`;
-
-// Query for family medical history timeline
-export const GET_FAMILY_MEDICAL_HISTORY = gql`
-  query GetFamilyMedicalHistory(
-    $familyId: ID!
-    $memberId: String
-    $startDate: String
-    $endDate: String
-  ) {
-    familyMedicalHistory(
-      familyId: $familyId
-      memberId: $memberId
-      startDate: $startDate
-      endDate: $endDate
-    ) {
-      recordID
-      memberID
-      memberName
-      recordDate
-      symptoms
-      diagnosis
-      treatmentPlan
-      doctorName
-    }
-  }
-`;
-
-// Query for family health report
-export const GET_FAMILY_HEALTH_REPORT = gql`
-  query GetFamilyHealthReport($familyId: ID!, $startDate: String!, $endDate: String!) {
-    familyHealthReport(familyId: $familyId, startDate: $startDate, endDate: $endDate) {
-      familyID
-      reportDate
-      dateRange {
-        start
-        end
-      }
-      familySummary {
-        totalMembers
-        totalVisits
-        totalCost
-      }
-      memberHealthStatus {
+      member {
         memberID
         fullName
-        visitCount
-        mainDiagnoses
-        healthStatus
+        dateOfBirth
+        gender
       }
-      diseaseTrends {
-        diseaseName
-        occurrenceCount
-        affectedMembers
-        trend
+      doctor {
+        userID
+        fullName
       }
-      costAnalysis {
-        totalCost
-        costByCategory {
-          category
-          amount
-        }
-        costByMember {
+    }
+  }
+`;
+
+export const GET_TODAY_APPOINTMENTS = gql`
+  query GetTodayAppointments {
+    todayAppointments {
+      appointmentID
+      title
+      type
+      appointmentDateTime
+      duration
+      status
+      location
+      notes
+      doctorNotes
+      createdAt
+      family {
+        familyID
+        familyName
+      }
+      member {
+        memberID
+        fullName
+        dateOfBirth
+        gender
+      }
+      doctor {
+        userID
+        fullName
+      }
+    }
+  }
+`;
+
+export const GET_UPCOMING_APPOINTMENTS = gql`
+  query GetUpcomingAppointments {
+    upcomingAppointments {
+      appointmentID
+      title
+      type
+      appointmentDateTime
+      duration
+      status
+      location
+      notes
+      doctorNotes
+      createdAt
+      family {
+        familyID
+        familyName
+      }
+      member {
+        memberID
+        fullName
+        dateOfBirth
+        gender
+      }
+      doctor {
+        userID
+        fullName
+      }
+    }
+  }
+`;
+
+export const GET_APPOINTMENT_DETAIL = gql`
+  query GetAppointmentDetail($appointmentID: Int!) {
+    appointmentDetail(appointmentID: $appointmentID) {
+      appointmentID
+      title
+      type
+      appointmentDateTime
+      duration
+      status
+      location
+      notes
+      doctorNotes
+      createdAt
+      updatedAt
+      family {
+        familyID
+        familyName
+        familyAddress
+      }
+      member {
+        memberID
+        fullName
+        dateOfBirth
+        gender
+        phoneNumber
+      }
+      doctor {
+        userID
+        fullName
+        phoneNumber
+      }
+    }
+  }
+`;
+
+// Dashboard query
+export const GET_DOCTOR_DASHBOARD = gql`
+  query GetDoctorDashboard {
+    doctorDashboard {
+      stats {
+        totalFamilies
+        totalPatients
+        newRecordsThisMonth
+        todayAppointments
+        pendingRequests
+      }
+      weeklyStats {
+        week
+        appointments
+        newRecords
+      }
+      recentActivities {
+        activityID
+        type
+        description
+        timestamp
+        relatedEntity
+        relatedEntityID
+      }
+      todayAppointments {
+        appointmentID
+        title
+        type
+        appointmentDateTime
+        duration
+        status
+        location
+        notes
+        member {
           memberID
           fullName
-          amount
         }
-        monthlyTrend {
-          month
-          amount
+        family {
+          familyID
+          familyName
+        }
+      }
+      pendingRequests {
+        requestID
+        message
+        status
+        requestDate
+        family {
+          familyID
+          familyName
+          familyAddress
+          headOfFamily {
+            userID
+            fullName
+            phoneNumber
+            avatarUrl
+          }
+          members {
+            memberID
+            fullName
+          }
         }
       }
     }

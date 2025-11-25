@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/family_medical?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/demo?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -40,21 +40,27 @@ spring:
       allow-credentials: true
 
   graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
     schema:
       locations: classpath:graphql/
+      printer:
+        enabled: true
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: 1074471028840-iod6ivlk98j1p0htpnqs8283re84enas.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid,profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           facebook:
-            client-id: 2220741931733563
-            client-secret: dc1f0e8267656c037ea510e31b7867e6
+            client-id: ${FB_CLIENT_ID}
+            client-secret: ${FB_CLIENT_SECRET}
             scope: public_profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
@@ -65,7 +71,7 @@ spring:
             user-name-attribute: id
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 cloudinary:
   cloud_name: ${CLOUDINARY_CLOUD_NAME:}
@@ -82,9 +88,9 @@ jwt:
 file:
 
 momo:
-  partnerCode: MOMO
-  accessKey: F8BBA842ECF85
-  secretKey: K951B6PE1waDMi640xX08PD3vg6EkVlz
-  endpoint: https://test-payment.momo.vn/v2/gateway/api/create
-  returnUrl: http://localhost:3000/payment/callback
-  ipnUrl: http://localhost:8080/api/payment/momo/ipn
+  partnerCode: ${MOMO_PARTNER_CODE:MOMO}
+  accessKey: ${MOMO_ACCESS_KEY:F8BBA842ECF85}
+  secretKey: ${MOMO_SECRET_KEY:K951B6PE1waDMi640xX08PD3vg6EkVlz}
+  endpoint: ${MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
+  returnUrl: ${MOMO_RETURN_URL:http://localhost:3000/payment/callback}
+  ipnUrl: ${MOMO_IPN_URL:http://localhost:8080/api/payment/momo/ipn}

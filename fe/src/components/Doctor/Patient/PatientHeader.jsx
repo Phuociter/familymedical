@@ -69,108 +69,191 @@ const getStatusInfo = (status) => {
 export default function PatientHeader({ patient }) {
 
   const age = useMemo(() => calculateAge(patient.dateOfBirth), [patient.dateOfBirth]);
-  const statusInfo = useMemo(() => getStatusInfo(patient.currentStatus), [patient.currentStatus]);
+  
+  // Calculate total visits from medical records
+  const totalVisits = patient.medicalRecords?.length || 0;
+  
+  // Get last visit date from medical records
+  const lastVisitDate = useMemo(() => {
+    if (!patient.medicalRecords || patient.medicalRecords.length === 0) return null;
+    const sortedRecords = [...patient.medicalRecords].sort(
+      (a, b) => new Date(b.recordDate) - new Date(a.recordDate)
+    );
+    return sortedRecords[0]?.recordDate;
+  }, [patient.medicalRecords]);
 
   return (
     <Box>
-      {/* Patient Photo - Centered */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+      {/* Patient Photo - Centered - Responsive */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 1.5, sm: 2 } }}>
         <Avatar
-          src={patient.photoURL}
           alt={patient.fullName}
           sx={{
-            width: 100,
-            height: 100,
+            width: { xs: 80, sm: 90, md: 100 },
+            height: { xs: 80, sm: 90, md: 100 },
             bgcolor: 'primary.main',
-            fontSize: '2.5rem',
+            fontSize: { xs: '2rem', sm: '2.25rem', md: '2.5rem' },
           }}
         >
-          {patient.photoURL ? null : <PersonIcon fontSize="large" />}
+          <PersonIcon fontSize="large" />
         </Avatar>
       </Box>
 
-      {/* Name and Status - Centered */}
-      <Box sx={{ textAlign: 'center', mb: 2 }}>
+      {/* Name - Centered - Responsive */}
+      <Box sx={{ textAlign: 'center', mb: { xs: 1.5, sm: 2 } }}>
         <Typography
           variant="h6"
           component="h1"
           sx={{
             fontWeight: 600,
             color: 'text.primary',
-            mb: 1,
+            fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
           }}
         >
           {patient.fullName}
         </Typography>
-        <Chip
-          label={statusInfo.label}
-          color={statusInfo.color}
-          size="small"
-          sx={{ fontWeight: 500 }}
-        />
       </Box>
 
-      {/* Basic Info - Vertical Stack */}
-      <Stack spacing={1.5} sx={{ mb: 2 }}>
+      {/* Basic Info - Vertical Stack - Responsive */}
+      <Stack spacing={{ xs: 1.25, sm: 1.5 }} sx={{ mb: { xs: 1.5, sm: 2 } }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Tuổi:
           </Typography>
-          <Typography variant="body2" color="text.primary" fontWeight={500}>
+          <Typography 
+            variant="body2" 
+            color="text.primary" 
+            fontWeight={500}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             {age} tuổi
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Giới tính:
           </Typography>
-          <Typography variant="body2" color="text.primary" fontWeight={500}>
+          <Typography 
+            variant="body2" 
+            color="text.primary" 
+            fontWeight={500}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             {patient.gender}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Quan hệ:
           </Typography>
-          <Typography variant="body2" color="text.primary" fontWeight={500}>
+          <Typography 
+            variant="body2" 
+            color="text.primary" 
+            fontWeight={500}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             {patient.relationship}
           </Typography>
         </Box>
       </Stack>
 
       {/* Divider */}
-      <Box sx={{ borderTop: '1px solid', borderColor: 'divider', my: 2 }} />
+      <Box sx={{ borderTop: '1px solid', borderColor: 'divider', my: { xs: 1.5, sm: 2 } }} />
 
-      {/* Quick Stats - Vertical */}
-      <Stack spacing={2}>
+      {/* Quick Stats - Vertical - Responsive */}
+      <Stack spacing={{ xs: 1.5, sm: 2 }}>
         <Box>
-          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-            Tổng số lần khám
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            display="block" 
+            gutterBottom
+            sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+          >
+            Tổng số hồ sơ
           </Typography>
-          <Typography variant="h6" color="primary.main" fontWeight={600}>
-            {patient.totalVisits || 0}
+          <Typography 
+            variant="h6" 
+            color="primary.main" 
+            fontWeight={600}
+            sx={{ fontSize: { xs: '1.125rem', sm: '1.25rem' } }}
+          >
+            {totalVisits}
           </Typography>
         </Box>
         <Box>
-          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            display="block" 
+            gutterBottom
+            sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+          >
             Lần khám gần nhất
           </Typography>
-          <Typography variant="body2" color="text.primary" fontWeight={500}>
-            {formatDate(patient.lastVisitDate)}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-            Trạng thái
-          </Typography>
-          <Typography
-            variant="body2"
-            color={`${statusInfo.color}.main`}
-            fontWeight={600}
+          <Typography 
+            variant="body2" 
+            color="text.primary" 
+            fontWeight={500}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
           >
-            {statusInfo.label}
+            {formatDate(lastVisitDate)}
           </Typography>
         </Box>
+        {patient.cccd && (
+          <Box>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              display="block" 
+              gutterBottom
+              sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+            >
+              CCCD
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.primary"
+              fontWeight={500}
+              sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+            >
+              {patient.cccd}
+            </Typography>
+          </Box>
+        )}
+        {patient.phoneNumber && (
+          <Box>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              display="block" 
+              gutterBottom
+              sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+            >
+              Số điện thoại
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.primary"
+              fontWeight={500}
+              sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+            >
+              {patient.phoneNumber}
+            </Typography>
+          </Box>
+        )}
       </Stack>
     </Box>
   );

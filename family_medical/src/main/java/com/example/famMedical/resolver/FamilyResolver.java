@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,15 @@ public class FamilyResolver {
     public Boolean deleteFamily(Integer familyID) {
         familyService.deleteFamily(familyID);
         return true;
+    }
+
+    // Field resolver for memberCount
+    @SchemaMapping(typeName = "Family", field = "memberCount")
+    public Integer memberCount(Family family) {
+        if (family.getMembers() != null) {
+            return family.getMembers().size();
+        }
+        return 0;
     }
 }
 

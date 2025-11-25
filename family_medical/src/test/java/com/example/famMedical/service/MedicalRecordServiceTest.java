@@ -1,6 +1,9 @@
 package com.example.famMedical.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -186,14 +189,14 @@ public class MedicalRecordServiceTest {
         record.setFileLink("cloudinary-public-id");
         String expectedUrl = "https://res.cloudinary.com/...";
         when(medicalRecordRepository.findById(1)).thenReturn(Optional.of(record));
-        when(cloudinaryService.getDownloadUrl("cloudinary-public-id")).thenReturn(expectedUrl);
+        when(cloudinaryService.getSignedDownloadUrl("cloudinary-public-id")).thenReturn(expectedUrl);
 
         // Act
         String url = medicalRecordService.getDownloadUrl(familyHeadUser, 1);
 
         // Assert
         assertEquals(expectedUrl, url);
-        verify(cloudinaryService, times(1)).getDownloadUrl("cloudinary-public-id");
+        verify(cloudinaryService, times(1)).getSignedDownloadUrl("cloudinary-public-id");
     }
 
     @Test
@@ -334,6 +337,6 @@ public class MedicalRecordServiceTest {
 
         // Assert
         assertEquals("http://example.com/file.pdf", url);
-        verify(cloudinaryService, never()).getDownloadUrl(anyString());
+        verify(cloudinaryService, never()).getSignedDownloadUrl(anyString());
     }
 }

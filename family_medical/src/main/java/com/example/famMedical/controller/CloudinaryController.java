@@ -35,20 +35,20 @@ public class CloudinaryController {
         return cloudinaryService.generateSignature(paramsToSign);
     }
 
+    /**
+     * Get signed download URL for a medical record
+     * @param user Authenticated user
+     * @param recordID Medical record ID (not Cloudinary publicId)
+     * @return Signed download URL that expires in 1 hour
+     */
     @QueryMapping
-    public String getDownloadUrl(
+    public String getMedicalRecordDownloadUrl(
         @AuthenticationPrincipal User user,
-        String publicId
+        Integer recordID
     ) {
-        log.info("Generating download URL for user: {}, publicId: {}", user.getUserID(), publicId);
-        int recordId;
-        try {
-            recordId = Integer.parseInt(publicId);
-        } catch (NumberFormatException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid publicId");
-        }
-
+        log.info("Generating download URL for user: {}, recordID: {}", user.getUserID(), recordID);
+        
         // Delegate to service for permission check and URL generation
-        return medicalRecordService.getDownloadUrl(user, recordId);
+        return medicalRecordService.getDownloadUrl(user, recordID);
     }
 }
