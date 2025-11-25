@@ -1,15 +1,8 @@
 package com.example.famMedical.service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.logging.Logger;
 
-import org.hibernate.validator.internal.util.logging.LoggerFactory;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +13,7 @@ import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.Entity.User;
+import com.example.famMedical.dto.events.DoctorRequestStatusChangedEvent;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
 import com.example.famMedical.repository.DoctorRequestRepository;
@@ -27,7 +21,6 @@ import com.example.famMedical.repository.DoctorAssignmentRepository;
 import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.UserRepository;
 
-import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 
 
@@ -39,6 +32,7 @@ public class DoctorRequestService {
     private final DoctorAssignmentRepository doctorAssignmentRepository;
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
@@ -134,11 +128,19 @@ public class DoctorRequestService {
             request.getDoctor().getUserID(), 
             request.getFamily().getFamilyID());
 
+        // Publish event for notification
+        eventPublisher.publishEvent(new DoctorRequestStatusChangedEvent(this, savedRequest));
+
         return savedRequest;
     }
 
     private DoctorRequest rejectRequest(DoctorRequest request) {
         request.setStatus(RequestStatus.REJECTED);
-        return doctorRequestRepository.save(request);
+        DoctorRequest savedRequest = doctorRequestRepository.save(request);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new DoctorRequestStatusChangedEvent(this, savedRequest));
+        
+        return savedRequest;
     }
 }

@@ -5,6 +5,7 @@ scalar Date
 scalar DateTime
 scalar LocalDate
 scalar LocalDateTime
+scalar Upload
 
 # =======================================================
 # 1. ENUMS

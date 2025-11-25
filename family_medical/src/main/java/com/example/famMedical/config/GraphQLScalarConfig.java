@@ -64,12 +64,36 @@ public class GraphQLScalarConfig {
                 })
                 .build();
 
+        // Upload scalar for file uploads
+        GraphQLScalarType uploadScalar = GraphQLScalarType.newScalar()
+                .name("Upload")
+                .description("A file upload scalar type")
+                .coercing(new Coercing<Object, Object>() {
+                    @Override
+                    public Object serialize(Object dataFetcherResult) throws CoercingSerializeException {
+                        throw new CoercingSerializeException("Upload scalar cannot be serialized");
+                    }
+
+                    @Override
+                    public Object parseValue(Object input) throws CoercingParseValueException {
+                        // Spring GraphQL handles multipart file uploads automatically
+                        return input;
+                    }
+
+                    @Override
+                    public Object parseLiteral(Object input) throws CoercingParseLiteralException {
+                        throw new CoercingParseLiteralException("Upload scalar cannot be parsed from literal");
+                    }
+                })
+                .build();
+
         return builder -> builder
                 .scalar(ExtendedScalars.DateTime)
                 .scalar(ExtendedScalars.Date)
                 .scalar(localDateScalar)
                 .scalar(localDateTimeScalar)
                 .scalar(ExtendedScalars.Url)
-                .scalar(ExtendedScalars.Json);
+                .scalar(ExtendedScalars.Json)
+                .scalar(uploadScalar);
     }
 }

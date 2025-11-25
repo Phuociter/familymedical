@@ -1,0 +1,171 @@
+# =======================================================
+# REALTIME MESSAGING AND NOTIFICATIONS SCHEMA
+# =======================================================
+
+# =======================================================
+# ENUMS
+# =======================================================
+
+enum NotificationType {
+    APPOINTMENT_CREATED
+    APPOINTMENT_UPDATED
+    APPOINTMENT_CANCELLED
+    DOCTOR_REQUEST_ACCEPTED
+    DOCTOR_REQUEST_REJECTED
+    MEDICAL_RECORD_CREATED
+    MEDICAL_RECORD_UPDATED
+    NEW_MESSAGE
+}
+
+# =======================================================
+# TYPES
+# =======================================================
+
+type MessageAttachment {
+    attachmentID: ID!
+    filename: String!
+    fileType: String!
+    fileSize: Int!
+    fileUrl: String!
+    uploadedAt: DateTime!
+}
+
+type Message {
+    messageID: ID!
+    conversation: Conversation!
+    sender: User!
+    content: String!
+    attachments: [MessageAttachment!]
+    isRead: Boolean!
+    readAt: DateTime
+    createdAt: DateTime!
+}
+
+type Conversation {
+    conversationID: ID!
+    doctor: User!
+    family: Family!
+    lastMessage: Message
+    lastMessageAt: DateTime
+    unreadCount: Int!
+    messages(page: Int, size: Int): MessageConnection!
+    createdAt: DateTime!
+}
+
+type TypingIndicator {
+    conversationID: ID!
+    user: User!
+    isTyping: Boolean!
+}
+
+type MessageConnection {
+    messages: [Message!]!
+    totalCount: Int!
+    hasMore: Boolean!
+}
+
+type Notification {
+    notificationID: ID!
+    user: User!
+    type: NotificationType!
+    title: String!
+    message: String!
+    relatedEntityType: String
+    relatedEntityID: Int
+    isRead: Boolean!
+    readAt: DateTime
+    createdAt: DateTime!
+}
+
+type NotificationConnection {
+    notifications: [Notification!]!
+    totalCount: Int!
+    hasMore: Boolean!
+}
+
+# =======================================================
+# INPUTS
+# =======================================================
+
+input SendMessageInput {
+    conversationID: Int
+    recipientID: Int!
+    content: String!
+    attachments: [Upload!]
+}
+
+input TypingIndicatorInput {
+    conversationID: Int!
+    isTyping: Boolean!
+}
+
+input MessageSearchInput {
+    keyword: String
+    conversationID: Int
+    startDate: DateTime
+    endDate: DateTime
+    page: Int
+    size: Int
+}
+
+input MarkMessageAsReadInput {
+    messageID: Int!
+}
+
+input MarkNotificationAsReadInput {
+    notificationID: Int!
+}
+
+# =======================================================
+# QUERIES
+# =======================================================
+
+extend type Query {
+    # Conversation queries
+    myConversations(page: Int, size: Int): [Conversation!]!
+    conversationDetail(conversationID: Int!): Conversation
+    conversationWithUser(otherUserID: Int!): Conversation
+    
+    # Message queries
+    conversationMessages(conversationID: Int!, page: Int, size: Int): MessageConnection!
+    searchMessages(input: MessageSearchInput!): MessageConnection!
+    unreadMessageCount: Int!
+    
+    # Notification queries
+    myNotifications(page: Int, size: Int): NotificationConnection!
+    unreadNotificationCount: Int!
+}
+
+# =======================================================
+# MUTATIONS
+# =======================================================
+
+extend type Mutation {
+    # Message mutations
+    sendMessage(input: SendMessageInput!): Message!
+    markMessageAsRead(input: MarkMessageAsReadInput!): Message!
+    markConversationAsRead(conversationID: Int!): Boolean!
+    
+    # Typing indicator mutation
+    sendTypingIndicator(input: TypingIndicatorInput!): Boolean!
+    
+    # Notification mutations
+    markNotificationAsRead(input: MarkNotificationAsReadInput!): Notification!
+    markAllNotificationsAsRead: Boolean!
+}
+
+# =======================================================
+# SUBSCRIPTIONS
+# =======================================================
+
+extend type Subscription {
+    # Message subscriptions
+    messageReceived: Message!
+    conversationUpdated: Conversation!
+    
+    # Typing indicator subscription
+    typingIndicator(conversationID: Int!): TypingIndicator!
+    
+    # Notification subscriptions
+    notificationReceived: Notification!
+}
