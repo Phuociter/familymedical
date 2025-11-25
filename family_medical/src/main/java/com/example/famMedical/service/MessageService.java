@@ -84,4 +84,12 @@ public interface MessageService {
      * @return Count of unread messages
      */
     int getUnreadMessageCount(Integer userID);
+    
+    /**
+     * Send typing indicator for a conversation
+     * @param conversationID ID of the conversation
+     * @param userID ID of the user typing
+     * @param isTyping Whether the user is typing or stopped typing
+     */
+    void sendTypingIndicator(Long conversationID, Integer userID, boolean isTyping);
 }

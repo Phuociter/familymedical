@@ -48,6 +48,15 @@ class MessageServiceTest {
     @Mock
     private MessageAttachmentService messageAttachmentService;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private TypingIndicatorService typingIndicatorService;
+
+    @Mock
+    private RateLimitService rateLimitService;
+
     @InjectMocks
     private MessageServiceImpl messageService;
 
@@ -106,6 +115,7 @@ class MessageServiceTest {
         @DisplayName("Should send message successfully with valid content")
         void sendMessage_WithValidContent_Success() {
             // Arrange
+            when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
             when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
             when(userRepository.findById(2)).thenReturn(Optional.of(familyHead));
             when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
@@ -119,11 +129,15 @@ class MessageServiceTest {
             assertEquals("Test message", result.getContent());
             verify(messageRepository).save(any(Message.class));
             verify(conversationRepository).save(any(Conversation.class));
+            verify(rateLimitService).recordMessageSent(1);
         }
 
         @Test
         @DisplayName("Should reject empty message content")
         void sendMessage_WithEmptyContent_ThrowsValidationException() {
+            // Arrange
+            when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
+            
             // Act & Assert
             assertThrows(ValidationException.class, () -> 
                 messageService.sendMessage(1, 2, "", 1L, null)
@@ -133,6 +147,9 @@ class MessageServiceTest {
         @Test
         @DisplayName("Should reject whitespace-only message content")
         void sendMessage_WithWhitespaceContent_ThrowsValidationException() {
+            // Arrange
+            when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
+            
             // Act & Assert
             assertThrows(ValidationException.class, () -> 
                 messageService.sendMessage(1, 2, "   ", 1L, null)
@@ -143,6 +160,7 @@ class MessageServiceTest {
         @DisplayName("Should throw NotFoundException when sender not found")
         void sendMessage_WithInvalidSender_ThrowsNotFoundException() {
             // Arrange
+            when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
             when(userRepository.findById(1)).thenReturn(Optional.empty());
 
             // Act & Assert
@@ -155,6 +173,7 @@ class MessageServiceTest {
         @DisplayName("Should throw NotFoundException when recipient not found")
         void sendMessage_WithInvalidRecipient_ThrowsNotFoundException() {
             // Arrange
+            when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
             when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
             when(userRepository.findById(2)).thenReturn(Optional.empty());
 

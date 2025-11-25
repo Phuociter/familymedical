@@ -12,6 +12,7 @@ import com.example.famMedical.repository.ConversationRepository;
 import com.example.famMedical.repository.MessageRepository;
 import com.example.famMedical.service.MessagePublisher;
 import com.example.famMedical.service.MessageService;
+import com.example.famMedical.service.TypingIndicatorService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -29,6 +30,13 @@ import java.util.List;
 /**
  * GraphQL Resolver for Message operations
  * Handles queries, mutations, and subscriptions for messaging functionality
+ * 
+ * Security Implementation:
+ * - Requirement 7.1: All operations require authentication via @PreAuthorize("isAuthenticated()")
+ * - Requirement 7.2: Conversation participant verification on all conversation access
+ * - Requirement 7.3: User filtering in subscription streams to deliver only relevant messages
+ * - Requirement 7.4: Notification ownership verification (handled by NotificationResolver)
+ * - Requirement 7.5: Doctor-family relationship verification before messaging
  */
 @Controller
 @AllArgsConstructor
@@ -39,6 +47,7 @@ public class MessageResolver {
     private final MessagePublisher messagePublisher;
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
+    private final TypingIndicatorService typingIndicatorService;
 
     // =======================================================
     // MUTATIONS
@@ -112,6 +121,27 @@ public class MessageResolver {
         messageService.markConversationAsRead(conversationID, currentUser.getUserID());
         
         log.info("Conversation {} marked as read", conversationID);
+        return true;
+    }
+
+    /**
+     * Send typing indicator for a conversation
+     * Requirements: 10.1, 10.2
+     */
+    @MutationMapping
+    @PreAuthorize("isAuthenticated()")
+    public Boolean sendTypingIndicator(
+            @AuthenticationPrincipal User currentUser,
+            @Argument com.example.famMedical.dto.TypingIndicatorInput input) {
+        log.debug("User {} sending typing indicator for conversation {}: {}", 
+                currentUser.getUserID(), input.getConversationID(), input.getIsTyping());
+        
+        messageService.sendTypingIndicator(
+                input.getConversationID(),
+                currentUser.getUserID(),
+                input.getIsTyping() != null ? input.getIsTyping() : false
+        );
+        
         return true;
     }
 
@@ -298,6 +328,34 @@ public class MessageResolver {
                         conversation.getConversationID(), currentUser.getUserID()))
                 .doOnCancel(() -> log.info("User {} unsubscribed from conversation updates", 
                         currentUser.getUserID()));
+    }
+
+    /**
+     * Subscribe to typing indicators for a specific conversation
+     * Requirements: 10.4
+     */
+    @SubscriptionMapping
+    @PreAuthorize("isAuthenticated()")
+    public Flux<com.example.famMedical.dto.TypingIndicator> typingIndicator(
+            @AuthenticationPrincipal User currentUser,
+            @Argument Long conversationID) {
+        log.info("User {} subscribing to typing indicators for conversation {}", 
+                currentUser.getUserID(), conversationID);
+        
+        // Verify user is a participant in the conversation
+        Conversation conversation = conversationRepository.findById(conversationID)
+                .orElseThrow(() -> new UnAuthorizedException("Conversation not found"));
+        
+        if (!isUserParticipant(conversation, currentUser)) {
+            throw new UnAuthorizedException("You do not have permission to access this conversation");
+        }
+        
+        return typingIndicatorService.getTypingStream(conversationID)
+                .filter(indicator -> !indicator.getUser().getUserID().equals(currentUser.getUserID()))
+                .doOnNext(indicator -> log.trace("Delivering typing indicator to user {}: user {} isTyping={}", 
+                        currentUser.getUserID(), indicator.getUser().getUserID(), indicator.isTyping()))
+                .doOnCancel(() -> log.info("User {} unsubscribed from typing indicators for conversation {}", 
+                        currentUser.getUserID(), conversationID));
     }
 
     // =======================================================

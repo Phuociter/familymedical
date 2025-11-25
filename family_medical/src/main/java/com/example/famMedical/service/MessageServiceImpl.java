@@ -33,6 +33,8 @@ public class MessageServiceImpl implements MessageService {
     private final DoctorAssignmentRepository doctorAssignmentRepository;
     private final MessageAttachmentService messageAttachmentService;
     private final ApplicationEventPublisher eventPublisher;
+    private final TypingIndicatorService typingIndicatorService;
+    private final RateLimitService rateLimitService;
 
     @Override
     @Transactional
@@ -40,16 +42,22 @@ public class MessageServiceImpl implements MessageService {
                               Long conversationID, List<MultipartFile> attachments) {
         log.info("Sending message from user {} to user {}", senderID, recipientID);
         
-        // Validate message content
+        // Check rate limiting (Optional security feature)
+        if (!rateLimitService.canSendMessage(senderID)) {
+            log.warn("Rate limit exceeded for user {}", senderID);
+            throw new ValidationException("You are sending messages too quickly. Please wait a moment.");
+        }
+        
+        // Validate message content (Requirement 1.3)
         if (content == null || content.trim().isEmpty()) {
             throw new ValidationException("Message content cannot be empty");
         }
         
-        // Get sender
+        // Get sender (Requirement 7.1 - Authentication)
         User sender = userRepository.findById(senderID)
             .orElseThrow(() -> new NotFoundException("Sender user not found"));
         
-        // Get recipient
+        // Get recipient (Requirement 7.1 - Authentication)
         User recipient = userRepository.findById(recipientID)
             .orElseThrow(() -> new NotFoundException("Recipient user not found"));
         
@@ -58,12 +66,22 @@ public class MessageServiceImpl implements MessageService {
         if (conversationID != null) {
             conversation = conversationRepository.findById(conversationID)
                 .orElseThrow(() -> new NotFoundException("Conversation not found"));
+            
+            // Verify sender is a participant in the existing conversation (Requirement 7.2)
+            if (!isParticipant(sender, conversation)) {
+                throw new UnAuthorizedException("You do not have permission to send messages in this conversation");
+            }
+            
+            // Verify recipient is also a participant (Requirement 7.2)
+            if (!isParticipant(recipient, conversation)) {
+                throw new UnAuthorizedException("Recipient is not a participant in this conversation");
+            }
         } else {
-            // Determine doctor and family based on roles
+            // Determine doctor and family based on roles and verify relationship (Requirement 7.5)
             conversation = determineAndCreateConversation(sender, recipient);
         }
         
-        // Verify sender is a participant in the conversation
+        // Additional security check: Verify sender is a participant in the conversation (Requirement 7.2)
         if (!isParticipant(sender, conversation)) {
             throw new UnAuthorizedException("You do not have permission to send messages in this conversation");
         }
@@ -99,10 +117,16 @@ public class MessageServiceImpl implements MessageService {
         conversation.setLastMessageAt(message.getCreatedAt());
         conversationRepository.save(conversation);
         
+        // Record message sent for rate limiting
+        rateLimitService.recordMessageSent(senderID);
+        
+        // Stop typing indicator when message is sent (Requirement 10.3)
+        typingIndicatorService.stopTyping(conversation.getConversationID(), sender);
+        
         // Publish event for notification
         eventPublisher.publishEvent(new NewMessageEvent(this, message));
         
-        log.info("Message {} created successfully", message.getMessageID());
+        log.info("Message {} created successfully by user {}", message.getMessageID(), senderID);
         return message;
     }
 
@@ -114,16 +138,18 @@ public class MessageServiceImpl implements MessageService {
         Message message = messageRepository.findById(messageID)
             .orElseThrow(() -> new NotFoundException("Message not found"));
         
-        // Verify user is the recipient (not the sender)
+        // Verify user is the recipient (not the sender) (Requirement 7.2)
         if (message.getSender().getUserID().equals(userID)) {
+            log.warn("User {} attempted to mark their own message {} as read", userID, messageID);
             throw new ValidationException("Cannot mark your own message as read");
         }
         
-        // Verify user is a participant in the conversation
+        // Verify user is a participant in the conversation (Requirement 7.2, 7.3)
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         
         if (!isParticipant(user, message.getConversation())) {
+            log.warn("Unauthorized access attempt: User {} tried to mark message {} as read", userID, messageID);
             throw new UnAuthorizedException("You do not have permission to access this message");
         }
         
@@ -146,11 +172,13 @@ public class MessageServiceImpl implements MessageService {
         Conversation conversation = conversationRepository.findById(conversationID)
             .orElseThrow(() -> new NotFoundException("Conversation not found"));
         
-        // Verify user is a participant
+        // Verify user is a participant (Requirement 7.2, 7.3)
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         
         if (!isParticipant(user, conversation)) {
+            log.warn("Unauthorized access attempt: User {} tried to mark conversation {} as read", 
+                    userID, conversationID);
             throw new UnAuthorizedException("You do not have permission to access this conversation");
         }
         
@@ -178,25 +206,28 @@ public class MessageServiceImpl implements MessageService {
     public Conversation getOrCreateConversation(Integer doctorID, Integer familyID) {
         log.info("Getting or creating conversation between doctor {} and family {}", doctorID, familyID);
         
-        // Verify doctor exists and has BacSi role
+        // Verify doctor exists and has BacSi role (Requirement 7.1)
         User doctor = userRepository.findById(doctorID)
             .orElseThrow(() -> new NotFoundException("Doctor not found"));
         
         if (doctor.getRole() != UserRole.BacSi) {
+            log.warn("User {} is not a doctor but attempted to create doctor conversation", doctorID);
             throw new ValidationException("User is not a doctor");
         }
         
-        // Verify family exists
+        // Verify family exists (Requirement 7.1)
         Family family = familyRepository.findById(familyID)
             .orElseThrow(() -> new NotFoundException("Family not found"));
         
-        // Verify doctor-family relationship exists and is active
+        // Verify doctor-family relationship exists and is active (Requirement 7.5)
         boolean hasActiveRelationship = doctorAssignmentRepository
             .existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctorID, familyID, DoctorAssignment.AssignmentStatus.ACTIVE
             );
         
         if (!hasActiveRelationship) {
+            log.warn("Unauthorized conversation attempt: No active relationship between doctor {} and family {}", 
+                    doctorID, familyID);
             throw new UnAuthorizedException("No approved relationship exists between doctor and family");
         }
         
@@ -242,22 +273,32 @@ public class MessageServiceImpl implements MessageService {
                                            int page, int size) {
         log.info("Searching messages for user {} with keyword: {}", userID, keyword);
         
-        // Verify user exists
-        userRepository.findById(userID)
+        // Verify user exists (Requirement 7.1)
+        User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
+        
+        // If searching within a specific conversation, verify user is a participant (Requirement 7.2)
+        if (conversationID != null) {
+            Conversation conversation = conversationRepository.findById(conversationID)
+                .orElseThrow(() -> new NotFoundException("Conversation not found"));
+            
+            if (!isParticipant(user, conversation)) {
+                throw new UnAuthorizedException("You do not have permission to search messages in this conversation");
+            }
+        }
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Message> messagePage = messageRepository.searchMessages(
             keyword, conversationID, startDate, endDate, pageable
         );
         
-        // Filter messages to only include conversations where user is a participant
+        // Filter messages to only include conversations where user is a participant (Requirement 7.2, 7.3)
         List<Message> filteredMessages = messagePage.getContent().stream()
-            .filter(message -> {
-                User user = userRepository.findById(userID).orElse(null);
-                return user != null && isParticipant(user, message.getConversation());
-            })
+            .filter(message -> isParticipant(user, message.getConversation()))
             .toList();
+        
+        log.info("Search returned {} messages for user {} after access control filtering", 
+                filteredMessages.size(), userID);
         
         return new MessageConnection(
             filteredMessages,
@@ -280,12 +321,13 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Helper method to determine and create conversation based on user roles
+     * Requirement 7.5: Verify doctor-family relationship before allowing messaging
      */
     private Conversation determineAndCreateConversation(User sender, User recipient) {
         User doctor;
         Family family;
         
-        // Determine who is the doctor and who is the family
+        // Determine who is the doctor and who is the family (Requirement 7.5)
         if (sender.getRole() == UserRole.BacSi && recipient.getRole() == UserRole.ChuHo) {
             doctor = sender;
             family = findFamilyByHeadOfFamily(recipient);
@@ -296,7 +338,27 @@ public class MessageServiceImpl implements MessageService {
             throw new ValidationException("Messages can only be sent between doctors and families");
         }
         
+        // Verify doctor-family relationship exists and is active (Requirement 7.5)
+        verifyDoctorFamilyRelationship(doctor.getUserID(), family.getFamilyID());
+        
         return getOrCreateConversation(doctor.getUserID(), family.getFamilyID());
+    }
+    
+    /**
+     * Verify that an approved doctor-family relationship exists
+     * Requirement 7.5: Doctor-Family relationship validation
+     */
+    private void verifyDoctorFamilyRelationship(Integer doctorID, Integer familyID) {
+        boolean hasActiveRelationship = doctorAssignmentRepository
+            .existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
+                doctorID, familyID, DoctorAssignment.AssignmentStatus.ACTIVE
+            );
+        
+        if (!hasActiveRelationship) {
+            log.warn("Attempted messaging without approved relationship - Doctor: {}, Family: {}", 
+                    doctorID, familyID);
+            throw new UnAuthorizedException("No approved relationship exists between doctor and family");
+        }
     }
 
     /**
@@ -320,5 +382,30 @@ public class MessageServiceImpl implements MessageService {
             return conversation.getFamily().getHeadOfFamily().getUserID().equals(user.getUserID());
         }
         return false;
+    }
+
+    @Override
+    public void sendTypingIndicator(Long conversationID, Integer userID, boolean isTyping) {
+        log.debug("User {} sending typing indicator for conversation {}: {}", 
+                userID, conversationID, isTyping);
+        
+        // Verify conversation exists (Requirement 7.1)
+        Conversation conversation = conversationRepository.findById(conversationID)
+            .orElseThrow(() -> new NotFoundException("Conversation not found"));
+        
+        // Verify user exists and is a participant (Requirement 7.2, 7.3)
+        User user = userRepository.findById(userID)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        
+        if (!isParticipant(user, conversation)) {
+            log.warn("Unauthorized typing indicator: User {} tried to send typing indicator for conversation {}", 
+                    userID, conversationID);
+            throw new UnAuthorizedException("You do not have permission to access this conversation");
+        }
+        
+        // Send typing indicator through the service
+        typingIndicatorService.sendTypingIndicator(conversationID, user, isTyping);
+        
+        log.debug("Typing indicator sent for user {} in conversation {}", userID, conversationID);
     }
 }
