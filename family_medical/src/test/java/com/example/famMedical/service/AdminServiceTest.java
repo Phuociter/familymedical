@@ -127,8 +127,8 @@ public class AdminServiceTest {
         // Setup MedicalRecord
         medicalRecord = new MedicalRecord();
         medicalRecord.setRecordID(1);
-        medicalRecord.setMemberID(member);
-        medicalRecord.setDoctorID(doctor);
+        medicalRecord.setMember(member);
+        medicalRecord.setDoctor(doctor);
         medicalRecord.setFileLink("http://example.com/file.pdf");
         medicalRecord.setRecordDate(LocalDate.now());
     }
@@ -459,7 +459,7 @@ public class AdminServiceTest {
             // Arrange
             List<MedicalRecord> expectedRecords = Arrays.asList(medicalRecord);
             when(memberRepository.findById(10)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(10)).thenReturn(expectedRecords);
+            when(medicalRecordRepository.findByMember_MemberID(10)).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = adminService.getMedicalRecordsForPatient(10);
@@ -468,7 +468,7 @@ public class AdminServiceTest {
             assertEquals(1, result.size());
             assertEquals(expectedRecords, result);
             verify(memberRepository).findById(10);
-            verify(medicalRecordRepository).findByMemberID_MemberID(10);
+            verify(medicalRecordRepository).findByMember_MemberID(10);
         }
 
         @Test
@@ -848,7 +848,7 @@ public class AdminServiceTest {
         public void shouldHandleGetMedicalRecordsForPatientWithEmptyRecords() {
             // Arrange
             when(memberRepository.findById(10)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(10)).thenReturn(Arrays.asList());
+            when(medicalRecordRepository.findByMember_MemberID(10)).thenReturn(Arrays.asList());
 
             // Act
             List<MedicalRecord> result = adminService.getMedicalRecordsForPatient(10);
@@ -856,7 +856,7 @@ public class AdminServiceTest {
             // Assert
             assertTrue(result.isEmpty());
             verify(memberRepository).findById(10);
-            verify(medicalRecordRepository).findByMemberID_MemberID(10);
+            verify(medicalRecordRepository).findByMember_MemberID(10);
         }
     }
 }
