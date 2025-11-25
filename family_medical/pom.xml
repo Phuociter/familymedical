@@ -177,6 +177,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <jvmArguments>-javaagent:D:\J2EE\glowroot\glowroot.jar</jvmArguments>
                 </configuration>
             </plugin>
         </plugins>

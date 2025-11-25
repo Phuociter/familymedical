@@ -45,10 +45,18 @@ public class MedicalRecord {
     @Column(name = "RecordDate", nullable = true)
     private LocalDate recordDate;
 
+    @Column(name = "UploadDate", nullable = true)
+    private LocalDateTime uploadDate;
+
     private String symptoms;
     private String diagnosis;
     private String treatmentPlan;
     
+    @PrePersist
+    protected void onCreate() {
+        this.uploadDate = LocalDateTime.now();
+    }
+
     public enum FileType{
         Chup_XQuang,
         Sieu_Am,
@@ -85,4 +93,3 @@ public class MedicalRecord {
         Test_Di_Ung,
     }
 }
-

@@ -1,141 +1,114 @@
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemAvatar,
-  ListItemText,
-  Avatar,
-  TextField,
-  IconButton,
-  Divider,
-} from '@mui/material';
-import {
-  Send as SendIcon,
-  Person as PersonIcon,
-} from '@mui/icons-material';
-import { useState } from 'react';
-
-// Mock data - sẽ thay bằng GraphQL sau
-const mockConversations = [
-  { id: 1, name: 'Nguyễn Văn A', lastMessage: 'Cảm ơn bác sĩ', time: '10:30' },
-  { id: 2, name: 'Trần Thị B', lastMessage: 'Khi nào có kết quả?', time: '09:15' },
-  { id: 3, name: 'Lê Văn C', lastMessage: 'Đã uống thuốc theo đơn', time: 'Hôm qua' },
-];
+import { useState, useEffect } from 'react';
+import { Paper } from '@mui/material';
+import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from '../../mocks/messagesMockData';
+import ConversationList from '../../components/Doctor/Message/ConversationList';
+import ChatArea from '../../components/Doctor/Message/ChatArea';
+import ConversationListSkeleton from '../../components/Doctor/Message/ConversationListSkeleton';
 
 export default function DoctorMessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [message, setMessage] = useState('');
+  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
+  const [chatLoading, setChatLoading] = useState(false);
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      // TODO: Implement send message logic
-      console.log('Sending message:', message);
-      setMessage('');
+  // Simulate initial conversations loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setConversationsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSelectConversation = (conversation) => {
+    // Show chat loading when selecting a conversation
+    setChatLoading(true);
+    setSelectedConversation(conversation);
+    
+    // Simulate loading messages
+    setTimeout(() => {
+      setChatLoading(false);
+    }, 500);
+    
+    // Mark as read
+    if (conversation.unreadCount > 0) {
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === conversation.id 
+            ? { ...conv, unreadCount: 0 }
+            : conv
+        )
+      );
     }
   };
 
+  const handleSendMessage = (content) => {
+    if (!selectedConversation || !content.trim()) return;
+
+    const newMessage = {
+      id: Date.now(),
+      conversationId: selectedConversation.id,
+      senderId: 'DOCTOR',
+      senderName: 'Bác sĩ',
+      content: content.trim(),
+      timestamp: new Date().toISOString(),
+      isFromDoctor: true,
+    };
+
+    // Add message to conversation
+    setMessages(prev => ({
+      ...prev,
+      [selectedConversation.id]: [
+        ...(prev[selectedConversation.id] || []),
+        newMessage,
+      ],
+    }));
+
+    // Update last message in conversation list
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === selectedConversation.id
+          ? {
+              ...conv,
+              lastMessage: content.trim(),
+              lastMessageTime: new Date().toISOString(),
+            }
+          : conv
+      )
+    );
+  };
+
+  const currentMessages = selectedConversation 
+    ? messages[selectedConversation.id] || []
+    : [];
+
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        Tin nhắn
-      </Typography>
+    <Paper 
+      elevation={0}
+      sx={{ 
+        height: 'calc(100vh - 120px)', 
+        display: 'flex',
+        border: 1,
+        borderColor: 'divider',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+      }}
+    >
+      {conversationsLoading ? (
+        <ConversationListSkeleton />
+      ) : (
+        <ConversationList
+          conversations={conversations}
+          selectedConversation={selectedConversation}
+          onSelectConversation={handleSelectConversation}
+        />
+      )}
 
-      <Paper sx={{ height: 'calc(100vh - 200px)', display: 'flex' }}>
-        {/* Conversations List */}
-        <Box
-          sx={{
-            width: 320,
-            borderRight: 1,
-            borderColor: 'divider',
-            overflow: 'auto',
-          }}
-        >
-          <List sx={{ p: 0 }}>
-            {mockConversations.map((conversation) => (
-              <ListItem key={conversation.id} disablePadding>
-                <ListItemButton
-                  selected={selectedConversation?.id === conversation.id}
-                  onClick={() => setSelectedConversation(conversation)}
-                >
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: '#1976d2' }}>
-                      <PersonIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={conversation.name}
-                    secondary={conversation.lastMessage}
-                    secondaryTypographyProps={{
-                      noWrap: true,
-                    }}
-                  />
-                  <Typography variant="caption" color="textSecondary">
-                    {conversation.time}
-                  </Typography>
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-
-        {/* Chat Area */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {selectedConversation ? (
-            <>
-              {/* Chat Header */}
-              <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-                <Typography variant="h6">{selectedConversation.name}</Typography>
-              </Box>
-
-              {/* Messages */}
-              <Box sx={{ flex: 1, p: 2, overflow: 'auto', bgcolor: '#f5f5f5' }}>
-                <Typography color="textSecondary" align="center">
-                  Chức năng tin nhắn đang được phát triển
-                </Typography>
-              </Box>
-
-              {/* Message Input */}
-              <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'white' }}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <TextField
-                    fullWidth
-                    placeholder="Nhập tin nhắn..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    size="small"
-                  />
-                  <IconButton color="primary" onClick={handleSendMessage}>
-                    <SendIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            </>
-          ) : (
-            <Box
-              sx={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography color="textSecondary">
-                Chọn một cuộc trò chuyện để bắt đầu
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Paper>
-    </Box>
+      <ChatArea
+        conversation={selectedConversation}
+        messages={currentMessages}
+        onSendMessage={handleSendMessage}
+        loading={chatLoading}
+      />
+    </Paper>
   );
 }

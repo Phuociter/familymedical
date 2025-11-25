@@ -94,7 +94,7 @@ public class MedicalRecordService {
             return fileRef;
         }
 
-        return cloudinaryService.getDownloadUrl(fileRef);
+        return cloudinaryService.getSignedDownloadUrl(fileRef);
     }
 
     /**

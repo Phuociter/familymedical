@@ -125,12 +125,12 @@ public class AdminService {
         DoctorRequest req = doctorRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Doctor request not found: " + requestId));
         if (approve) {
-            req.setStatus(DoctorRequest.RequestStatus.Accepted);
+            req.setStatus(DoctorRequest.RequestStatus.ACCEPTED);
             User doctor = req.getDoctor();
             doctor.setVerified(true);
             userRepository.save(doctor);
         } else {
-            req.setStatus(DoctorRequest.RequestStatus.Rejected);
+            req.setStatus(DoctorRequest.RequestStatus.REJECTED);
         }
         // Lưu thay đổi status của DoctorRequest
         doctorRequestRepository.save(req);

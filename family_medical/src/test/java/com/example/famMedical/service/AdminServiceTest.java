@@ -109,7 +109,7 @@ public class AdminServiceTest {
         doctorRequest.setFamily(family);
         doctorRequest.setDoctor(doctor);
         doctorRequest.setMessage("Request message");
-        doctorRequest.setStatus(RequestStatus.Pending);
+        doctorRequest.setStatus(RequestStatus.PENDING);
         doctorRequest.setRequestDate(LocalDateTime.now());
 
         // Setup Payment
@@ -127,8 +127,8 @@ public class AdminServiceTest {
         // Setup MedicalRecord
         medicalRecord = new MedicalRecord();
         medicalRecord.setRecordID(1);
-        medicalRecord.setMemberID(member);
-        medicalRecord.setDoctorID(doctor);
+        medicalRecord.setMember(member);
+        medicalRecord.setDoctor(doctor);
         medicalRecord.setFileLink("http://example.com/file.pdf");
         medicalRecord.setRecordDate(LocalDate.now());
     }
@@ -459,7 +459,7 @@ public class AdminServiceTest {
             // Arrange
             List<MedicalRecord> expectedRecords = Arrays.asList(medicalRecord);
             when(memberRepository.findById(10)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(10)).thenReturn(expectedRecords);
+            when(medicalRecordRepository.findByMember_MemberID(10)).thenReturn(expectedRecords);
 
             // Act
             List<MedicalRecord> result = adminService.getMedicalRecordsForPatient(10);
@@ -468,7 +468,7 @@ public class AdminServiceTest {
             assertEquals(1, result.size());
             assertEquals(expectedRecords, result);
             verify(memberRepository).findById(10);
-            verify(medicalRecordRepository).findByMemberID_MemberID(10);
+            verify(medicalRecordRepository).findByMember_MemberID(10);
         }
 
         @Test
@@ -524,15 +524,15 @@ public class AdminServiceTest {
         public void shouldListDoctorRequestsByStatus() {
             // Arrange
             List<DoctorRequest> expectedRequests = Arrays.asList(doctorRequest);
-            when(doctorRequestRepository.findByStatus(RequestStatus.Pending)).thenReturn(expectedRequests);
+            when(doctorRequestRepository.findByStatus(RequestStatus.PENDING)).thenReturn(expectedRequests);
 
             // Act
-            List<DoctorRequest> result = adminService.listDoctorRequestsByStatus(RequestStatus.Pending);
+            List<DoctorRequest> result = adminService.listDoctorRequestsByStatus(RequestStatus.PENDING);
 
             // Assert
             assertEquals(1, result.size());
             assertEquals(expectedRequests, result);
-            verify(doctorRequestRepository).findByStatus(RequestStatus.Pending);
+            verify(doctorRequestRepository).findByStatus(RequestStatus.PENDING);
         }
 
         @Test
@@ -577,7 +577,7 @@ public class AdminServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(RequestStatus.Accepted, doctorRequest.getStatus());
+            assertEquals(RequestStatus.ACCEPTED, doctorRequest.getStatus());
             assertTrue(doctor.isVerified());
             verify(doctorRequestRepository).findById(1);
             verify(doctorRequestRepository).save(any(DoctorRequest.class));
@@ -596,7 +596,7 @@ public class AdminServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(RequestStatus.Rejected, doctorRequest.getStatus());
+            assertEquals(RequestStatus.REJECTED, doctorRequest.getStatus());
             verify(doctorRequestRepository).findById(1);
             verify(doctorRequestRepository).save(any(DoctorRequest.class));
             verify(userRepository, never()).save(any(User.class));
@@ -848,7 +848,7 @@ public class AdminServiceTest {
         public void shouldHandleGetMedicalRecordsForPatientWithEmptyRecords() {
             // Arrange
             when(memberRepository.findById(10)).thenReturn(Optional.of(member));
-            when(medicalRecordRepository.findByMemberID_MemberID(10)).thenReturn(Arrays.asList());
+            when(medicalRecordRepository.findByMember_MemberID(10)).thenReturn(Arrays.asList());
 
             // Act
             List<MedicalRecord> result = adminService.getMedicalRecordsForPatient(10);
@@ -856,7 +856,7 @@ public class AdminServiceTest {
             // Assert
             assertTrue(result.isEmpty());
             verify(memberRepository).findById(10);
-            verify(medicalRecordRepository).findByMemberID_MemberID(10);
+            verify(medicalRecordRepository).findByMember_MemberID(10);
         }
     }
 }

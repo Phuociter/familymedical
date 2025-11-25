@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 
 @ControllerAdvice
 public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter {
