@@ -46,11 +46,12 @@ public class UserResolver {
     public String resetMyPassword(@Argument String token, @Argument String newPassword) {
         return userService.resetMyPassword(token, newPassword);
     }
-
+  
     @MutationMapping
     public String changePassword(
         @AuthenticationPrincipal User user,
         @Argument ChangePasswordInput input) {
         return userService.changePassword(user.getUserID(), input.getCurrentPassword(), input.getNewPassword());
     }
+
 }
