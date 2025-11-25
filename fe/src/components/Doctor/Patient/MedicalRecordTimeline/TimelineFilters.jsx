@@ -25,15 +25,18 @@ export default function TimelineFilters({ onFilterChange, filters }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const diseaseTypes = [
+  const fileTypes = [
     { value: 'all', label: 'Tất cả' },
-    { value: 'cardiovascular', label: 'Tim mạch' },
-    { value: 'respiratory', label: 'Hô hấp' },
-    { value: 'digestive', label: 'Tiêu hóa' },
-    { value: 'musculoskeletal', label: 'Xương khớp' },
-    { value: 'endocrine', label: 'Nội tiết' },
-    { value: 'infectious', label: 'Nhiễm trùng' },
-    { value: 'other', label: 'Khác' },
+    { value: 'X_RAY', label: 'X-Quang' },
+    { value: 'ULTRASOUND', label: 'Siêu âm' },
+    { value: 'CT_SCAN', label: 'CT Scan' },
+    { value: 'MRI_SCAN', label: 'MRI' },
+    { value: 'BLOOD_TEST', label: 'Xét nghiệm máu' },
+    { value: 'URINE_TEST', label: 'Xét nghiệm nước tiểu' },
+    { value: 'ECG', label: 'Điện tâm đồ' },
+    { value: 'MEDICAL_EXAMINATION', label: 'Khám bệnh' },
+    { value: 'PRESCRIPTION', label: 'Đơn thuốc' },
+    { value: 'VACCINATION_RECORD', label: 'Phiếu tiêm chủng' },
   ];
 
   const handleDateFromChange = (e) => {
@@ -44,20 +47,20 @@ export default function TimelineFilters({ onFilterChange, filters }) {
     onFilterChange({ ...filters, dateTo: e.target.value });
   };
 
-  const handleDiseaseTypeChange = (e) => {
-    onFilterChange({ ...filters, diseaseType: e.target.value });
+  const handleFileTypeChange = (e) => {
+    onFilterChange({ ...filters, fileType: e.target.value });
   };
 
   const handleClearFilters = () => {
     onFilterChange({
       dateFrom: '',
       dateTo: '',
-      diseaseType: 'all',
+      fileType: 'all',
     });
   };
 
   const hasActiveFilters =
-    filters.dateFrom || filters.dateTo || filters.diseaseType !== 'all';
+    filters.dateFrom || filters.dateTo || filters.fileType !== 'all';
 
   return (
     <Box
@@ -114,19 +117,19 @@ export default function TimelineFilters({ onFilterChange, filters }) {
           }}
         />
 
-        {/* Disease Type */}
+        {/* File Type */}
         <TextField
           select
-          label="Loại bệnh"
+          label="Loại hồ sơ"
           size="small"
-          value={filters.diseaseType || 'all'}
-          onChange={handleDiseaseTypeChange}
+          value={filters.fileType || 'all'}
+          onChange={handleFileTypeChange}
           sx={{
             minWidth: { sm: 200 },
             backgroundColor: 'white',
           }}
         >
-          {diseaseTypes.map((option) => (
+          {fileTypes.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>

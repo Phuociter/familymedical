@@ -111,36 +111,50 @@ export default function PatientOverviewSidebar({ patient }) {
   const upcomingAppointments = getUpcomingAppointments(allAppointments);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* Alerts and Warnings */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, sm: 2 } }}>
+      {/* Alerts and Warnings - Responsive */}
       {criticalIndicators.length > 0 && (
         <Alert
           severity="warning"
-          icon={<WarningIcon />}
+          icon={<WarningIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />}
           sx={{
             '& .MuiAlert-message': {
               width: '100%',
             },
+            fontSize: { xs: '0.813rem', sm: '0.875rem' },
           }}
         >
-          <Typography variant="body2" fontWeight={600} gutterBottom>
+          <Typography 
+            variant="body2" 
+            fontWeight={600} 
+            gutterBottom
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Cảnh báo sức khỏe
           </Typography>
-          <Typography variant="caption">
+          <Typography 
+            variant="caption"
+            sx={{ fontSize: { xs: '0.75rem', sm: '0.813rem' } }}
+          >
             Có {criticalIndicators.length} chỉ số cần chú ý
           </Typography>
         </Alert>
       )}
 
-      {/* Health Indicators Section */}
-      <Card sx={{ p: 2 }}>
-        <Typography variant="h6" gutterBottom fontWeight={600}>
+      {/* Health Indicators Section - Responsive */}
+      <Card sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          fontWeight={600}
+          sx={{ fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' } }}
+        >
           Chỉ số sức khỏe
         </Typography>
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: { xs: 1.5, sm: 2 } }} />
         
         {latestIndicators.length > 0 ? (
-          <Stack spacing={2}>
+          <Stack spacing={{ xs: 1.5, sm: 2 }}>
             {latestIndicators.map((indicator) => (
               <HealthIndicatorCard
                 key={indicator.indicatorID}
@@ -150,125 +164,202 @@ export default function PatientOverviewSidebar({ patient }) {
             ))}
           </Stack>
         ) : (
-          <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            textAlign="center" 
+            py={2}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Chưa có dữ liệu chỉ số sức khỏe
           </Typography>
         )}
       </Card>
 
-      {/* Current Medications Section */}
-      <Card sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <MedicationIcon color="primary" />
-          <Typography variant="h6" fontWeight={600}>
+      {/* Current Medications Section - Responsive */}
+      <Card sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: { xs: 1.5, sm: 2 } }}>
+          <MedicationIcon color="primary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          <Typography 
+            variant="h6" 
+            fontWeight={600}
+            sx={{ fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' } }}
+          >
             Thuốc đang dùng
           </Typography>
         </Box>
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: { xs: 1.5, sm: 2 } }} />
         
         {activePrescriptions.length > 0 ? (
-          <Stack spacing={1.5}>
+          <Stack spacing={{ xs: 1.25, sm: 1.5 }}>
             {activePrescriptions.map((prescription) => (
               <Box
                 key={prescription.prescriptionID}
                 sx={{
-                  p: 1.5,
+                  p: { xs: 1.25, sm: 1.5 },
                   bgcolor: 'grey.50',
                   borderRadius: 1,
                   borderLeft: 3,
                   borderColor: 'primary.main',
                 }}
               >
-                <Typography variant="body2" fontWeight={600} gutterBottom>
+                <Typography 
+                  variant="body2" 
+                  fontWeight={600} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+                >
                   {prescription.medicationName}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  display="block"
+                  sx={{ fontSize: { xs: '0.75rem', sm: '0.813rem' } }}
+                >
                   {prescription.dosage} - {prescription.frequency}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  display="block"
+                  sx={{ fontSize: { xs: '0.75rem', sm: '0.813rem' } }}
+                >
                   Thời gian: {prescription.duration}
                 </Typography>
                 <Chip
                   label="Đang dùng"
                   size="small"
                   color="success"
-                  sx={{ mt: 1, fontSize: '0.7rem' }}
+                  sx={{ 
+                    mt: 1, 
+                    fontSize: { xs: '0.688rem', sm: '0.7rem' },
+                    height: { xs: 20, sm: 24 },
+                  }}
                 />
               </Box>
             ))}
           </Stack>
         ) : (
-          <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            textAlign="center" 
+            py={2}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Không có thuốc đang sử dụng
           </Typography>
         )}
       </Card>
 
-      {/* Upcoming Appointments Section */}
-      <Card sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <CalendarIcon color="primary" />
-          <Typography variant="h6" fontWeight={600}>
+      {/* Upcoming Appointments Section - Responsive */}
+      <Card sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: { xs: 1.5, sm: 2 } }}>
+          <CalendarIcon color="primary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          <Typography 
+            variant="h6" 
+            fontWeight={600}
+            sx={{ fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' } }}
+          >
             Lịch hẹn sắp tới
           </Typography>
         </Box>
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: { xs: 1.5, sm: 2 } }} />
         
         {upcomingAppointments.length > 0 ? (
-          <Stack spacing={1.5}>
+          <Stack spacing={{ xs: 1.25, sm: 1.5 }}>
             {upcomingAppointments.map((appointment) => (
               <Box
                 key={appointment.appointmentID}
                 sx={{
-                  p: 1.5,
+                  p: { xs: 1.25, sm: 1.5 },
                   bgcolor: 'grey.50',
                   borderRadius: 1,
                   borderLeft: 3,
                   borderColor: 'info.main',
                 }}
               >
-                <Typography variant="body2" fontWeight={600} gutterBottom>
+                <Typography 
+                  variant="body2" 
+                  fontWeight={600} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+                >
                   {appointment.reason}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  display="block"
+                  sx={{ fontSize: { xs: '0.75rem', sm: '0.813rem' } }}
+                >
                   {formatAppointmentDateTime(
                     appointment.appointmentDate,
                     appointment.appointmentTime
                   )}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  display="block"
+                  sx={{ fontSize: { xs: '0.75rem', sm: '0.813rem' } }}
+                >
                   Bác sĩ: {appointment.doctorName}
                 </Typography>
                 <Chip
                   label="Đã đặt"
                   size="small"
                   color="info"
-                  sx={{ mt: 1, fontSize: '0.7rem' }}
+                  sx={{ 
+                    mt: 1, 
+                    fontSize: { xs: '0.688rem', sm: '0.7rem' },
+                    height: { xs: 20, sm: 24 },
+                  }}
                 />
               </Box>
             ))}
           </Stack>
         ) : (
-          <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            textAlign="center" 
+            py={2}
+            sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+          >
             Không có lịch hẹn sắp tới
           </Typography>
         )}
       </Card>
 
-      {/* Contact Information */}
-      <Card sx={{ p: 2 }}>
-        <Typography variant="h6" gutterBottom fontWeight={600}>
+      {/* Contact Information - Responsive */}
+      <Card sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          fontWeight={600}
+          sx={{ fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' } }}
+        >
           Thông tin liên hệ
         </Typography>
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: { xs: 1.5, sm: 2 } }} />
         
-        <Stack spacing={1}>
+        <Stack spacing={{ xs: 1, sm: 1.25 }}>
           {patient.phoneNumber && (
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+              >
                 Số điện thoại
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography 
+                variant="body2" 
+                fontWeight={500}
+                sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+              >
                 {patient.phoneNumber}
               </Typography>
             </Box>
@@ -276,20 +367,36 @@ export default function PatientOverviewSidebar({ patient }) {
           
           {patient.email && (
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+              >
                 Email
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography 
+                variant="body2" 
+                fontWeight={500}
+                sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+              >
                 {patient.email}
               </Typography>
             </Box>
           )}
           
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.688rem', sm: '0.75rem' } }}
+            >
               CCCD
             </Typography>
-            <Typography variant="body2" fontWeight={500}>
+            <Typography 
+              variant="body2" 
+              fontWeight={500}
+              sx={{ fontSize: { xs: '0.813rem', sm: '0.875rem' } }}
+            >
               {patient.cccd}
             </Typography>
           </Box>

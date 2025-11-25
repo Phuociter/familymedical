@@ -109,7 +109,7 @@ public class AdminServiceTest {
         doctorRequest.setFamily(family);
         doctorRequest.setDoctor(doctor);
         doctorRequest.setMessage("Request message");
-        doctorRequest.setStatus(RequestStatus.Pending);
+        doctorRequest.setStatus(RequestStatus.PENDING);
         doctorRequest.setRequestDate(LocalDateTime.now());
 
         // Setup Payment
@@ -524,15 +524,15 @@ public class AdminServiceTest {
         public void shouldListDoctorRequestsByStatus() {
             // Arrange
             List<DoctorRequest> expectedRequests = Arrays.asList(doctorRequest);
-            when(doctorRequestRepository.findByStatus(RequestStatus.Pending)).thenReturn(expectedRequests);
+            when(doctorRequestRepository.findByStatus(RequestStatus.PENDING)).thenReturn(expectedRequests);
 
             // Act
-            List<DoctorRequest> result = adminService.listDoctorRequestsByStatus(RequestStatus.Pending);
+            List<DoctorRequest> result = adminService.listDoctorRequestsByStatus(RequestStatus.PENDING);
 
             // Assert
             assertEquals(1, result.size());
             assertEquals(expectedRequests, result);
-            verify(doctorRequestRepository).findByStatus(RequestStatus.Pending);
+            verify(doctorRequestRepository).findByStatus(RequestStatus.PENDING);
         }
 
         @Test
@@ -577,7 +577,7 @@ public class AdminServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(RequestStatus.Accepted, doctorRequest.getStatus());
+            assertEquals(RequestStatus.ACCEPTED, doctorRequest.getStatus());
             assertTrue(doctor.isVerified());
             verify(doctorRequestRepository).findById(1);
             verify(doctorRequestRepository).save(any(DoctorRequest.class));
@@ -596,7 +596,7 @@ public class AdminServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(RequestStatus.Rejected, doctorRequest.getStatus());
+            assertEquals(RequestStatus.REJECTED, doctorRequest.getStatus());
             verify(doctorRequestRepository).findById(1);
             verify(doctorRequestRepository).save(any(DoctorRequest.class));
             verify(userRepository, never()).save(any(User.class));

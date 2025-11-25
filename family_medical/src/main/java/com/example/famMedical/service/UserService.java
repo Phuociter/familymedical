@@ -2,6 +2,7 @@ package com.example.famMedical.service;
 
 import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.UserRole;
+import com.example.famMedical.dto.UpdateUserInput;
 import com.example.famMedical.repository.UserRepository;
 import com.example.famMedical.exception.UserNotFoundException;
 
@@ -96,4 +97,20 @@ public class UserService {
 
         return "Đổi mật khẩu thành công.";
     }
+
+
+    public String changePassword(Integer userID, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userID));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new RuntimeException("Mật khẩu hiện tại không đúng.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return "Đổi mật khẩu thành công.";
+    }
+
 }

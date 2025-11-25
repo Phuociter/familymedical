@@ -1,6 +1,11 @@
+# =======================================================
+# SCALARS
+# =======================================================
 scalar Date
 scalar DateTime
 scalar LocalDate
+scalar LocalDateTime
+
 # =======================================================
 # 1. ENUMS
 # =======================================================
@@ -35,9 +40,60 @@ enum AssignmentStatus {
 }
 
 enum RequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum AppointmentStatus {
+    SCHEDULED
+    COMPLETED
+    CANCELLED
+}
+
+enum AppointmentType {
+    GENERAL_CHECKUP
+    FOLLOW_UP
+    CONSULTATION
+    VACCINATION
+    HOME_VISIT
+    OTHER
+}
+
+enum FileType {
+    X_RAY
+    ULTRASOUND
+    CT_SCAN
+    MRI_SCAN
+    MAMMOGRAPHY
+    PET_CT
+    BLOOD_TEST
+    URINE_TEST
+    BLOOD_CHEMISTRY
+    IMMUNOHEMATOLOGY
+    MICROBIOLOGY_TEST
+    GENETIC_TEST
+    COVID19_PCR_ANTIGEN
+    PATHOLOGY
+    ECG
+    EEG
+    EMG
+    SPIROMETRY
+    HOLTER_ECG
+    HOLTER_BP
+    MEDICAL_EXAMINATION
+    PRESCRIPTION
+    ADMISSION_FORM
+    DISCHARGE_FORM
+    REFERRAL_FORM
+    VACCINATION_RECORD
+    SURGERY_REPORT
+    TREATMENT_PLAN
+    DENTAL_RECORD
+    OBSTETRIC_ULTRASOUND
+    VISION_TEST
+    HEARING_TEST
+    ALLERGY_TEST
 }
 
 # =======================================================
@@ -58,6 +114,11 @@ input UpdateUserInput {
     phoneNumber: String
     doctorCode: String
     role: UserRole
+}
+
+input ChangePasswordInput {
+    currentPassword: String!
+    newPassword: String!
 }
 
 
@@ -94,7 +155,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    recordDate: LocalDate
+    treatmentPlan: String
 }
 
 input UpdateMemberInput {
@@ -119,6 +180,37 @@ input CreateMemberInput {
 input RequestDoctorInput { 
     userID: Int!
     doctorID: Int!
+}
+
+input CreateAppointmentInput {
+    familyID: Int!
+    memberID: Int!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: DateTime!
+    duration: Int!
+    location: String
+    notes: String
+    doctorNotes: String
+}
+
+input UpdateAppointmentInput {
+    appointmentID: Int!
+    title: String
+    type: AppointmentType
+    appointmentDateTime: DateTime
+    duration: Int
+    location: String
+    notes: String
+    doctorNotes: String
+}
+
+input AppointmentFilter {
+    status: AppointmentStatus
+    startDate: DateTime
+    endDate: DateTime
+    familyID: Int
+    memberID: Int
 }
 
 
@@ -162,18 +254,19 @@ type Family {
 type Member {
     memberID: ID!
     familyID: Int
+    family: Family!
     fullName: String
     relationship: String
     cccd: String
     dateOfBirth: LocalDate
     gender: String
     phoneNumber: String
+    medicalRecords: [MedicalRecord]
     createdAt: String
 }
 
 type MedicalRecord {
     recordID: ID!
-    memberID: Int
     member: Member
     doctorID: Int
     doctor: User
@@ -185,11 +278,13 @@ type MedicalRecord {
 
 type DoctorRequest {
     requestID: ID!
-    familyID: Int!
-    doctorID: Int!
+    family: Family!
+    doctor: User!
     message: String
-    status: String
-    requestDate: String
+    status: RequestStatus!
+    requestDate: LocalDateTime!
+    responseDate: LocalDateTime
+    responseMessage: String
 }
 
 type DoctorAssignment {
@@ -218,6 +313,78 @@ type MomoPaymentResponse {
     message: String
 }
 
+type Doctor {
+    userID: ID!
+}
+
+type Appointment {
+    appointmentID: ID!
+    family: Family!
+    member: Member!
+    doctor: User!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: LocalDateTime!
+    duration: Int!
+    status: AppointmentStatus!
+    location: String
+    notes: String
+    doctorNotes: String
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime
+}
+
+type PatientAppointment {
+    appointmentID: ID!
+    title: String!
+    type: AppointmentType
+    appointmentDateTime: DateTime!
+    duration: Int!
+    status: AppointmentStatus!
+    location: String
+    notes: String
+    doctor: User!
+    member: Member!
+    createdAt: DateTime!
+}
+
+type DoctorStats {
+    totalFamilies: Int!
+    totalPatients: Int!
+    newRecordsThisMonth: Int!
+    todayAppointments: Int!
+    pendingRequests: Int!
+}
+
+type WeeklyStats {
+    week: String!
+    appointments: Int!
+    newRecords: Int!
+}
+
+type Activity {
+    activityID: ID!
+    type: String!
+    description: String!
+    timestamp: LocalDateTime!
+    relatedEntity: String
+    relatedEntityID: Int
+}
+
+type DoctorDashboard {
+    stats: DoctorStats!
+    weeklyStats: [WeeklyStats]!
+    recentActivities: [Activity]!
+    todayAppointments: [Appointment]!
+    pendingRequests: [DoctorRequest]!
+}
+
+type SignatureResponse {
+    signature: String!
+    timestamp: Int!
+    apiKey: String!
+    cloudName: String!
+}
 
 # =======================================================
 # 4. QUERY
@@ -235,8 +402,29 @@ type Query {
     getMedicalRecordsByMember(memberID: ID!): [MedicalRecord]
     membersByFamilyID(familyID: ID!): [Member]
     getFamilyByHeadOfFamilyID(userID: ID!): Family
-    getSignedUrlForMedicalRecord(recordID: ID!): String
 
+    # Medical Records queries
+    medicalRecordDetail(recordID: Int!): MedicalRecord
+    recentMedicalRecords(limit: Int): [MedicalRecord]
+
+    # Doctor Requests queries
+    doctorRequests(status: RequestStatus): [DoctorRequest]
+    doctorRequestDetail(requestID: Int!): DoctorRequest
+
+    # Appointment queries
+    appointments(filter: AppointmentFilter): [Appointment]
+    appointmentDetail(appointmentID: Int!): Appointment
+    todayAppointments: [Appointment]
+    upcomingAppointments: [Appointment]
+    familyAppointments: [PatientAppointment]
+
+    # Doctor Dashboard query
+    doctorDashboard: DoctorDashboard!
+
+    # Family & Members queries
+    assignedFamilies: [Family]
+    familyDetail(familyID: Int!): Family
+    memberDetail(memberID: Int!): Member
 
     # Admin queries
     allMembers: [Member]
@@ -250,6 +438,10 @@ type Query {
     allDoctorRequests: [DoctorRequest]
     doctorRequestsByStatus(status: String): [DoctorRequest]
     paymentsByStatus(status: String): [Payment]
+
+    # Cloudinary queries
+    generateSignature: SignatureResponse!
+    getMedicalRecordDownloadUrl(recordID: Int!): String!
 }
 
 # =======================================================
@@ -260,7 +452,6 @@ type Mutation {
     login(input: LoginInput!): AuthPayload!
     registerFamily(input: FamilyRegisterInput!): User!
     registerDoctor(input: DoctorRegisterInput!): User!
-
 
     # New mutation for forgot password
     forgotPassword(email: String!): String!
@@ -281,6 +472,7 @@ type Mutation {
     
     # user
     updateUserProfile(userID: ID!, input: UpdateUserInput!): User
+    changePassword(input: ChangePasswordInput!): String
 
     #member
     updateMember(memberID: ID!, input: UpdateMemberInput!): Member
@@ -293,5 +485,11 @@ type Mutation {
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
     updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!
+
+    # Appointment mutations
+    createAppointment(input: CreateAppointmentInput!): Appointment!
+    updateAppointment(input: UpdateAppointmentInput!): Appointment!
+    updateAppointmentStatus(appointmentID: Int!, status: AppointmentStatus!): Appointment!
+    cancelAppointment(appointmentID: Int!, reason: String): Appointment!
 
 }

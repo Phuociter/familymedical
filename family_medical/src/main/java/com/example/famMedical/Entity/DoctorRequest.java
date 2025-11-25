@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "DoctorRequests")
@@ -36,12 +37,16 @@ public class DoctorRequest {
     private RequestStatus status; // Pending, Accepted, Rejected
 
     private LocalDateTime requestDate;
+    
+    private LocalDateTime responseDate;
+    
+    private String responseMessage;
 
     
     public enum RequestStatus {
-        Pending,
-        Accepted,
-        Rejected
+        PENDING,
+        ACCEPTED,
+        REJECTED
     }
 }
 
