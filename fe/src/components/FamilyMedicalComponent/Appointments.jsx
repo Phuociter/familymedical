@@ -48,10 +48,10 @@ const AppointmentMainView = ({ member }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'SCHEDULED': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'COMPLETED': return 'bg-green-100 text-green-700 border-green-200';
-      case 'CANCELED': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'SCHEDULED': return 'bg-[#BBDEFB] text-[#1976D2] border-[#90CAF9]';
+      case 'COMPLETED': return 'bg-[#C8E6C9] text-[#388E3C] border-[#A5D6A7]';
+      case 'CANCELED': return 'bg-[#FFCDD2] text-[#D32F2F] border-[#EF9A9A]';
+      default: return 'bg-[#F5F5F5] text-[#B0BEC5] border-[#E0E0E0]';
     }
   };
 
@@ -85,29 +85,29 @@ const AppointmentMainView = ({ member }) => {
   }, [appointments, filterStatus, filterDate, filterName]);
 
   return (
-    <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-full flex flex-col bg-[#F9FAFB] overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6 flex-shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Lịch hẹn gia đình</h1>
-        <p className="text-sm text-gray-500 mt-1">Quản lý và theo dõi lịch khám cho tất cả thành viên</p>
+      <div className="bg-white border-b border-[#E0E0E0] px-8 py-6 flex-shrink-0">
+        <h1 className="text-2xl font-bold text-[#111827]">Lịch hẹn gia đình</h1>
+        <p className="text-sm text-[#6B7280] mt-1">Quản lý và theo dõi lịch khám cho tất cả thành viên</p>
       </div>
 
       {/* Controls */}
-      <div className="flex-shrink-0 px-8 py-4 bg-white border-b border-gray-200 space-y-4">
+      <div className="flex-shrink-0 px-8 py-4 bg-white border-b border-[#E0E0E0] space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
              {/* Filter Date */}
              <div 
-                className={`bg-white p-2.5 rounded-xl border shadow-sm focus-within:ring-2 focus-within:ring-blue-100 transition-all cursor-pointer flex flex-col justify-center ${filterDate ? 'border-blue-300 ring-1 ring-blue-50' : 'border-gray-200'}`}
+                className={`bg-white p-2.5 rounded-xl border shadow-sm focus-within:ring-2 focus-within:ring-[#BBDEFB] transition-all cursor-pointer flex flex-col justify-center ${filterDate ? 'border-[#64B5F6] ring-1 ring-[#BBDEFB]' : 'border-[#EEEEEE]'}`}
                 onClick={() => {
                     try { dateInputRef.current?.showPicker(); } 
                     catch { dateInputRef.current?.focus(); }
                 }}
             >
-                <label className="text-xs font-bold text-gray-500 uppercase mb-0.5 cursor-pointer">Ngày khám</label>
+                <label className="text-xs font-bold text-[#9E9E9E] uppercase mb-0.5 cursor-pointer">Ngày khám</label>
                 <input 
                     ref={dateInputRef}
                     type="date" 
-                    className="w-full text-sm outline-none text-gray-700 bg-transparent cursor-pointer"
+                    className="w-full text-sm outline-none text-[#616161] bg-transparent cursor-pointer"
                     value={filterDate}
                     max="9999-12-31"
                     onChange={handleDateChange}
@@ -116,11 +116,11 @@ const AppointmentMainView = ({ member }) => {
             </div>
 
             {/* Filter Name */}
-            <div className={`bg-white p-2.5 rounded-xl border shadow-sm focus-within:ring-2 focus-within:ring-blue-100 transition-all ${filterName ? 'border-blue-300 ring-1 ring-blue-50' : 'border-gray-200'}`}>
-                <label htmlFor="filter-name" className="block text-xs font-bold text-gray-500 uppercase mb-0.5">Người khám</label>
+            <div className={`bg-white p-2.5 rounded-xl border shadow-sm focus-within:ring-2 focus-within:ring-[#BBDEFB] transition-all ${filterName ? 'border-[#64B5F6] ring-1 ring-[#BBDEFB]' : 'border-[#EEEEEE]'}`}>
+                <label htmlFor="filter-name" className="block text-xs font-bold text-[#9E9E9E] uppercase mb-0.5">Người khám</label>
                 <select
                     id="filter-name"
-                    className="w-full text-sm outline-none text-gray-700 bg-transparent cursor-pointer"
+                    className="w-full text-sm outline-none text-[#616161] bg-transparent cursor-pointer"
                     value={filterName}
                     onChange={(e) => setFilterName(e.target.value)}
                 >
@@ -140,8 +140,8 @@ const AppointmentMainView = ({ member }) => {
                 onClick={() => setFilterStatus(status)}
                 className={`py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
                 filterStatus === status
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-[#1E88E5] text-[#1E88E5]'
+                    : 'border-transparent text-[#9E9E9E] hover:text-[#616161] hover:border-[#E0E0E0]'
                 }`}
             >
                 {status === 'ALL' ? 'Tất cả lịch hẹn' : getStatusLabel(status)}
@@ -154,18 +154,18 @@ const AppointmentMainView = ({ member }) => {
       <div className="flex-grow p-8 overflow-y-auto custom-scrollbar">
           {isLoading ? (
             <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E88E5]"></div>
             </div>
           ) : filteredAppointments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-300 rounded-xl bg-white">
-              <div className="p-4 bg-gray-100 rounded-full mb-4">
-                <CalendarIcon className="w-10 h-10 text-gray-400" />
+            <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-[#E0E0E0] rounded-xl bg-white">
+              <div className="p-4 bg-[#F5F5F5] rounded-full mb-4">
+                <CalendarIcon className="w-10 h-10 text-[#BDBDBD]" />
               </div>
-              <p className="text-gray-500 font-medium text-lg">Không tìm thấy lịch hẹn.</p>
+              <p className="text-g[#9E9E9E] font-medium text-lg">Không tìm thấy lịch hẹn.</p>
               {(filterDate || filterName || filterStatus !== 'ALL') && (
                   <button 
                     onClick={() => { setFilterDate(''); setFilterName(''); setFilterStatus('ALL'); }}
-                    className="mt-2 text-blue-600 hover:underline"
+                    className="mt-2 text-[#1E88E5] hover:underline"
                   >
                       Xóa bộ lọc hiện tại
                   </button>
@@ -174,25 +174,25 @@ const AppointmentMainView = ({ member }) => {
           ) : (
             <div className="space-y-4 pb-10">
               {filteredAppointments.map((app) => (
-                <div key={app.appointmentId} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col md:flex-row">
-                  <div className="md:w-36 bg-blue-50/50 p-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 flex-shrink-0">
-                    <span className="text-3xl font-bold text-blue-600">
+                <div key={app.appointmentId} className="bg-white rounded-xl border border-[#EEEEEE] shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col md:flex-row">
+                  <div className="md:w-36 bg-[#E3F2FD] p-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#F5F5F5] flex-shrink-0">
+                    <span className="text-3xl font-bold text-[#1E88E5]">
                       {app.appointmentDate.split('-')[2]}
                     </span>
-                    <span className="text-sm font-semibold text-gray-600 uppercase">
+                    <span className="text-sm font-semibold text-[#757575] uppercase">
                       Tháng {app.appointmentDate.split('-')[1]}
                     </span>
-                    <span className="text-xs text-gray-400 mt-1">{app.appointmentDate.split('-')[0]}</span>
+                    <span className="text-xs text-[#BDBDBD] mt-1">{app.appointmentDate.split('-')[0]}</span>
                   </div>
 
                   <div className="flex-grow p-5 flex flex-col justify-between gap-3">
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex flex-col">
-                             <h3 className="font-bold text-lg text-gray-900">
+                             <h3 className="font-bold text-lg text-[#424242]">
                               {app.reason || 'Khám bệnh'}
                             </h3>
-                            <span className="text-sm font-medium text-blue-600 flex items-center gap-1 mt-1">
+                            <span className="text-sm font-medium text-[#1E88E5] flex items-center gap-1 mt-1">
                                 <UserIcon className="w-4 h-4" />
                                 {app.patientName || 'Thành viên'}
                             </span>
@@ -203,20 +203,20 @@ const AppointmentMainView = ({ member }) => {
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-600 mt-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-[#757575] mt-3">
                         <div className="flex items-center gap-2">
-                          <ClockIcon className="w-4 h-4 text-gray-400" />
+                          <ClockIcon className="w-4 h-4 text-[#BDBDBD]" />
                           <span>{formatTime(app.startTime)} - {formatTime(app.endTime)}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <DoctorIcon className="w-4 h-4 text-gray-400" />
+                          <DoctorIcon className="w-4 h-4 text-[#BDBDBD]" />
                           <span>{app.doctorName || `Bác sĩ ID: ${app.doctorID}`}</span>
                         </div>
                       </div>
 
                       {app.notes && (
-                         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-700 italic border border-gray-100">
-                           <span className="font-medium not-italic text-gray-500 text-xs block mb-1">Ghi chú:</span>
+                         <div className="mt-4 p-3 bg-[#FAFAFA] rounded-lg text-sm text-[#616161] italic border border-[#F5F5F5]">
+                           <span className="font-medium not-italic text-[#9E9E9E] text-xs block mb-1">Ghi chú:</span>
                            "{app.notes}"
                          </div>
                       )}
