@@ -33,6 +33,7 @@ public class DoctorRequestService {
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MessageService messageService;
 
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
@@ -127,6 +128,24 @@ public class DoctorRequestService {
         log.info("Created DoctorAssignment - Doctor: {}, Family: {}", 
             request.getDoctor().getUserID(), 
             request.getFamily().getFamilyID());
+
+        // Tự động tạo conversation giữa bác sĩ và gia đình (nếu chưa có)
+        try {
+            messageService.getOrCreateConversation(
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID()
+            );
+            log.info("Created/Retrieved Conversation - Doctor: {}, Family: {}", 
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID());
+        } catch (Exception e) {
+            log.error("Failed to create conversation for Doctor: {}, Family: {}. Error: {}", 
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID(),
+                e.getMessage());
+            // Không throw exception để không ảnh hưởng đến việc accept request
+            // Conversation có thể được tạo sau khi gửi tin nhắn đầu tiên
+        }
 
         // Publish event for notification
         eventPublisher.publishEvent(new DoctorRequestStatusChangedEvent(this, savedRequest));
