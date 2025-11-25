@@ -102,8 +102,9 @@ public class AdminGraphQLResolver {
             return adminService.listAllDoctorRequests();
         }
         try {
-            // Convert string status to enum (database uses Pending, Accepted, Rejected)
-            DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(status);
+            // Convert string status to enum (database uses PENDING, ACCEPTED, REJECTED)
+            // Support both uppercase and capitalized formats
+            DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(status.toUpperCase());
             return adminService.listDoctorRequestsByStatus(requestStatus);
         } catch (IllegalArgumentException e) {
             // If status is invalid, return all requests

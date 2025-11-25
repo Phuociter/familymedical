@@ -433,4 +433,102 @@ class MessageServiceTest {
             );
         }
     }
+
+    @Nested
+    @DisplayName("Search Messages Tests")
+    class SearchMessagesTests {
+
+        @Test
+        @DisplayName("Should search messages with keyword")
+        void searchMessages_WithKeyword_ReturnsMatchingMessages() {
+            // Arrange
+            List<Message> messages = List.of(message);
+            Page<Message> messagePage = new PageImpl<>(messages);
+            
+            when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
+            when(messageRepository.searchMessages(eq("test"), isNull(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(messagePage);
+
+            // Act
+            MessageConnection result = messageService.searchMessages(1, "test", null, null, null, 0, 10);
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getMessages().size());
+            assertEquals(1, result.getTotalCount());
+            verify(messageRepository).searchMessages(eq("test"), isNull(), isNull(), isNull(), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("Should search messages with conversation filter")
+        void searchMessages_WithConversationFilter_ReturnsFilteredMessages() {
+            // Arrange
+            List<Message> messages = List.of(message);
+            Page<Message> messagePage = new PageImpl<>(messages);
+            
+            when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
+            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+            when(messageRepository.searchMessages(eq("test"), eq(1L), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(messagePage);
+
+            // Act
+            MessageConnection result = messageService.searchMessages(1, "test", 1L, null, null, 0, 10);
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getMessages().size());
+            verify(messageRepository).searchMessages(eq("test"), eq(1L), isNull(), isNull(), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("Should search messages with date range filter")
+        void searchMessages_WithDateRangeFilter_ReturnsFilteredMessages() {
+            // Arrange
+            LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+            LocalDateTime endDate = LocalDateTime.now();
+            List<Message> messages = List.of(message);
+            Page<Message> messagePage = new PageImpl<>(messages);
+            
+            when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
+            when(messageRepository.searchMessages(isNull(), isNull(), eq(startDate), eq(endDate), any(Pageable.class)))
+                .thenReturn(messagePage);
+
+            // Act
+            MessageConnection result = messageService.searchMessages(1, null, null, startDate, endDate, 0, 10);
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getMessages().size());
+            verify(messageRepository).searchMessages(isNull(), isNull(), eq(startDate), eq(endDate), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("Should throw UnAuthorizedException when user not participant in conversation")
+        void searchMessages_NotParticipant_ThrowsUnAuthorizedException() {
+            // Arrange
+            User otherUser = new User();
+            otherUser.setUserID(3);
+            otherUser.setRole(UserRole.BacSi);
+            
+            when(userRepository.findById(3)).thenReturn(Optional.of(otherUser));
+            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+
+            // Act & Assert
+            assertThrows(UnAuthorizedException.class, () -> 
+                messageService.searchMessages(3, "test", 1L, null, null, 0, 10)
+            );
+        }
+
+        @Test
+        @DisplayName("Should throw NotFoundException when user not found")
+        void searchMessages_InvalidUser_ThrowsNotFoundException() {
+            // Arrange
+            when(userRepository.findById(1)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NotFoundException.class, () -> 
+                messageService.searchMessages(1, "test", null, null, null, 0, 10)
+            );
+        }
+    }
 }

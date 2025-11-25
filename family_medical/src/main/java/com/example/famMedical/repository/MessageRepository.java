@@ -27,16 +27,36 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("UPDATE Message m SET m.isRead = true, m.readAt = :readAt WHERE m.conversation.conversationID = :conversationId AND m.sender.userID != :userId AND m.isRead = false")
     int markConversationAsRead(@Param("conversationId") Long conversationId, @Param("userId") Integer userId, @Param("readAt") LocalDateTime readAt);
 
-    @Query(value = "SELECT m.* FROM messages m " +
-           "WHERE (:keyword IS NULL OR m.content LIKE CONCAT('%', :keyword, '%')) " +
-           "AND (:conversationId IS NULL OR m.conversation_id = :conversationId) " +
-           "AND (:startDate IS NULL OR m.created_at >= :startDate) " +
-           "AND (:endDate IS NULL OR m.created_at <= :endDate) " +
-           "ORDER BY m.created_at DESC",
-           nativeQuery = true)
+    /**
+     * Search messages using MySQL full-text search with multiple filters
+     * Requirements: 11.1, 11.2, 11.3, 11.4, 11.5
+     * 
+     * Uses MATCH...AGAINST for efficient full-text search when keyword is provided.
+     * Falls back to returning all messages when keyword is null.
+     * Supports filtering by conversation, date range, and pagination.
+     * 
+     * Note: The FULLTEXT index on content column must be created via migration:
+     * ALTER TABLE messages ADD FULLTEXT INDEX idx_content_fulltext (content);
+     */
+    @Query(value = """
+       SELECT m.* FROM messages m 
+       WHERE (:keyword IS NULL OR :keyword = '' OR MATCH(m.content) AGAINST (:keyword IN NATURAL LANGUAGE MODE))
+       AND (:conversationId IS NULL OR m.conversation_id = :conversationId)
+       AND (:startDate IS NULL OR m.created_at >= :startDate)
+       AND (:endDate IS NULL OR m.created_at <= :endDate)
+       ORDER BY m.created_at DESC
+       """,
+       countQuery = """
+       SELECT COUNT(*) FROM messages m 
+       WHERE (:keyword IS NULL OR :keyword = '' OR MATCH(m.content) AGAINST (:keyword IN NATURAL LANGUAGE MODE))
+       AND (:conversationId IS NULL OR m.conversation_id = :conversationId)
+       AND (:startDate IS NULL OR m.created_at >= :startDate)
+       AND (:endDate IS NULL OR m.created_at <= :endDate)
+       """,
+       nativeQuery = true)
     Page<Message> searchMessages(@Param("keyword") String keyword,
-                                 @Param("conversationId") Long conversationId,
-                                 @Param("startDate") LocalDateTime startDate,
-                                 @Param("endDate") LocalDateTime endDate,
-                                 Pageable pageable);
+                             @Param("conversationId") Long conversationId,
+                             @Param("startDate") LocalDateTime startDate,
+                             @Param("endDate") LocalDateTime endDate,
+                             Pageable pageable);
 }
