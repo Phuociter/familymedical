@@ -49,9 +49,8 @@ public class DoctorRequestService {
         DoctorRequest newRequest = new DoctorRequest();
         newRequest.setFamily(f2);
         newRequest.setDoctor(u1);
-        newRequest.setFamily(f2);
-
-        newRequest.setStatus(RequestStatus.PENDING);    
+        newRequest.setStatus(RequestStatus.PENDING);
+        newRequest.setRequestDate(LocalDateTime.now()); // Set explicitly
 
         System.out.println("thêm thành công doctor request");
         return doctorRequestRepository.save(newRequest);

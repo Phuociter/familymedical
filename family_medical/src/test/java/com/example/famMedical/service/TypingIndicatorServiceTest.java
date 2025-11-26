@@ -36,7 +36,7 @@ class TypingIndicatorServiceTest {
     @Test
     @DisplayName("Should broadcast typing indicator to conversation stream")
     void sendTypingIndicator_BroadcastsToStream() {
-        Long conversationID = 1L;
+        Integer conversationID = 1;
         
         // Subscribe to the typing stream
         Flux<TypingIndicator> stream = typingIndicatorService.getTypingStream(conversationID);
@@ -57,8 +57,8 @@ class TypingIndicatorServiceTest {
     @Test
     @DisplayName("Should filter typing indicators by conversation ID")
     void getTypingStream_FiltersByConversationID() {
-        Long conversationID1 = 1L;
-        Long conversationID2 = 2L;
+        Integer conversationID1 = 1;
+        Integer conversationID2 = 2;
         
         // Subscribe to conversation 1 stream
         Flux<TypingIndicator> stream = typingIndicatorService.getTypingStream(conversationID1);
@@ -78,7 +78,7 @@ class TypingIndicatorServiceTest {
     @Test
     @DisplayName("Should send stop typing indicator")
     void stopTyping_SendsStopIndicator() {
-        Long conversationID = 1L;
+        Integer conversationID = 1;
         
         // Subscribe to the typing stream
         Flux<TypingIndicator> stream = typingIndicatorService.getTypingStream(conversationID);
@@ -99,7 +99,7 @@ class TypingIndicatorServiceTest {
     @Test
     @DisplayName("Should automatically stop typing after 3 seconds")
     void sendTypingIndicator_AutoStopsAfter3Seconds() {
-        Long conversationID = 1L;
+        Integer conversationID = 1;
         
         // Subscribe to the typing stream
         Flux<TypingIndicator> stream = typingIndicatorService.getTypingStream(conversationID);
@@ -121,7 +121,7 @@ class TypingIndicatorServiceTest {
     @Test
     @DisplayName("Should cancel previous timeout when new typing indicator is sent")
     void sendTypingIndicator_CancelsPreviousTimeout() {
-        Long conversationID = 1L;
+        Integer conversationID = 1;
         
         // Subscribe to the typing stream
         Flux<TypingIndicator> stream = typingIndicatorService.getTypingStream(conversationID);

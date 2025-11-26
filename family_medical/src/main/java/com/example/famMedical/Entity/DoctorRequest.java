@@ -2,11 +2,11 @@ package com.example.famMedical.Entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "DoctorRequests")
@@ -42,6 +42,10 @@ public class DoctorRequest {
     
     private String responseMessage;
 
+    @PrePersist
+    protected void onCreate() {
+        this.requestDate = LocalDateTime.now();
+    }
     
     public enum RequestStatus {
         PENDING,

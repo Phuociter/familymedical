@@ -283,7 +283,7 @@ type DoctorRequest {
     doctor: User!
     message: String
     status: RequestStatus!
-    requestDate: LocalDateTime!
+    requestDate: String!
     responseDate: LocalDateTime
     responseMessage: String
 }

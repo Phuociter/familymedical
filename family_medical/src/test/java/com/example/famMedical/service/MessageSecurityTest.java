@@ -93,14 +93,14 @@ class MessageSecurityTest {
         
         // Setup conversation
         conversation = new Conversation();
-        conversation.setConversationID(1L);
+        conversation.setConversationID(1);
         conversation.setDoctor(doctor);
         conversation.setFamily(family);
         conversation.setCreatedAt(LocalDateTime.now());
         
         // Setup message
         message = new Message();
-        message.setMessageID(1L);
+        message.setMessageID(1);
         message.setConversation(conversation);
         message.setSender(doctor);
         message.setContent("Test message");
@@ -112,12 +112,12 @@ class MessageSecurityTest {
     @DisplayName("Requirement 7.2: Should prevent unauthorized user from marking message as read")
     void testUnauthorizedMarkMessageAsRead() {
         // Given
-        when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+        when(messageRepository.findById(1)).thenReturn(Optional.of(message));
         when(userRepository.findById(3)).thenReturn(Optional.of(unauthorizedUser));
         
         // When & Then
         assertThrows(UnAuthorizedException.class, () -> {
-            messageService.markMessageAsRead(1L, 3);
+            messageService.markMessageAsRead(1, 3);
         });
         
         verify(messageRepository, never()).save(any(Message.class));
@@ -127,11 +127,11 @@ class MessageSecurityTest {
     @DisplayName("Requirement 7.2: Should prevent user from marking their own message as read")
     void testCannotMarkOwnMessageAsRead() {
         // Given
-        when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+        when(messageRepository.findById(1)).thenReturn(Optional.of(message));
         
         // When & Then
         assertThrows(ValidationException.class, () -> {
-            messageService.markMessageAsRead(1L, doctor.getUserID());
+            messageService.markMessageAsRead(1, doctor.getUserID());
         });
         
         verify(messageRepository, never()).save(any(Message.class));
@@ -141,12 +141,12 @@ class MessageSecurityTest {
     @DisplayName("Requirement 7.2: Should allow authorized participant to mark message as read")
     void testAuthorizedMarkMessageAsRead() {
         // Given
-        when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+        when(messageRepository.findById(1)).thenReturn(Optional.of(message));
         when(userRepository.findById(2)).thenReturn(Optional.of(familyHead));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
         
         // When
-        Message result = messageService.markMessageAsRead(1L, familyHead.getUserID());
+        Message result = messageService.markMessageAsRead(1, familyHead.getUserID());
         
         // Then
         assertNotNull(result);
@@ -157,15 +157,15 @@ class MessageSecurityTest {
     @DisplayName("Requirement 7.2: Should prevent unauthorized user from accessing conversation")
     void testUnauthorizedConversationAccess() {
         // Given
-        when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+        when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
         when(userRepository.findById(3)).thenReturn(Optional.of(unauthorizedUser));
         
         // When & Then
         assertThrows(UnAuthorizedException.class, () -> {
-            messageService.markConversationAsRead(1L, 3);
+            messageService.markConversationAsRead(1, 3);
         });
         
-        verify(messageRepository, never()).markConversationAsRead(anyLong(), anyInt(), any());
+        verify(messageRepository, never()).markConversationAsRead(anyInt(), anyInt(), any());
     }
     
     @Test
@@ -215,7 +215,7 @@ class MessageSecurityTest {
             .thenReturn(Optional.of(conversation));
         
         Message savedMessage = new Message();
-        savedMessage.setMessageID(1L);
+        savedMessage.setMessageID(1);
         savedMessage.setContent("Test message");
         savedMessage.setConversation(conversation);
         savedMessage.setSender(doctor);
@@ -263,15 +263,15 @@ class MessageSecurityTest {
     @DisplayName("Requirement 7.2: Should prevent unauthorized typing indicator")
     void testUnauthorizedTypingIndicator() {
         // Given
-        when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+        when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
         when(userRepository.findById(3)).thenReturn(Optional.of(unauthorizedUser));
         
         // When & Then
         assertThrows(UnAuthorizedException.class, () -> {
-            messageService.sendTypingIndicator(1L, 3, true);
+            messageService.sendTypingIndicator(1, 3, true);
         });
         
-        verify(typingIndicatorService, never()).sendTypingIndicator(anyLong(), any(), anyBoolean());
+        verify(typingIndicatorService, never()).sendTypingIndicator(anyInt(), any(), anyBoolean());
     }
     
     @Test

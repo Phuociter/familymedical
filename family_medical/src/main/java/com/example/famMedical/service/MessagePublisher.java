@@ -28,9 +28,15 @@ public class MessagePublisher {
      * @param message The message to publish
      */
     public void publishMessage(Message message) {
+        System.out.println("📤 Publishing message " + message.getMessageID() + 
+                " from sender " + message.getSender().getUserID() + 
+                " in conversation " + message.getConversation().getConversationID());
+        
         Sinks.EmitResult result = messageSink.tryEmitNext(message);
         if (result.isFailure()) {
-            System.err.println("Failed to publish message: " + result);
+            System.err.println("❌ Failed to publish message: " + result);
+        } else {
+            System.out.println("✅ Message published successfully");
         }
     }
 
@@ -39,9 +45,13 @@ public class MessagePublisher {
      * @param conversation The conversation to publish
      */
     public void publishConversationUpdate(Conversation conversation) {
+        System.out.println("📤 Publishing conversation " + conversation.getConversationID() + " update");
+        
         Sinks.EmitResult result = conversationSink.tryEmitNext(conversation);
         if (result.isFailure()) {
-            System.err.println("Failed to publish conversation update: " + result);
+            System.err.println("❌ Failed to publish conversation update: " + result);
+        } else {
+            System.out.println("✅ Conversation update published successfully");
         }
     }
 
@@ -76,6 +86,7 @@ public class MessagePublisher {
      */
     private boolean isMessageForUser(Message message, User user) {
         if (message == null || user == null || message.getConversation() == null) {
+            System.out.println("❌ Null check failed for message filter");
             return false;
         }
         
@@ -86,7 +97,15 @@ public class MessagePublisher {
         boolean isSender = message.getSender() != null && 
                           message.getSender().getUserID().equals(user.getUserID());
         
-        return isParticipant && !isSender;
+        boolean shouldDeliver = isParticipant && !isSender;
+        
+        System.out.println("🔍 Filtering message " + message.getMessageID() + 
+                " for user " + user.getUserID() + 
+                ": isParticipant=" + isParticipant + 
+                ", isSender=" + isSender + 
+                ", shouldDeliver=" + shouldDeliver);
+        
+        return shouldDeliver;
     }
 
     /**

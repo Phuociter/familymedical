@@ -20,7 +20,7 @@ public interface MessageService {
      * @return Created message
      */
     Message sendMessage(Integer senderID, Integer recipientID, String content, 
-                       Long conversationID, List<MultipartFile> attachments);
+                       Integer conversationID, List<MultipartFile> attachments);
     
     /**
      * Mark a message as read
@@ -28,14 +28,14 @@ public interface MessageService {
      * @param userID ID of the user marking the message as read
      * @return Updated message
      */
-    Message markMessageAsRead(Long messageID, Integer userID);
+    Message markMessageAsRead(Integer messageID, Integer userID);
     
     /**
      * Mark all messages in a conversation as read for a user
      * @param conversationID ID of the conversation
      * @param userID ID of the user marking messages as read
      */
-    void markConversationAsRead(Long conversationID, Integer userID);
+    void markConversationAsRead(Integer conversationID, Integer userID);
     
     /**
      * Get all conversations for a user with pagination
@@ -61,7 +61,7 @@ public interface MessageService {
      * @param size Page size
      * @return MessageConnection with messages and pagination info
      */
-    MessageConnection getConversationMessages(Long conversationID, int page, int size);
+    MessageConnection getConversationMessages(Integer conversationID, int page, int size);
     
     /**
      * Search messages with filters
@@ -74,7 +74,7 @@ public interface MessageService {
      * @param size Page size
      * @return MessageConnection with search results
      */
-    MessageConnection searchMessages(Integer userID, String keyword, Long conversationID,
+    MessageConnection searchMessages(Integer userID, String keyword, Integer conversationID,
                                     LocalDateTime startDate, LocalDateTime endDate,
                                     int page, int size);
     
@@ -91,5 +91,5 @@ public interface MessageService {
      * @param userID ID of the user typing
      * @param isTyping Whether the user is typing or stopped typing
      */
-    void sendTypingIndicator(Long conversationID, Integer userID, boolean isTyping);
+    void sendTypingIndicator(Integer conversationID, Integer userID, boolean isTyping);
 }

@@ -22,38 +22,38 @@ enum NotificationType {
 # =======================================================
 
 type MessageAttachment {
-    attachmentID: ID!
+    attachmentID: Int!
     filename: String!
     fileType: String!
     fileSize: Int!
     fileUrl: String!
-    uploadedAt: DateTime!
+    uploadedAt: LocalDateTime!
 }
 
 type Message {
-    messageID: ID!
+    messageID: Int!
     conversation: Conversation!
     sender: User!
     content: String!
     attachments: [MessageAttachment!]
     isRead: Boolean!
-    readAt: DateTime
-    createdAt: DateTime!
+    readAt: LocalDateTime
+    createdAt: LocalDateTime!
 }
 
 type Conversation {
-    conversationID: ID!
+    conversationID: Int!
     doctor: User!
     family: Family!
     lastMessage: Message
-    lastMessageAt: DateTime
+    lastMessageAt: LocalDateTime
     unreadCount: Int!
     messages(page: Int, size: Int): MessageConnection!
-    createdAt: DateTime!
+    createdAt: LocalDateTime!
 }
 
 type TypingIndicator {
-    conversationID: ID!
+    conversationID: Int!
     user: User!
     isTyping: Boolean!
 }
@@ -73,8 +73,8 @@ type Notification {
     relatedEntityType: String
     relatedEntityID: Int
     isRead: Boolean!
-    readAt: DateTime
-    createdAt: DateTime!
+    readAt: LocalDateTime
+    createdAt: LocalDateTime!
 }
 
 type NotificationConnection {
@@ -91,7 +91,7 @@ input SendMessageInput {
     conversationID: Int
     recipientID: Int!
     content: String!
-    attachments: [Upload!]
+    attachments: [Upload]
 }
 
 input TypingIndicatorInput {
@@ -102,8 +102,8 @@ input TypingIndicatorInput {
 input MessageSearchInput {
     keyword: String
     conversationID: Int
-    startDate: DateTime
-    endDate: DateTime
+    startDate: LocalDateTime
+    endDate: LocalDateTime
     page: Int
     size: Int
 }

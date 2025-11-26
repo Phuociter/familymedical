@@ -1,79 +1,27 @@
 package com.example.famMedical.exception;
-
-
-import java.util.HashMap;
-import java.util.Map;
-
+import graphql.GraphQLError;
+import graphql.GraphqlErrorBuilder;
+import graphql.schema.DataFetchingEnvironment;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.stereotype.Component;
 
-import graphql.GraphQLError;
-import graphql.schema.DataFetchingEnvironment;
-import jakarta.validation.ConstraintViolationException;
-
-@ControllerAdvice
+@Component
 public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter {
-    
+
     @Override
     protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
+        System.err.println("=== GraphQL Error ===");
+        System.err.println("Path: " + env.getExecutionStepInfo().getPath());
+        System.err.println("Field: " + env.getField().getName());
+        System.err.println("Error: " + ex.getMessage());
+        ex.printStackTrace();
         
-        // Validation Exception
-        if (ex instanceof ValidationException) {
-            return GraphQLError.newError()
-                .errorType(ErrorType.BAD_REQUEST)
-                .message(ex.getMessage())
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.INTERNAL_ERROR)
+                .message("Subscription error: " + ex.getMessage())
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())
                 .build();
-        }
-        
-        // Not Found Exception
-        if (ex instanceof NotFoundException) {
-            return GraphQLError.newError()
-                .errorType(ErrorType.NOT_FOUND)
-                .message(ex.getMessage())
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
-                .build();
-        }
-        
-        // Unauthorized Exception
-        if (ex instanceof UnAuthorizedException) {
-            return GraphQLError.newError()
-                .errorType(ErrorType.UNAUTHORIZED)
-                .message(ex.getMessage())
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
-                .build();
-        }
-        
-        // Bean Validation Exception
-        if (ex instanceof ConstraintViolationException) {
-            ConstraintViolationException cve = (ConstraintViolationException) ex;
-            
-            Map<String, String> errors = new HashMap<>();
-            cve.getConstraintViolations().forEach(violation -> {
-                String field = violation.getPropertyPath().toString();
-                String message = violation.getMessage();
-                errors.put(field, message);
-            });
-            
-            return GraphQLError.newError()
-                .errorType(ErrorType.BAD_REQUEST)
-                .message("Validation failed")
-                .extensions(Map.of("validationErrors", errors))
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
-                .build();
-        }
-        
-        // Generic Exception
-        return GraphQLError.newError()
-            .errorType(ErrorType.INTERNAL_ERROR)
-            .message("Internal server error: " + ex.getMessage())
-            .path(env.getExecutionStepInfo().getPath())
-            .location(env.getField().getSourceLocation())
-            .build();
     }
 }

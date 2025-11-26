@@ -7,6 +7,7 @@ export const GET_DOCTOR_REQUESTS = gql`
       requestID
       message
       status
+      requestDate
       responseDate
       responseMessage
       family {
@@ -35,7 +36,9 @@ export const GET_ASSIGNED_FAMILIES = gql`
       familyID
       familyName
       familyAddress
+      headOfFamilyID
       headOfFamily {
+        userID
         fullName
         phoneNumber
       }

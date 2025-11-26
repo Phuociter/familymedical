@@ -22,7 +22,7 @@ public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "conversation_id")
-    private Long conversationID;
+    private Integer conversationID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)

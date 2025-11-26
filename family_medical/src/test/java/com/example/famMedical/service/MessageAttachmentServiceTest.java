@@ -46,7 +46,7 @@ class MessageAttachmentServiceTest {
     @BeforeEach
     void setUp() {
         message = Message.builder()
-            .messageID(1L)
+            .messageID(1)
             .content("Test message")
             .build();
     }
@@ -273,7 +273,7 @@ class MessageAttachmentServiceTest {
             String fileUrl = "https://cloudinary.com/test.jpg";
             
             MessageAttachment expectedAttachment = MessageAttachment.builder()
-                .attachmentID(1L)
+                .attachmentID(1)
                 .message(message)
                 .filename("test.jpg")
                 .fileType("image/jpeg")
@@ -327,11 +327,11 @@ class MessageAttachmentServiceTest {
                 .thenReturn(uploadResult2);
             
             MessageAttachment attachment1 = MessageAttachment.builder()
-                .attachmentID(1L)
+                .attachmentID(1)
                 .filename("test1.jpg")
                 .build();
             MessageAttachment attachment2 = MessageAttachment.builder()
-                .attachmentID(2L)
+                .attachmentID(2)
                 .filename("test2.pdf")
                 .build();
             
@@ -387,24 +387,24 @@ class MessageAttachmentServiceTest {
         void getMessageAttachments_ValidMessageId_ReturnsAttachments() {
             // Arrange
             MessageAttachment attachment1 = MessageAttachment.builder()
-                .attachmentID(1L)
+                .attachmentID(1)
                 .filename("test1.jpg")
                 .build();
             MessageAttachment attachment2 = MessageAttachment.builder()
-                .attachmentID(2L)
+                .attachmentID(2)
                 .filename("test2.pdf")
                 .build();
             
-            when(messageAttachmentRepository.findByMessageID(1L))
+            when(messageAttachmentRepository.findByMessageID(1))
                 .thenReturn(List.of(attachment1, attachment2));
 
             // Act
-            List<MessageAttachment> result = messageAttachmentService.getMessageAttachments(1L);
+            List<MessageAttachment> result = messageAttachmentService.getMessageAttachments(1);
 
             // Assert
             assertNotNull(result);
             assertEquals(2, result.size());
-            verify(messageAttachmentRepository).findByMessageID(1L);
+            verify(messageAttachmentRepository).findByMessageID(1);
         }
     }
 }

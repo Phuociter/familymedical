@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TypingIndicatorInput {
-    private Long conversationID;
+    private Integer conversationID;
     private Boolean isTyping;
 }

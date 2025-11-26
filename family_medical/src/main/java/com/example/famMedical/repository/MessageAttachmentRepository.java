@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MessageAttachmentRepository extends JpaRepository<MessageAttachment, Long> {
+public interface MessageAttachmentRepository extends JpaRepository<MessageAttachment, Integer> {
 
     @Query("SELECT ma FROM MessageAttachment ma WHERE ma.message.messageID = :messageId")
-    List<MessageAttachment> findByMessageID(@Param("messageId") Long messageId);
+    List<MessageAttachment> findByMessageID(@Param("messageId") Integer messageId);
 }

@@ -4,7 +4,7 @@
  * This hook demonstrates how to use GraphQL subscriptions for real-time notifications.
  */
 
-import { useSubscription, gql } from '@apollo/client';
+import { useSubscription, gql } from '@apollo/client/react';
 import { useEffect } from 'react';
 import { createSubscriptionOptions } from '../utils/subscriptionUtils';
 

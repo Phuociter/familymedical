@@ -25,6 +25,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationEventListener {
     
     private final NotificationService notificationService;
+    private final MessagePublisher messagePublisher;
     
     /**
      * Listen for appointment creation events and create notifications
@@ -127,9 +128,22 @@ public class NotificationEventListener {
                 event.getMessage().getMessageID());
         
         try {
+            // Create notification
             notificationService.notifyNewMessage(event.getMessage());
+            
+            // Publish message to WebSocket subscribers
+            log.info("Publishing message {} to WebSocket subscribers", 
+                    event.getMessage().getMessageID());
+            messagePublisher.publishMessage(event.getMessage());
+            
+            // Publish conversation update
+            if (event.getMessage().getConversation() != null) {
+                log.info("Publishing conversation {} update to WebSocket subscribers", 
+                        event.getMessage().getConversation().getConversationID());
+                messagePublisher.publishConversationUpdate(event.getMessage().getConversation());
+            }
         } catch (Exception e) {
-            log.error("Error creating notification for new message: {}", 
+            log.error("Error handling new message event for message: {}", 
                     event.getMessage().getMessageID(), e);
         }
     }

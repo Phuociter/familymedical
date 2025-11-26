@@ -49,7 +49,9 @@ export default function ConversationView({
   const messagesContainerRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = 0;
+    }
   };
 
   useEffect(() => {
@@ -65,10 +67,11 @@ export default function ConversationView({
   };
 
   const handleScroll = (e) => {
-    const { scrollTop } = e.target;
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
     
-    // Load more when scrolled to top
-    if (scrollTop === 0 && hasMore && !loading && onLoadMore) {
+    // Load more when scrolled to bottom (which is top in reversed layout)
+    const scrolledToBottom = Math.abs(scrollTop) + clientHeight >= scrollHeight - 10;
+    if (scrolledToBottom && hasMore && !loading && onLoadMore) {
       onLoadMore();
     }
   };
@@ -189,6 +192,8 @@ export default function ConversationView({
           p: 2,
           overflow: 'auto',
           bgcolor: 'grey.50',
+          display: 'flex',
+          flexDirection: 'column-reverse',
         }}
       >
         {loading && messages.length === 0 ? (
@@ -204,20 +209,7 @@ export default function ConversationView({
           </Box>
         ) : (
           <>
-            {/* Load more indicator */}
-            {hasMore && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                {loading ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  <Button size="small" onClick={onLoadMore}>
-                    Tải thêm tin nhắn
-                  </Button>
-                )}
-              </Box>
-            )}
-
-            {/* Messages */}
+            {/* Messages - reversed order */}
             {messages.length === 0 ? (
               <Box
                 sx={{
@@ -232,22 +224,35 @@ export default function ConversationView({
                 </Typography>
               </Box>
             ) : (
-              <>
-                {messages.map((message) => (
-                  <MessageBubble
-                    key={message.messageID}
-                    message={message}
-                    currentUserId={currentUserId}
-                  />
-                ))}
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <div ref={messagesEndRef} />
                 
                 {/* Typing indicator */}
                 {typingUser && (
                   <TypingIndicator userName={typingUser.fullName || typingUser.familyName} />
                 )}
                 
-                <div ref={messagesEndRef} />
-              </>
+                {[...messages].reverse().map((message) => (
+                  <MessageBubble
+                    key={message.messageID}
+                    message={message}
+                    currentUserId={currentUserId}
+                  />
+                ))}
+              </Box>
+            )}
+
+            {/* Load more indicator */}
+            {hasMore && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                {loading ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <Button size="small" onClick={onLoadMore}>
+                    Tải thêm tin nhắn
+                  </Button>
+                )}
+              </Box>
             )}
           </>
         )}

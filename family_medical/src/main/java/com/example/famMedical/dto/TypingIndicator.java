@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TypingIndicator {
-    private Long conversationID;
+    private Integer conversationID;
     private User user;
     private boolean isTyping;
 }

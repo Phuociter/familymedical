@@ -20,6 +20,9 @@ import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client/react';
 import { ConversationList, ConversationView } from '../../components/Messaging';
 import { GET_ASSIGNED_FAMILIES } from '../../graphql/doctorQueries';
+import { useSendMessage } from '../../hooks/useSendMessage';
+import { useConversations } from '../../hooks/useConversations';
+import { useMessages } from '../../hooks/useMessages';
 
 /**
  * DoctorMessagesPage - Main messaging interface for doctors
@@ -29,11 +32,6 @@ import { GET_ASSIGNED_FAMILIES } from '../../graphql/doctorQueries';
 export default function DoctorMessagesPage() {
   const currentUser = useSelector((state) => state.user.user);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [conversationsLoading, setConversationsLoading] = useState(false);
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [sending, setSending] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
   const [activeTab, setActiveTab] = useState(0); // 0: Conversations, 1: Families
 
@@ -43,40 +41,28 @@ export default function DoctorMessagesPage() {
     skip: !currentUser,
   });
 
-  // TODO: Replace with GraphQL queries and subscriptions
-  // For now, using empty state - will be integrated in task 16
-  useEffect(() => {
-    // This will be replaced with:
-    // const { data, loading } = useQuery(MY_CONVERSATIONS_QUERY);
-    // const { data: subscriptionData } = useSubscription(MESSAGE_RECEIVED_SUBSCRIPTION);
-    // const { data: typingData } = useSubscription(TYPING_INDICATOR_SUBSCRIPTION);
-    
-    setConversationsLoading(false);
-  }, []);
+  // Fetch conversations
+  const { conversations, loading: conversationsLoading } = useConversations();
+
+  // Fetch messages for selected conversation
+  const { 
+    messages, 
+    loading: messagesLoading,
+    loadMore: handleLoadMore 
+  } = useMessages(selectedConversation?.conversationID);
+
+  // Send message hook
+  const { sendMessage, loading: sending } = useSendMessage({
+    onCompleted: (message) => {
+      console.log('Message sent successfully:', message);
+    },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+    },
+  });
 
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
-    setMessagesLoading(true);
-    
-    try {
-      // TODO: Replace with GraphQL query
-      // const { data } = await client.query({
-      //   query: CONVERSATION_MESSAGES_QUERY,
-      //   variables: { conversationID: conversation.conversationID, page: 0, size: 50 }
-      // });
-      // setMessages(data.conversationMessages.messages);
-      
-      // Mark conversation as read
-      // await markConversationAsReadMutation({
-      //   variables: { conversationID: conversation.conversationID }
-      // });
-      
-      setMessages([]);
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    } finally {
-      setMessagesLoading(false);
-    }
   };
 
   const handleSendMessage = async (text, attachments) => {
@@ -84,63 +70,42 @@ export default function DoctorMessagesPage() {
       return;
     }
 
-    setSending(true);
     try {
-      // TODO: Replace with GraphQL mutation
-      // const { data } = await sendMessageMutation({
-      //   variables: {
-      //     input: {
-      //       conversationID: selectedConversation.conversationID,
-      //       recipientID: selectedConversation.family.familyID,
-      //       content: text,
-      //       attachments: attachments
-      //     }
-      //   }
-      // });
-      
-      // Optimistically add message to UI
-      // setMessages(prev => [...prev, data.sendMessage]);
-      
-      console.log('Sending message:', { text, attachments });
+      // Determine recipient ID based on conversation
+      // Try multiple ways to get the recipient ID
+      const recipientID = 
+        selectedConversation.family?.headOfFamilyID || 
+        selectedConversation.family?.headOfFamily?.userID;
+
+      if (!recipientID) {
+        console.error('Cannot determine recipient ID from conversation:', selectedConversation);
+        alert('Không thể xác định người nhận. Vui lòng thử lại.');
+        return;
+      }
+
+      console.log('Sending message to recipient:', recipientID);
+
+      await sendMessage({
+        conversationID: selectedConversation.conversationID ? parseInt(selectedConversation.conversationID) : null,
+        recipientID: parseInt(recipientID),
+        content: text,
+        attachments: attachments || [],
+      });
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Không thể gửi tin nhắn: ' + (error.message || 'Lỗi không xác định'));
       throw error;
-    } finally {
-      setSending(false);
     }
   };
 
   const handleTypingStart = () => {
     if (!selectedConversation) return;
-    
-    // TODO: Replace with GraphQL mutation
-    // sendTypingIndicatorMutation({
-    //   variables: {
-    //     input: {
-    //       conversationID: selectedConversation.conversationID,
-    //       isTyping: true
-    //     }
-    //   }
-    // });
+    // TODO: Implement typing indicator in future task
   };
 
   const handleTypingStop = () => {
     if (!selectedConversation) return;
-    
-    // TODO: Replace with GraphQL mutation
-    // sendTypingIndicatorMutation({
-    //   variables: {
-    //     input: {
-    //       conversationID: selectedConversation.conversationID,
-    //       isTyping: false
-    //     }
-    //   }
-    // });
-  };
-
-  const handleLoadMore = async () => {
-    // TODO: Implement pagination
-    // Load more messages when scrolling to top
+    // TODO: Implement typing indicator in future task
   };
 
   if (!currentUser) {
@@ -161,17 +126,25 @@ export default function DoctorMessagesPage() {
   }
 
   const handleFamilySelect = (family) => {
-    // TODO: Find or create conversation with this family
-    // For now, create a mock conversation object
-    const mockConversation = {
-      conversationID: `temp-${family.familyID}`,
-      family: family,
-      doctor: currentUser,
-      lastMessageAt: null,
-      unreadCount: 0,
-    };
-    setSelectedConversation(mockConversation);
-    setMessages([]);
+    // Find existing conversation or create new one
+    const existingConversation = conversations.find(
+      conv => conv.family?.familyID === family.familyID
+    );
+
+    if (existingConversation) {
+      setSelectedConversation(existingConversation);
+    } else {
+      // Create a temporary conversation object for new conversations
+      const newConversation = {
+        conversationID: null, // Will be created on first message
+        family: family,
+        doctor: currentUser,
+        lastMessageAt: null,
+        unreadCount: 0,
+      };
+      setSelectedConversation(newConversation);
+    }
+    
     setActiveTab(0); // Switch back to conversations tab
   };
 
@@ -345,21 +318,23 @@ function FamilyList({ families, onSelectFamily, loading }) {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" noWrap>
-                        {family.familyName}
-                      </Typography>
-                    }
+                    primary={family.familyName}
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="textSecondary" noWrap>
-                          Chủ hộ: {family.headOfFamily?.fullName}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {family.members?.length || 0} thành viên
-                        </Typography>
-                      </Box>
+                      <>
+                        Chủ hộ: {family.headOfFamily?.fullName}
+                        {' • '}
+                        {family.members?.length || 0} thành viên
+                      </>
                     }
+                    primaryTypographyProps={{
+                      variant: 'subtitle2',
+                      noWrap: true,
+                    }}
+                    secondaryTypographyProps={{
+                      variant: 'body2',
+                      color: 'textSecondary',
+                      noWrap: true,
+                    }}
                   />
                 </ListItemButton>
               </ListItem>

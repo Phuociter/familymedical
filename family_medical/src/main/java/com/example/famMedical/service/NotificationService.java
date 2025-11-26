@@ -22,7 +22,7 @@ public interface NotificationService {
      */
     Notification createNotification(Integer userID, NotificationType type, 
                                    String title, String message,
-                                   String relatedEntityType, Long relatedEntityID);
+                                   String relatedEntityType, Integer relatedEntityID);
     
     /**
      * Mark a notification as read

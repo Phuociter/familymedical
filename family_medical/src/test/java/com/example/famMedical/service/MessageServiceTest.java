@@ -90,7 +90,7 @@ class MessageServiceTest {
 
         // Setup conversation
         conversation = Conversation.builder()
-            .conversationID(1L)
+            .conversationID(1)
             .doctor(doctor)
             .family(family)
             .createdAt(LocalDateTime.now())
@@ -98,7 +98,7 @@ class MessageServiceTest {
 
         // Setup message
         message = Message.builder()
-            .messageID(1L)
+            .messageID(1)
             .conversation(conversation)
             .sender(doctor)
             .content("Test message")
@@ -118,11 +118,11 @@ class MessageServiceTest {
             when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
             when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
             when(userRepository.findById(2)).thenReturn(Optional.of(familyHead));
-            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+            when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
             when(messageRepository.save(any(Message.class))).thenReturn(message);
 
             // Act
-            Message result = messageService.sendMessage(1, 2, "Test message", 1L, null);
+            Message result = messageService.sendMessage(1, 2, "Test message", 1, null);
 
             // Assert
             assertNotNull(result);
@@ -140,7 +140,7 @@ class MessageServiceTest {
             
             // Act & Assert
             assertThrows(ValidationException.class, () -> 
-                messageService.sendMessage(1, 2, "", 1L, null)
+                messageService.sendMessage(1, 2, "", 1, null)
             );
         }
 
@@ -152,7 +152,7 @@ class MessageServiceTest {
             
             // Act & Assert
             assertThrows(ValidationException.class, () -> 
-                messageService.sendMessage(1, 2, "   ", 1L, null)
+                messageService.sendMessage(1, 2, "   ", 1, null)
             );
         }
 
@@ -165,7 +165,7 @@ class MessageServiceTest {
 
             // Act & Assert
             assertThrows(NotFoundException.class, () -> 
-                messageService.sendMessage(1, 2, "Test", 1L, null)
+                messageService.sendMessage(1, 2, "Test", 1, null)
             );
         }
 
@@ -179,7 +179,7 @@ class MessageServiceTest {
 
             // Act & Assert
             assertThrows(NotFoundException.class, () -> 
-                messageService.sendMessage(1, 2, "Test", 1L, null)
+                messageService.sendMessage(1, 2, "Test", 1, null)
             );
         }
     }
@@ -192,12 +192,12 @@ class MessageServiceTest {
         @DisplayName("Should mark message as read successfully")
         void markMessageAsRead_WithValidMessage_Success() {
             // Arrange
-            when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+            when(messageRepository.findById(1)).thenReturn(Optional.of(message));
             when(userRepository.findById(2)).thenReturn(Optional.of(familyHead));
             when(messageRepository.save(any(Message.class))).thenReturn(message);
 
             // Act
-            Message result = messageService.markMessageAsRead(1L, 2);
+            Message result = messageService.markMessageAsRead(1, 2);
 
             // Assert
             assertNotNull(result);
@@ -208,11 +208,11 @@ class MessageServiceTest {
         @DisplayName("Should throw ValidationException when marking own message as read")
         void markMessageAsRead_OwnMessage_ThrowsValidationException() {
             // Arrange
-            when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+            when(messageRepository.findById(1)).thenReturn(Optional.of(message));
 
             // Act & Assert
             assertThrows(ValidationException.class, () -> 
-                messageService.markMessageAsRead(1L, 1)
+                messageService.markMessageAsRead(1, 1)
             );
         }
 
@@ -220,11 +220,11 @@ class MessageServiceTest {
         @DisplayName("Should throw NotFoundException when message not found")
         void markMessageAsRead_InvalidMessage_ThrowsNotFoundException() {
             // Arrange
-            when(messageRepository.findById(1L)).thenReturn(Optional.empty());
+            when(messageRepository.findById(1)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThrows(NotFoundException.class, () -> 
-                messageService.markMessageAsRead(1L, 2)
+                messageService.markMessageAsRead(1, 2)
             );
         }
     }
@@ -240,12 +240,12 @@ class MessageServiceTest {
             List<Message> messages = List.of(message);
             Page<Message> messagePage = new PageImpl<>(messages);
             
-            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
-            when(messageRepository.findByConversationID(eq(1L), any(Pageable.class)))
+            when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
+            when(messageRepository.findByConversationID(eq(1), any(Pageable.class)))
                 .thenReturn(messagePage);
 
             // Act
-            MessageConnection result = messageService.getConversationMessages(1L, 0, 10);
+            MessageConnection result = messageService.getConversationMessages(1, 0, 10);
 
             // Assert
             assertNotNull(result);
@@ -258,11 +258,11 @@ class MessageServiceTest {
         @DisplayName("Should throw NotFoundException when conversation not found")
         void getConversationMessages_InvalidConversation_ThrowsNotFoundException() {
             // Arrange
-            when(conversationRepository.findById(1L)).thenReturn(Optional.empty());
+            when(conversationRepository.findById(1)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThrows(NotFoundException.class, () -> 
-                messageService.getConversationMessages(1L, 0, 10)
+                messageService.getConversationMessages(1, 0, 10)
             );
         }
     }
@@ -288,7 +288,7 @@ class MessageServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(1L, result.getConversationID());
+            assertEquals(1, result.getConversationID());
             verify(conversationRepository, never()).save(any(Conversation.class));
         }
 
@@ -409,27 +409,27 @@ class MessageServiceTest {
         @DisplayName("Should mark all messages in conversation as read")
         void markConversationAsRead_WithValidConversation_Success() {
             // Arrange
-            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+            when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
             when(userRepository.findById(2)).thenReturn(Optional.of(familyHead));
-            when(messageRepository.markConversationAsRead(eq(1L), eq(2), any(LocalDateTime.class)))
+            when(messageRepository.markConversationAsRead(eq(1), eq(2), any(LocalDateTime.class)))
                 .thenReturn(3);
 
             // Act & Assert
             assertDoesNotThrow(() -> 
-                messageService.markConversationAsRead(1L, 2)
+                messageService.markConversationAsRead(1, 2)
             );
-            verify(messageRepository).markConversationAsRead(eq(1L), eq(2), any(LocalDateTime.class));
+            verify(messageRepository).markConversationAsRead(eq(1), eq(2), any(LocalDateTime.class));
         }
 
         @Test
         @DisplayName("Should throw NotFoundException when conversation not found")
         void markConversationAsRead_InvalidConversation_ThrowsNotFoundException() {
             // Arrange
-            when(conversationRepository.findById(1L)).thenReturn(Optional.empty());
+            when(conversationRepository.findById(1)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThrows(NotFoundException.class, () -> 
-                messageService.markConversationAsRead(1L, 2)
+                messageService.markConversationAsRead(1, 2)
             );
         }
     }
@@ -467,17 +467,17 @@ class MessageServiceTest {
             Page<Message> messagePage = new PageImpl<>(messages);
             
             when(userRepository.findById(1)).thenReturn(Optional.of(doctor));
-            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
-            when(messageRepository.searchMessages(eq("test"), eq(1L), isNull(), isNull(), any(Pageable.class)))
+            when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
+            when(messageRepository.searchMessages(eq("test"), eq(1), isNull(), isNull(), any(Pageable.class)))
                 .thenReturn(messagePage);
 
             // Act
-            MessageConnection result = messageService.searchMessages(1, "test", 1L, null, null, 0, 10);
+            MessageConnection result = messageService.searchMessages(1, "test", 1, null, null, 0, 10);
 
             // Assert
             assertNotNull(result);
             assertEquals(1, result.getMessages().size());
-            verify(messageRepository).searchMessages(eq("test"), eq(1L), isNull(), isNull(), any(Pageable.class));
+            verify(messageRepository).searchMessages(eq("test"), eq(1), isNull(), isNull(), any(Pageable.class));
         }
 
         @Test
@@ -511,11 +511,11 @@ class MessageServiceTest {
             otherUser.setRole(UserRole.BacSi);
             
             when(userRepository.findById(3)).thenReturn(Optional.of(otherUser));
-            when(conversationRepository.findById(1L)).thenReturn(Optional.of(conversation));
+            when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
 
             // Act & Assert
             assertThrows(UnAuthorizedException.class, () -> 
-                messageService.searchMessages(3, "test", 1L, null, null, 0, 10)
+                messageService.searchMessages(3, "test", 1, null, null, 0, 10)
             );
         }
 

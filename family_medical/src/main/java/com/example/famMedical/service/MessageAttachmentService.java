@@ -187,7 +187,7 @@ public class MessageAttachmentService {
      * @return List of attachments
      */
     @Transactional(readOnly = true)
-    public List<MessageAttachment> getMessageAttachments(Long messageId) {
+    public List<MessageAttachment> getMessageAttachments(Integer messageId) {
         return messageAttachmentRepository.findByMessageID(messageId);
     }
 }

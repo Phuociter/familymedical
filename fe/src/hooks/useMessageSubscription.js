@@ -4,7 +4,7 @@
  * This hook provides real-time message and conversation updates via GraphQL subscriptions.
  */
 
-import { useSubscription } from '@apollo/client';
+import { useSubscription } from '@apollo/client/react';
 import { useEffect } from 'react';
 import { createSubscriptionOptions } from '../utils/subscriptionUtils';
 import { 

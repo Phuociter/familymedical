@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { SEND_TYPING_INDICATOR } from '../graphql/messagingMutations';
 import { TYPING_INDICATOR_SUBSCRIPTION } from '../graphql/messagingSubscriptions';

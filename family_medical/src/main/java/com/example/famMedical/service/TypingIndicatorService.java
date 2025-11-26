@@ -41,7 +41,7 @@ public class TypingIndicatorService {
      * @param user User who is typing
      * @param isTyping Whether the user is typing or stopped typing
      */
-    public void sendTypingIndicator(Long conversationID, User user, boolean isTyping) {
+    public void sendTypingIndicator(Integer conversationID, User user, boolean isTyping) {
         log.debug("User {} typing indicator: {} in conversation {}", 
                 user.getUserID(), isTyping, conversationID);
         
@@ -73,7 +73,7 @@ public class TypingIndicatorService {
      * @param conversationID ID of the conversation to monitor
      * @return Flux of typing indicators for the conversation
      */
-    public Flux<TypingIndicator> getTypingStream(Long conversationID) {
+    public Flux<TypingIndicator> getTypingStream(Integer conversationID) {
         log.debug("Creating typing indicator stream for conversation {}", conversationID);
         
         return typingSink.asFlux()
@@ -91,7 +91,7 @@ public class TypingIndicatorService {
      * @param conversationID ID of the conversation
      * @param user User who stopped typing
      */
-    public void stopTyping(Long conversationID, User user) {
+    public void stopTyping(Integer conversationID, User user) {
         log.debug("Stopping typing indicator for user {} in conversation {}", 
                 user.getUserID(), conversationID);
         
@@ -112,7 +112,7 @@ public class TypingIndicatorService {
      * Schedule automatic stop typing after 3 seconds
      * Requirements: 10.2
      */
-    private void scheduleAutoStop(Long conversationID, User user, String key) {
+    private void scheduleAutoStop(Integer conversationID, User user, String key) {
         ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
         timeoutSchedulers.put(key, scheduler);
         
@@ -148,7 +148,7 @@ public class TypingIndicatorService {
     /**
      * Generate a unique key for a user typing in a conversation
      */
-    private String getTypingKey(Long conversationID, Integer userID) {
+    private String getTypingKey(Integer conversationID, Integer userID) {
         return conversationID + ":" + userID;
     }
 }

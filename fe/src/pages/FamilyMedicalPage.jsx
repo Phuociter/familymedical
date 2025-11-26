@@ -70,6 +70,9 @@ const FamilyMedicalPage = () => {
     }
   };
 
+  // Check if current view is Messages to adjust layout
+  const isMessagesView = activeView === View.Messages;
+
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#F3F4F6' }}>
       <Sidebar
@@ -82,8 +85,8 @@ const FamilyMedicalPage = () => {
         userName={user?.fullname}
       />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Header title={activeView} />
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+        {!isMessagesView && <Header title={activeView} />}
+        <main style={{ flex: 1, overflowY: isMessagesView ? 'hidden' : 'auto' }}>
           {renderContent()}
         </main>
       </div>

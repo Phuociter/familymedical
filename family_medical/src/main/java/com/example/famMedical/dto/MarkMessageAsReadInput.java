@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MarkMessageAsReadInput {
-    private Long messageID;
+    private Integer messageID;
 }

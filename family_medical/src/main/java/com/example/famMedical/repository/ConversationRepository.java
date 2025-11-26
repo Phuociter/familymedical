@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ConversationRepository extends JpaRepository<Conversation, Long> {
+public interface ConversationRepository extends JpaRepository<Conversation, Integer> {
 
     @Query("SELECT c FROM Conversation c WHERE c.doctor.userID = :doctorId AND c.family.familyID = :familyId")
     Optional<Conversation> findByDoctorAndFamily(@Param("doctorId") Integer doctorId, @Param("familyId") Integer familyId);

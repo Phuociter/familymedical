@@ -57,7 +57,7 @@ class NotificationServiceTest {
                 .title("Test Notification")
                 .message("Test message")
                 .relatedEntityType("Appointment")
-                .relatedEntityID(1L)
+                .relatedEntityID(1)
                 .isRead(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -76,7 +76,7 @@ class NotificationServiceTest {
                 "Test Notification",
                 "Test message",
                 "Appointment",
-                1L
+                1
         );
 
         // Assert
@@ -101,7 +101,7 @@ class NotificationServiceTest {
                     "Test",
                     "Test",
                     "Appointment",
-                    1L
+                    1
             );
         });
     }
@@ -299,12 +299,12 @@ class NotificationServiceTest {
         family.setHeadOfFamily(familyHead);
 
         Conversation conversation = new Conversation();
-        conversation.setConversationID(1L);
+        conversation.setConversationID(1);
         conversation.setDoctor(doctor);
         conversation.setFamily(family);
 
         Message message = new Message();
-        message.setMessageID(1L);
+        message.setMessageID(1);
         message.setSender(doctor);
         message.setConversation(conversation);
         message.setContent("Test message");

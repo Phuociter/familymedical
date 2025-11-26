@@ -39,7 +39,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public Message sendMessage(Integer senderID, Integer recipientID, String content,
-                              Long conversationID, List<MultipartFile> attachments) {
+                              Integer conversationID, List<MultipartFile> attachments) {
         log.info("Sending message from user {} to user {}", senderID, recipientID);
         
         // Check rate limiting (Optional security feature)
@@ -132,7 +132,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public Message markMessageAsRead(Long messageID, Integer userID) {
+    public Message markMessageAsRead(Integer messageID, Integer userID) {
         log.info("Marking message {} as read by user {}", messageID, userID);
         
         Message message = messageRepository.findById(messageID)
@@ -166,7 +166,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void markConversationAsRead(Long conversationID, Integer userID) {
+    public void markConversationAsRead(Integer conversationID, Integer userID) {
         log.info("Marking all messages in conversation {} as read by user {}", conversationID, userID);
         
         Conversation conversation = conversationRepository.findById(conversationID)
@@ -249,7 +249,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public MessageConnection getConversationMessages(Long conversationID, int page, int size) {
+    public MessageConnection getConversationMessages(Integer conversationID, int page, int size) {
         log.info("Getting messages for conversation {} (page: {}, size: {})", conversationID, page, size);
         
         // Verify conversation exists
@@ -268,7 +268,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public MessageConnection searchMessages(Integer userID, String keyword, Long conversationID,
+    public MessageConnection searchMessages(Integer userID, String keyword, Integer conversationID,
                                            LocalDateTime startDate, LocalDateTime endDate,
                                            int page, int size) {
         log.info("Searching messages for user {} with keyword: {}", userID, keyword);
@@ -385,7 +385,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendTypingIndicator(Long conversationID, Integer userID, boolean isTyping) {
+    public void sendTypingIndicator(Integer conversationID, Integer userID, boolean isTyping) {
         log.debug("User {} sending typing indicator for conversation {}: {}", 
                 userID, conversationID, isTyping);
         

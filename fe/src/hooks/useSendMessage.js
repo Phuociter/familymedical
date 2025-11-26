@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { useState, useCallback } from 'react';
 import { SEND_MESSAGE, MARK_MESSAGE_AS_READ, MARK_CONVERSATION_AS_READ } from '../graphql/messagingMutations';
 import { GET_MY_CONVERSATIONS, GET_CONVERSATION_MESSAGES } from '../graphql/messagingQueries';

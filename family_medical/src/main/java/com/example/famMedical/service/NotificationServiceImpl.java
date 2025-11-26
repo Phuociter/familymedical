@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public Notification createNotification(Integer userID, NotificationType type,
                                           String title, String message,
-                                          String relatedEntityType, Long relatedEntityID) {
+                                          String relatedEntityType, Integer relatedEntityID) {
         log.info("Creating notification for user {} with type {}", userID, type);
         
         User user = userRepository.findById(userID)
@@ -147,7 +147,7 @@ public class NotificationServiceImpl implements NotificationService {
                 doctorTitle,
                 doctorMessage,
                 "Appointment",
-                appointment.getAppointmentID().longValue()
+                appointment.getAppointmentID()
         );
         
         // Notify the family head
@@ -164,7 +164,7 @@ public class NotificationServiceImpl implements NotificationService {
                     familyTitle,
                     familyMessage,
                     "Appointment",
-                    appointment.getAppointmentID().longValue()
+                    appointment.getAppointmentID()
             );
         }
         
@@ -189,7 +189,7 @@ public class NotificationServiceImpl implements NotificationService {
                 doctorTitle,
                 doctorMessage,
                 "Appointment",
-                appointment.getAppointmentID().longValue()
+                appointment.getAppointmentID()
         );
         
         // Notify the family head
@@ -206,7 +206,7 @@ public class NotificationServiceImpl implements NotificationService {
                     familyTitle,
                     familyMessage,
                     "Appointment",
-                    appointment.getAppointmentID().longValue()
+                    appointment.getAppointmentID()
             );
         }
         
@@ -252,7 +252,7 @@ public class NotificationServiceImpl implements NotificationService {
                     title,
                     message,
                     "DoctorRequest",
-                    request.getRequestID().longValue()
+                    request.getRequestID()
             );
             log.info("Doctor request status change notification sent: {}", title);
         } else {
@@ -279,7 +279,7 @@ public class NotificationServiceImpl implements NotificationService {
                     title,
                     message,
                     "MedicalRecord",
-                    record.getRecordID().longValue()
+                    record.getRecordID()
             );
             log.info("Medical record creation notification sent");
         } else {
@@ -305,7 +305,7 @@ public class NotificationServiceImpl implements NotificationService {
                     title,
                     message,
                     "MedicalRecord",
-                    record.getRecordID().longValue()
+                    record.getRecordID()
             );
             log.info("Medical record update notification sent");
         } else {

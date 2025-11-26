@@ -106,7 +106,7 @@ public class MessageResolver {
     @PreAuthorize("isAuthenticated()")
     public Boolean markConversationAsRead(
             @AuthenticationPrincipal User currentUser,
-            @Argument Long conversationID) {
+            @Argument Integer conversationID) {
         log.info("User {} marking conversation {} as read", 
                 currentUser.getUserID(), conversationID);
         
@@ -181,7 +181,7 @@ public class MessageResolver {
     @PreAuthorize("isAuthenticated()")
     public Conversation conversationDetail(
             @AuthenticationPrincipal User currentUser,
-            @Argument Long conversationID) {
+            @Argument Integer conversationID) {
         log.info("User {} fetching conversation detail {}", 
                 currentUser.getUserID(), conversationID);
         
@@ -225,7 +225,7 @@ public class MessageResolver {
     @PreAuthorize("isAuthenticated()")
     public MessageConnection conversationMessages(
             @AuthenticationPrincipal User currentUser,
-            @Argument Long conversationID,
+            @Argument Integer conversationID,
             @Argument Integer page,
             @Argument Integer size) {
         int pageNum = page != null ? page : 0;
@@ -338,7 +338,7 @@ public class MessageResolver {
     @PreAuthorize("isAuthenticated()")
     public Flux<com.example.famMedical.dto.TypingIndicator> typingIndicator(
             @AuthenticationPrincipal User currentUser,
-            @Argument Long conversationID) {
+            @Argument Integer conversationID) {
         log.info("User {} subscribing to typing indicators for conversation {}", 
                 currentUser.getUserID(), conversationID);
         

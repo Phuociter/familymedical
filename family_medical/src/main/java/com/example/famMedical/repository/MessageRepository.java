@@ -12,20 +12,20 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 @Repository
-public interface MessageRepository extends JpaRepository<Message, Long> {
+public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     @Query("SELECT m FROM Message m WHERE m.conversation.conversationID = :conversationId ORDER BY m.createdAt DESC")
-    Page<Message> findByConversationID(@Param("conversationId") Long conversationId, Pageable pageable);
+    Page<Message> findByConversationID(@Param("conversationId") Integer conversationId, Pageable pageable);
 
     @Query("SELECT COUNT(m) FROM Message m WHERE m.conversation.conversationID = :conversationId AND m.isRead = false AND m.sender.userID != :userId")
-    int countUnreadByConversationAndUser(@Param("conversationId") Long conversationId, @Param("userId") Integer userId);
+    int countUnreadByConversationAndUser(@Param("conversationId") Integer conversationId, @Param("userId") Integer userId);
 
     @Query("SELECT COUNT(m) FROM Message m JOIN m.conversation c WHERE (c.doctor.userID = :userId OR c.family.headOfFamily.userID = :userId) AND m.isRead = false AND m.sender.userID != :userId")
     int countUnreadByUser(@Param("userId") Integer userId);
 
     @Modifying
     @Query("UPDATE Message m SET m.isRead = true, m.readAt = :readAt WHERE m.conversation.conversationID = :conversationId AND m.sender.userID != :userId AND m.isRead = false")
-    int markConversationAsRead(@Param("conversationId") Long conversationId, @Param("userId") Integer userId, @Param("readAt") LocalDateTime readAt);
+    int markConversationAsRead(@Param("conversationId") Integer conversationId, @Param("userId") Integer userId, @Param("readAt") LocalDateTime readAt);
 
     /**
      * Search messages using MySQL full-text search with multiple filters
@@ -55,7 +55,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
        """,
        nativeQuery = true)
     Page<Message> searchMessages(@Param("keyword") String keyword,
-                             @Param("conversationId") Long conversationId,
+                             @Param("conversationId") Integer conversationId,
                              @Param("startDate") LocalDateTime startDate,
                              @Param("endDate") LocalDateTime endDate,
                              Pageable pageable);

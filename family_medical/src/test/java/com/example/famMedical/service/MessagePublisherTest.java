@@ -46,7 +46,7 @@ class MessagePublisherTest {
 
         // Create test conversation
         testConversation = Conversation.builder()
-                .conversationID(1L)
+                .conversationID(1)
                 .doctor(testDoctor)
                 .family(testFamily)
                 .build();
@@ -56,7 +56,7 @@ class MessagePublisherTest {
     void publishMessage_shouldEmitMessage() {
         // Create a message
         Message message = Message.builder()
-                .messageID(1L)
+                .messageID(1)
                 .conversation(testConversation)
                 .sender(testDoctor)
                 .content("Test message")
@@ -68,7 +68,7 @@ class MessagePublisherTest {
         // Verify that the message is received
         StepVerifier.create(messageStream.take(1))
                 .then(() -> messagePublisher.publishMessage(message))
-                .expectNextMatches(m -> m.getMessageID().equals(1L) && 
+                .expectNextMatches(m -> m.getMessageID().equals(1) && 
                                        m.getContent().equals("Test message"))
                 .verifyComplete();
     }
@@ -81,7 +81,7 @@ class MessagePublisherTest {
         // Verify that the conversation update is received
         StepVerifier.create(conversationStream.take(1))
                 .then(() -> messagePublisher.publishConversationUpdate(testConversation))
-                .expectNextMatches(c -> c.getConversationID().equals(1L))
+                .expectNextMatches(c -> c.getConversationID().equals(1))
                 .verifyComplete();
     }
 
@@ -89,14 +89,14 @@ class MessagePublisherTest {
     void getMessageStream_shouldFilterMessagesForUser() {
         // Create messages from different senders
         Message messageFromDoctor = Message.builder()
-                .messageID(1L)
+                .messageID(1)
                 .conversation(testConversation)
                 .sender(testDoctor)
                 .content("From doctor")
                 .build();
 
         Message messageFromFamily = Message.builder()
-                .messageID(2L)
+                .messageID(2)
                 .conversation(testConversation)
                 .sender(testFamilyHead)
                 .content("From family")
@@ -113,7 +113,7 @@ class MessagePublisherTest {
                     messagePublisher.publishMessage(messageFromDoctor);
                     messagePublisher.publishMessage(messageFromFamily);
                 })
-                .expectNextMatches(m -> m.getMessageID().equals(1L)) // Should only receive message from doctor
+                .expectNextMatches(m -> m.getMessageID().equals(1)) // Should only receive message from doctor
                 .verifyComplete();
     }
 
@@ -131,7 +131,7 @@ class MessagePublisherTest {
         anotherFamily.setHeadOfFamily(anotherFamilyHead);
 
         Conversation anotherConversation = Conversation.builder()
-                .conversationID(2L)
+                .conversationID(2)
                 .doctor(anotherDoctor)
                 .family(anotherFamily)
                 .build();
@@ -147,7 +147,7 @@ class MessagePublisherTest {
                     messagePublisher.publishConversationUpdate(testConversation);
                     messagePublisher.publishConversationUpdate(anotherConversation);
                 })
-                .expectNextMatches(c -> c.getConversationID().equals(1L)) // Should only receive own conversation
+                .expectNextMatches(c -> c.getConversationID().equals(1)) // Should only receive own conversation
                 .verifyComplete();
     }
 }

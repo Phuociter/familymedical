@@ -1,6 +1,7 @@
-import { useQuery } from '@apollo/client';
-import { useState, useCallback } from 'react';
+import { useQuery } from '@apollo/client/react';
+import { useState, useCallback, useEffect } from 'react';
 import { GET_MY_CONVERSATIONS, GET_CONVERSATION_DETAIL, GET_CONVERSATION_WITH_USER } from '../graphql/messagingQueries';
+import { useConversationSubscription } from './useMessageSubscription';
 
 /**
  * Hook for fetching and managing conversations
@@ -11,6 +12,7 @@ import { GET_MY_CONVERSATIONS, GET_CONVERSATION_DETAIL, GET_CONVERSATION_WITH_US
  */
 export const useConversations = ({ page = 0, size = 20 } = {}) => {
   const [currentPage, setCurrentPage] = useState(page);
+  const [localConversations, setLocalConversations] = useState([]);
 
   const { data, loading, error, refetch, fetchMore } = useQuery(GET_MY_CONVERSATIONS, {
     variables: { page: currentPage, size },
@@ -18,7 +20,48 @@ export const useConversations = ({ page = 0, size = 20 } = {}) => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const conversations = data?.myConversations || [];
+  // Update local conversations when query data changes
+  useEffect(() => {
+    if (data?.myConversations) {
+      setLocalConversations(data.myConversations);
+    }
+  }, [data]);
+
+  // Subscribe to conversation updates
+  useConversationSubscription((updatedConversation) => {
+    console.log('💬 Conversation updated via subscription:', updatedConversation);
+    
+    setLocalConversations((prev) => {
+      console.log('📋 Current conversations count:', prev.length);
+      
+      const existingIndex = prev.findIndex(
+        (conv) => parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)
+      );
+
+      console.log('🔍 Existing conversation index:', existingIndex);
+
+      if (existingIndex >= 0) {
+        // Update existing conversation
+        console.log('✅ Updating existing conversation at index', existingIndex);
+        const updated = [...prev];
+        updated[existingIndex] = updatedConversation;
+        // Sort by lastMessageAt (most recent first)
+        const sorted = updated.sort((a, b) => {
+          const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+          const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+          return timeB - timeA;
+        });
+        console.log('✅ Conversation list updated and sorted');
+        return sorted;
+      } else {
+        // Add new conversation at the top
+        console.log('✅ Adding new conversation to list');
+        return [updatedConversation, ...prev];
+      }
+    });
+  });
+
+  const conversations = localConversations;
 
   const loadMore = useCallback(() => {
     const nextPage = currentPage + 1;

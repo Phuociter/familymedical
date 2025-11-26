@@ -87,13 +87,13 @@ class NotificationEventListenerTest {
                 .build();
 
         conversation = Conversation.builder()
-                .conversationID(1L)
+                .conversationID(1)
                 .doctor(doctor)
                 .family(family)
                 .build();
 
         message = Message.builder()
-                .messageID(1L)
+                .messageID(1)
                 .conversation(conversation)
                 .sender(doctor)
                 .content("Test message")

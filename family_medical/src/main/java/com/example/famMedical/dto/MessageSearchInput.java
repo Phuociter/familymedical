@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MessageSearchInput {
     private String keyword;
-    private Long conversationID;
+    private Integer conversationID;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer page;

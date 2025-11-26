@@ -1,6 +1,7 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { useState, useCallback, useEffect } from 'react';
 import { GET_CONVERSATION_MESSAGES, SEARCH_MESSAGES, GET_UNREAD_MESSAGE_COUNT } from '../graphql/messagingQueries';
+import { useMessageSubscription } from './useMessageSubscription';
 
 /**
  * Hook for fetching and managing messages in a conversation
@@ -33,6 +34,38 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
       }
     }
   }, [data, currentPage]);
+
+  // Subscribe to new messages
+  useMessageSubscription((newMessage) => {
+    console.log('📨 New message received via subscription:', newMessage);
+    console.log('📍 Current conversationID:', conversationID, 'type:', typeof conversationID);
+    console.log('📍 Message conversationID:', newMessage.conversation.conversationID, 'type:', typeof newMessage.conversation.conversationID);
+    
+    // Only add message if it belongs to current conversation
+    // Convert both to numbers for comparison
+    const messageConvId = parseInt(newMessage.conversation.conversationID);
+    const currentConvId = parseInt(conversationID);
+    
+    console.log('🔍 Comparison:', messageConvId, '===', currentConvId, '?', messageConvId === currentConvId);
+    
+    if (messageConvId === currentConvId) {
+      console.log('✅ Message belongs to current conversation, adding to state');
+      setAllMessages((prev) => {
+        // Check if message already exists (avoid duplicates)
+        const exists = prev.some((msg) => msg.messageID === newMessage.messageID);
+        if (exists) {
+          console.log('⚠️ Message already exists, skipping');
+          return prev;
+        }
+        
+        console.log('✅ Adding new message to state');
+        // Add new message at the beginning (most recent first)
+        return [newMessage, ...prev];
+      });
+    } else {
+      console.log('❌ Message does not belong to current conversation, ignoring');
+    }
+  });
 
   const messages = allMessages;
   const totalCount = data?.conversationMessages?.totalCount || 0;

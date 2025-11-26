@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendMessageInput {
-    private Long conversationID;
+    private Integer conversationID;
     private Integer recipientID;
     private String content;
     private List<MultipartFile> attachments;
