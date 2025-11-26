@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Security Tests for Message Service
- * Tests Requirements 7.1, 7.2, 7.3, 7.5
+ * Security Tests for Message Service
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Message Security Tests")
@@ -109,7 +109,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.2: Should prevent unauthorized user from marking message as read")
+    @DisplayName(" 7.2: Should prevent unauthorized user from marking message as read")
     void testUnauthorizedMarkMessageAsRead() {
         // Given
         when(messageRepository.findById(1)).thenReturn(Optional.of(message));
@@ -124,7 +124,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.2: Should prevent user from marking their own message as read")
+    @DisplayName(" 7.2: Should prevent user from marking their own message as read")
     void testCannotMarkOwnMessageAsRead() {
         // Given
         when(messageRepository.findById(1)).thenReturn(Optional.of(message));
@@ -138,7 +138,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.2: Should allow authorized participant to mark message as read")
+    @DisplayName(" 7.2: Should allow authorized participant to mark message as read")
     void testAuthorizedMarkMessageAsRead() {
         // Given
         when(messageRepository.findById(1)).thenReturn(Optional.of(message));
@@ -154,7 +154,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.2: Should prevent unauthorized user from accessing conversation")
+    @DisplayName(" 7.2: Should prevent unauthorized user from accessing conversation")
     void testUnauthorizedConversationAccess() {
         // Given
         when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
@@ -169,7 +169,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.5: Should prevent messaging without doctor-family relationship")
+    @DisplayName(" 7.5: Should prevent messaging without doctor-family relationship")
     void testMessagingWithoutRelationship() {
         // Given
         when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
@@ -197,7 +197,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.5: Should allow messaging with active doctor-family relationship")
+    @DisplayName(" 7.5: Should allow messaging with active doctor-family relationship")
     void testMessagingWithActiveRelationship() {
         // Given
         when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);
@@ -260,7 +260,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.2: Should prevent unauthorized typing indicator")
+    @DisplayName(" 7.2: Should prevent unauthorized typing indicator")
     void testUnauthorizedTypingIndicator() {
         // Given
         when(conversationRepository.findById(1)).thenReturn(Optional.of(conversation));
@@ -275,7 +275,7 @@ class MessageSecurityTest {
     }
     
     @Test
-    @DisplayName("Requirement 7.1: Should reject empty message content")
+    @DisplayName(" 7.1: Should reject empty message content")
     void testEmptyMessageRejection() {
         // Given
         when(rateLimitService.canSendMessage(anyInt())).thenReturn(true);

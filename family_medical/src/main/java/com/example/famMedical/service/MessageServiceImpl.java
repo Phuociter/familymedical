@@ -48,16 +48,16 @@ public class MessageServiceImpl implements MessageService {
             throw new ValidationException("You are sending messages too quickly. Please wait a moment.");
         }
         
-        // Validate message content (Requirement 1.3)
+        // Validate message content
         if (content == null || content.trim().isEmpty()) {
             throw new ValidationException("Message content cannot be empty");
         }
         
-        // Get sender (Requirement 7.1 - Authentication)
+        // Get sender
         User sender = userRepository.findById(senderID)
             .orElseThrow(() -> new NotFoundException("Sender user not found"));
         
-        // Get recipient (Requirement 7.1 - Authentication)
+        // Get recipient
         User recipient = userRepository.findById(recipientID)
             .orElseThrow(() -> new NotFoundException("Recipient user not found"));
         
@@ -67,21 +67,21 @@ public class MessageServiceImpl implements MessageService {
             conversation = conversationRepository.findById(conversationID)
                 .orElseThrow(() -> new NotFoundException("Conversation not found"));
             
-            // Verify sender is a participant in the existing conversation (Requirement 7.2)
+            // Verify sender is a participant in the existing conversation
             if (!isParticipant(sender, conversation)) {
                 throw new UnAuthorizedException("You do not have permission to send messages in this conversation");
             }
             
-            // Verify recipient is also a participant (Requirement 7.2)
+            // Verify recipient is also a participant
             if (!isParticipant(recipient, conversation)) {
                 throw new UnAuthorizedException("Recipient is not a participant in this conversation");
             }
         } else {
-            // Determine doctor and family based on roles and verify relationship (Requirement 7.5)
+            // Determine doctor and family based on roles and verify relationship
             conversation = determineAndCreateConversation(sender, recipient);
         }
         
-        // Additional security check: Verify sender is a participant in the conversation (Requirement 7.2)
+        // Additional security check: Verify sender is a participant in the conversation
         if (!isParticipant(sender, conversation)) {
             throw new UnAuthorizedException("You do not have permission to send messages in this conversation");
         }
@@ -120,7 +120,7 @@ public class MessageServiceImpl implements MessageService {
         // Record message sent for rate limiting
         rateLimitService.recordMessageSent(senderID);
         
-        // Stop typing indicator when message is sent (Requirement 10.3)
+        // Stop typing indicator when message is sent
         typingIndicatorService.stopTyping(conversation.getConversationID(), sender);
         
         // Publish event for notification
@@ -138,13 +138,13 @@ public class MessageServiceImpl implements MessageService {
         Message message = messageRepository.findById(messageID)
             .orElseThrow(() -> new NotFoundException("Message not found"));
         
-        // Verify user is the recipient (not the sender) (Requirement 7.2)
+        // Verify user is the recipient (not the sender)
         if (message.getSender().getUserID().equals(userID)) {
             log.warn("User {} attempted to mark their own message {} as read", userID, messageID);
             throw new ValidationException("Cannot mark your own message as read");
         }
         
-        // Verify user is a participant in the conversation (Requirement 7.2, 7.3)
+        // Verify user is a participant in the conversation
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         
@@ -172,7 +172,7 @@ public class MessageServiceImpl implements MessageService {
         Conversation conversation = conversationRepository.findById(conversationID)
             .orElseThrow(() -> new NotFoundException("Conversation not found"));
         
-        // Verify user is a participant (Requirement 7.2, 7.3)
+        // Verify user is a participant
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         
@@ -206,7 +206,7 @@ public class MessageServiceImpl implements MessageService {
     public Conversation getOrCreateConversation(Integer doctorID, Integer familyID) {
         log.info("Getting or creating conversation between doctor {} and family {}", doctorID, familyID);
         
-        // Verify doctor exists and has BacSi role (Requirement 7.1)
+        // Verify doctor exists and has BacSi role
         User doctor = userRepository.findById(doctorID)
             .orElseThrow(() -> new NotFoundException("Doctor not found"));
         
@@ -215,11 +215,11 @@ public class MessageServiceImpl implements MessageService {
             throw new ValidationException("User is not a doctor");
         }
         
-        // Verify family exists (Requirement 7.1)
+        // Verify family exists
         Family family = familyRepository.findById(familyID)
             .orElseThrow(() -> new NotFoundException("Family not found"));
         
-        // Verify doctor-family relationship exists and is active (Requirement 7.5)
+        // Verify doctor-family relationship exists and is active
         boolean hasActiveRelationship = doctorAssignmentRepository
             .existsByDoctorUserIDAndFamilyFamilyIDAndStatus(
                 doctorID, familyID, DoctorAssignment.AssignmentStatus.ACTIVE
@@ -273,11 +273,11 @@ public class MessageServiceImpl implements MessageService {
                                            int page, int size) {
         log.info("Searching messages for user {} with keyword: {}", userID, keyword);
         
-        // Verify user exists (Requirement 7.1)
+        // Verify user exists
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         
-        // If searching within a specific conversation, verify user is a participant (Requirement 7.2)
+        // If searching within a specific conversation, verify user is a participant
         if (conversationID != null) {
             Conversation conversation = conversationRepository.findById(conversationID)
                 .orElseThrow(() -> new NotFoundException("Conversation not found"));
@@ -292,7 +292,7 @@ public class MessageServiceImpl implements MessageService {
             keyword, conversationID, startDate, endDate, pageable
         );
         
-        // Filter messages to only include conversations where user is a participant (Requirement 7.2, 7.3)
+        // Filter messages to only include conversations where user is a participant
         List<Message> filteredMessages = messagePage.getContent().stream()
             .filter(message -> isParticipant(user, message.getConversation()))
             .toList();
@@ -321,13 +321,12 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Helper method to determine and create conversation based on user roles
-     * Requirement 7.5: Verify doctor-family relationship before allowing messaging
      */
     private Conversation determineAndCreateConversation(User sender, User recipient) {
         User doctor;
         Family family;
         
-        // Determine who is the doctor and who is the family (Requirement 7.5)
+        // Determine who is the doctor and who is the family
         if (sender.getRole() == UserRole.BacSi && recipient.getRole() == UserRole.ChuHo) {
             doctor = sender;
             family = findFamilyByHeadOfFamily(recipient);
@@ -338,7 +337,7 @@ public class MessageServiceImpl implements MessageService {
             throw new ValidationException("Messages can only be sent between doctors and families");
         }
         
-        // Verify doctor-family relationship exists and is active (Requirement 7.5)
+        // Verify doctor-family relationship exists and is active
         verifyDoctorFamilyRelationship(doctor.getUserID(), family.getFamilyID());
         
         return getOrCreateConversation(doctor.getUserID(), family.getFamilyID());
@@ -346,7 +345,6 @@ public class MessageServiceImpl implements MessageService {
     
     /**
      * Verify that an approved doctor-family relationship exists
-     * Requirement 7.5: Doctor-Family relationship validation
      */
     private void verifyDoctorFamilyRelationship(Integer doctorID, Integer familyID) {
         boolean hasActiveRelationship = doctorAssignmentRepository
@@ -389,11 +387,11 @@ public class MessageServiceImpl implements MessageService {
         log.debug("User {} sending typing indicator for conversation {}: {}", 
                 userID, conversationID, isTyping);
         
-        // Verify conversation exists (Requirement 7.1)
+        // Verify conversation exists
         Conversation conversation = conversationRepository.findById(conversationID)
             .orElseThrow(() -> new NotFoundException("Conversation not found"));
         
-        // Verify user exists and is a participant (Requirement 7.2, 7.3)
+        // Verify user exists and is a participant
         User user = userRepository.findById(userID)
             .orElseThrow(() -> new NotFoundException("User not found"));
         

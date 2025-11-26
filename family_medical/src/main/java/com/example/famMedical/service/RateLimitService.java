@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Rate Limiting Service for Message Sending
  * Implements a simple token bucket algorithm to prevent message spam
- * Optional feature for Requirement 7.1 (Security)
+ * Optional security feature
  */
 @Service
 @Slf4j

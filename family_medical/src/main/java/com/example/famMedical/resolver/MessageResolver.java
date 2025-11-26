@@ -30,13 +30,6 @@ import java.util.List;
 /**
  * GraphQL Resolver for Message operations
  * Handles queries, mutations, and subscriptions for messaging functionality
- * 
- * Security Implementation:
- * - Requirement 7.1: All operations require authentication via @PreAuthorize("isAuthenticated()")
- * - Requirement 7.2: Conversation participant verification on all conversation access
- * - Requirement 7.3: User filtering in subscription streams to deliver only relevant messages
- * - Requirement 7.4: Notification ownership verification (handled by NotificationResolver)
- * - Requirement 7.5: Doctor-family relationship verification before messaging
  */
 @Controller
 @AllArgsConstructor
@@ -55,7 +48,7 @@ public class MessageResolver {
 
     /**
      * Send a message to another user
-     * Requirements: 1.1, 1.2, 1.4
+     * 1.1, 1.2, 1.4
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -79,7 +72,7 @@ public class MessageResolver {
 
     /**
      * Mark a message as read
-     * Requirements: 3.2, 3.3
+     * 3.2, 3.3
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -100,7 +93,7 @@ public class MessageResolver {
 
     /**
      * Mark all messages in a conversation as read
-     * Requirements: 3.2, 3.3
+     * 3.2, 3.3
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -126,7 +119,7 @@ public class MessageResolver {
 
     /**
      * Send typing indicator for a conversation
-     * Requirements: 10.1, 10.2
+     * 10.1, 10.2
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -151,7 +144,7 @@ public class MessageResolver {
 
     /**
      * Get all conversations for the current user
-     * Requirements: 2.1, 2.2
+     * 2.1, 2.2
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -175,7 +168,7 @@ public class MessageResolver {
 
     /**
      * Get details of a specific conversation
-     * Requirements: 2.3
+     * 2.3
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -198,7 +191,7 @@ public class MessageResolver {
 
     /**
      * Get or create a conversation with another user
-     * Requirements: 2.1
+     * 2.1
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -219,7 +212,7 @@ public class MessageResolver {
 
     /**
      * Get messages in a conversation with pagination
-     * Requirements: 1.5, 2.5
+     * 1.5, 2.5
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -252,7 +245,7 @@ public class MessageResolver {
 
     /**
      * Search messages with filters
-     * Requirements: 11.1, 11.2, 11.3, 11.4, 11.5
+     * 11.1, 11.2, 11.3, 11.4, 11.5
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -281,7 +274,7 @@ public class MessageResolver {
 
     /**
      * Get count of unread messages for current user
-     * Requirements: 2.4, 3.4
+     * 2.4, 3.4
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -300,7 +293,7 @@ public class MessageResolver {
 
     /**
      * Subscribe to new messages for the current user
-     * Requirements: 4.1, 4.2, 4.5
+     * 4.1, 4.2, 4.5
      */
     @SubscriptionMapping
     @PreAuthorize("isAuthenticated()")
@@ -316,7 +309,7 @@ public class MessageResolver {
 
     /**
      * Subscribe to conversation updates for the current user
-     * Requirements: 4.1, 4.2
+     * 4.1, 4.2
      */
     @SubscriptionMapping
     @PreAuthorize("isAuthenticated()")
@@ -332,7 +325,7 @@ public class MessageResolver {
 
     /**
      * Subscribe to typing indicators for a specific conversation
-     * Requirements: 10.4
+     * 10.4
      */
     @SubscriptionMapping
     @PreAuthorize("isAuthenticated()")
@@ -364,7 +357,7 @@ public class MessageResolver {
 
     /**
      * Resolve unreadCount field for Conversation type
-     * Requirements: 2.4
+     * 2.4
      */
     @SchemaMapping(typeName = "Conversation", field = "unreadCount")
     public Integer unreadCount(
@@ -384,7 +377,7 @@ public class MessageResolver {
 
     /**
      * Resolve messages field for Conversation type with pagination
-     * Requirements: 1.5, 2.5
+     * 1.5, 2.5
      */
     @SchemaMapping(typeName = "Conversation", field = "messages")
     public MessageConnection messages(

@@ -20,7 +20,7 @@ import reactor.core.publisher.Flux;
 /**
  * GraphQL Resolver for Notification operations
  * Handles queries, mutations, and subscriptions for notification functionality
- * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.4
+ * 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.4
  */
 @Controller
 @AllArgsConstructor
@@ -36,7 +36,7 @@ public class NotificationResolver {
 
     /**
      * Get all notifications for the current user with pagination
-     * Requirements: 6.3, 7.1, 7.4
+     * 6.3, 7.1, 7.4
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -60,7 +60,7 @@ public class NotificationResolver {
 
     /**
      * Get count of unread notifications for current user
-     * Requirements: 6.5, 7.1, 7.4
+     * 6.5, 7.1, 7.4
      */
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -79,7 +79,7 @@ public class NotificationResolver {
 
     /**
      * Mark a notification as read
-     * Requirements: 6.4, 7.1, 7.4
+     * 6.4, 7.1, 7.4
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -100,7 +100,7 @@ public class NotificationResolver {
 
     /**
      * Mark all notifications as read for the current user
-     * Requirements: 6.4, 7.1, 7.4
+     * 6.4, 7.1, 7.4
      */
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
@@ -119,7 +119,7 @@ public class NotificationResolver {
 
     /**
      * Subscribe to new notifications for the current user
-     * Requirements: 6.1, 6.2, 7.1, 7.4
+     * 6.1, 6.2, 7.1, 7.4
      */
     @SubscriptionMapping
     @PreAuthorize("isAuthenticated()")

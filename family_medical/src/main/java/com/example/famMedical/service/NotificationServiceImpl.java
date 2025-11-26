@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationID)
                 .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + notificationID));
         
-        // Verify the notification belongs to the user (Requirement 7.4 - Notification ownership verification)
+        // Verify the notification belongs to the user
         if (!notification.getUser().getUserID().equals(userID)) {
             log.warn("Unauthorized access attempt: User {} tried to mark notification {} belonging to user {}", 
                     userID, notificationID, notification.getUser().getUserID());

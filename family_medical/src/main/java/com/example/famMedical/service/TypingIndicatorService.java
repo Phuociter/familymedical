@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Service for managing typing indicators in conversations
  * Handles broadcasting typing status and automatic timeout after 3 seconds
- * Requirements: 10.1, 10.2, 10.3, 10.4
  */
 @Service
 @Slf4j
@@ -35,7 +34,6 @@ public class TypingIndicatorService {
     /**
      * Send a typing indicator for a conversation
      * Automatically stops typing after 3 seconds if not manually stopped
-     * Requirements: 10.1, 10.2
      * 
      * @param conversationID ID of the conversation
      * @param user User who is typing
@@ -68,7 +66,6 @@ public class TypingIndicatorService {
     /**
      * Get the stream of typing indicators for a specific conversation
      * Filters to only include indicators for the specified conversation
-     * Requirements: 10.4
      * 
      * @param conversationID ID of the conversation to monitor
      * @return Flux of typing indicators for the conversation
@@ -86,7 +83,6 @@ public class TypingIndicatorService {
     /**
      * Stop typing indicator for a user in a conversation
      * Called when a message is sent
-     * Requirements: 10.3
      * 
      * @param conversationID ID of the conversation
      * @param user User who stopped typing
@@ -110,7 +106,6 @@ public class TypingIndicatorService {
 
     /**
      * Schedule automatic stop typing after 3 seconds
-     * Requirements: 10.2
      */
     private void scheduleAutoStop(Integer conversationID, User user, String key) {
         ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
