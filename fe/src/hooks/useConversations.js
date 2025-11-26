@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client/react';
-import { useState, useCallback, useEffect } from 'react';
+import { useQuery, useApolloClient } from '@apollo/client/react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { GET_MY_CONVERSATIONS, GET_CONVERSATION_DETAIL, GET_CONVERSATION_WITH_USER } from '../graphql/messagingQueries';
 import { useConversationSubscription } from './useMessageSubscription';
 
@@ -8,15 +8,24 @@ import { useConversationSubscription } from './useMessageSubscription';
  * @param {Object} options - Configuration options
  * @param {number} options.page - Page number for pagination (default: 0)
  * @param {number} options.size - Page size for pagination (default: 20)
+ * @param {number} options.selectedConversationID - Currently selected conversation ID (for marking as read)
  * @returns {Object} Conversations data and methods
  */
-export const useConversations = ({ page = 0, size = 20 } = {}) => {
+export const useConversations = ({ page = 0, size = 20, selectedConversationID = null } = {}) => {
   const [currentPage, setCurrentPage] = useState(page);
   const [localConversations, setLocalConversations] = useState([]);
+  const client = useApolloClient();
+  const selectedConversationIDRef = useRef(selectedConversationID);
+
+  // Keep ref updated
+  useEffect(() => {
+    selectedConversationIDRef.current = selectedConversationID;
+  }, [selectedConversationID]);
 
   const { data, loading, error, refetch, fetchMore } = useQuery(GET_MY_CONVERSATIONS, {
     variables: { page: currentPage, size },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first', // Use cache-first to prevent refetch on cache update
+    nextFetchPolicy: 'cache-only', // After first fetch, only use cache (subscription will update it)
     notifyOnNetworkStatusChange: true,
   });
 
@@ -40,11 +49,23 @@ export const useConversations = ({ page = 0, size = 20 } = {}) => {
 
       console.log('🔍 Existing conversation index:', existingIndex);
 
+      // Check if this is the currently selected conversation
+      const isCurrentlySelected = selectedConversationIDRef.current && 
+        parseInt(selectedConversationIDRef.current) === parseInt(updatedConversation.conversationID);
+
+      // If currently viewing this conversation, don't increase unread count
+      const conversationToUpdate = isCurrentlySelected 
+        ? { ...updatedConversation, unreadCount: 0 }
+        : updatedConversation;
+
       if (existingIndex >= 0) {
         // Update existing conversation
         console.log('✅ Updating existing conversation at index', existingIndex);
         const updated = [...prev];
-        updated[existingIndex] = updatedConversation;
+        updated[existingIndex] = {
+          ...prev[existingIndex],
+          ...conversationToUpdate,
+        };
         // Sort by lastMessageAt (most recent first)
         const sorted = updated.sort((a, b) => {
           const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
@@ -56,10 +77,63 @@ export const useConversations = ({ page = 0, size = 20 } = {}) => {
       } else {
         // Add new conversation at the top
         console.log('✅ Adding new conversation to list');
-        return [updatedConversation, ...prev];
+        return [conversationToUpdate, ...prev];
       }
     });
+
+    // Update Apollo cache as well
+    try {
+      const cachedData = client.readQuery({
+        query: GET_MY_CONVERSATIONS,
+        variables: { page: 0, size },
+      });
+
+      if (cachedData) {
+        const updatedConversations = cachedData.myConversations.map(conv => {
+          if (parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)) {
+            return { ...conv, ...updatedConversation };
+          }
+          return conv;
+        });
+
+        // Check if conversation exists, if not add it
+        const exists = cachedData.myConversations.some(
+          conv => parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)
+        );
+
+        const finalConversations = exists 
+          ? updatedConversations 
+          : [updatedConversation, ...updatedConversations];
+
+        // Sort by lastMessageAt
+        finalConversations.sort((a, b) => {
+          const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+          const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        client.writeQuery({
+          query: GET_MY_CONVERSATIONS,
+          variables: { page: 0, size },
+          data: { myConversations: finalConversations },
+        });
+      }
+    } catch (e) {
+      console.warn('Cache update failed:', e);
+    }
   });
+
+  // Mark conversation as read in local state (used by useMarkConversationAsRead)
+  const markConversationAsReadLocal = useCallback((conversationID) => {
+    setLocalConversations((prev) => 
+      prev.map(conv => {
+        if (parseInt(conv.conversationID) === parseInt(conversationID)) {
+          return { ...conv, unreadCount: 0 };
+        }
+        return conv;
+      })
+    );
+  }, []);
 
   const conversations = localConversations;
 
@@ -90,6 +164,7 @@ export const useConversations = ({ page = 0, size = 20 } = {}) => {
     refetch: refresh,
     loadMore,
     hasMore: conversations.length >= (currentPage + 1) * size,
+    markConversationAsReadLocal,
   };
 };
 

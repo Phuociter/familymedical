@@ -1,13 +1,72 @@
-import { Box, Typography, Avatar, Link } from '@mui/material';
-import { InsertDriveFile as FileIcon } from '@mui/icons-material';
+import { Box, Typography, Avatar, Link, IconButton, CircularProgress, Tooltip } from '@mui/material';
+import { 
+  InsertDriveFile as FileIcon,
+  Schedule as PendingIcon,
+  Done as SentIcon,
+  DoneAll as DeliveredIcon,
+  Error as ErrorIcon,
+  Refresh as RetryIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
 import { formatMessageTime, formatFileSize } from '../../utils/timeFormat';
+import { MESSAGE_STATUS } from '../../hooks/useSendMessage';
 
 /**
- * MessageBubble component displays a single message with sender info, content, timestamp, and attachments
+ * MessageBubble component displays a single message with sender info, content, timestamp, attachments and status
  * Requirements: 1.1, 1.2, 9.3
  */
-export default function MessageBubble({ message, currentUserId }) {
-  const isOwnMessage = message.sender.userID === currentUserId;
+export default function MessageBubble({ 
+  message, 
+  currentUserId,
+  onRetry,
+  onRemove,
+}) {
+  const isOwnMessage = message.sender?.userID === currentUserId;
+  const isPending = message.status === MESSAGE_STATUS?.PENDING;
+  const isFailed = message.status === MESSAGE_STATUS?.FAILED;
+  const isSent = message.status === MESSAGE_STATUS?.SENT;
+
+  // Render status icon for own messages
+  const renderStatusIcon = () => {
+    if (!isOwnMessage) return null;
+
+    if (isPending) {
+      return (
+        <Tooltip title="Đang gửi...">
+          <CircularProgress size={12} sx={{ ml: 0.5, color: 'grey.400' }} />
+        </Tooltip>
+      );
+    }
+
+    if (isFailed) {
+      return (
+        <Tooltip title="Gửi thất bại">
+          <ErrorIcon sx={{ fontSize: 14, ml: 0.5, color: 'error.main' }} />
+        </Tooltip>
+      );
+    }
+
+    if (message.isRead) {
+      return (
+        <Tooltip title="Đã xem">
+          <DoneAll sx={{ fontSize: 14, ml: 0.5, color: 'primary.main' }} />
+        </Tooltip>
+      );
+    }
+
+    if (isSent || message.messageID) {
+      return (
+        <Tooltip title="Đã gửi">
+          <DoneIcon sx={{ fontSize: 14, ml: 0.5, color: 'grey.400' }} />
+        </Tooltip>
+      );
+    }
+
+    return null;
+  };
+
+  // Import DoneAll icon
+  const DoneAll = DeliveredIcon;
   
   return (
     <Box
@@ -15,6 +74,8 @@ export default function MessageBubble({ message, currentUserId }) {
         display: 'flex',
         justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
         mb: 2.5,
+        opacity: isPending ? 0.7 : 1,
+        transition: 'opacity 0.2s',
       }}
     >
       {!isOwnMessage && (
@@ -27,7 +88,7 @@ export default function MessageBubble({ message, currentUserId }) {
             fontSize: '0.9rem' 
           }}
         >
-          {message.sender.fullName?.charAt(0) || 'U'}
+          {message.sender?.fullName?.charAt(0) || 'U'}
         </Avatar>
       )}
       
@@ -39,7 +100,7 @@ export default function MessageBubble({ message, currentUserId }) {
             color="textSecondary"
             sx={{ display: 'block', mb: 0.5, px: 1 }}
           >
-            {message.sender.fullName}
+            {message.sender?.fullName}
           </Typography>
         )}
         
@@ -47,16 +108,30 @@ export default function MessageBubble({ message, currentUserId }) {
         <Box
           sx={{
             p: 2,
-            bgcolor: isOwnMessage ? 'primary.main' : 'white',
-            color: isOwnMessage ? 'white' : 'text.primary',
+            bgcolor: isFailed 
+              ? 'error.lighter' 
+              : isOwnMessage 
+                ? 'primary.main' 
+                : 'white',
+            color: isFailed 
+              ? 'error.dark'
+              : isOwnMessage 
+                ? 'white' 
+                : 'text.primary',
             borderRadius: 3,
             borderTopRightRadius: isOwnMessage ? 4 : 16,
             borderTopLeftRadius: isOwnMessage ? 16 : 4,
             border: 1,
-            borderColor: isOwnMessage ? 'primary.dark' : 'grey.200',
-            boxShadow: isOwnMessage 
-              ? '0 2px 8px rgba(25, 118, 210, 0.25)' 
-              : '0 2px 8px rgba(0, 0, 0, 0.08)',
+            borderColor: isFailed 
+              ? 'error.main'
+              : isOwnMessage 
+                ? 'primary.dark' 
+                : 'grey.200',
+            boxShadow: isFailed
+              ? '0 2px 8px rgba(211, 47, 47, 0.25)'
+              : isOwnMessage 
+                ? '0 2px 8px rgba(25, 118, 210, 0.25)' 
+                : '0 2px 8px rgba(0, 0, 0, 0.08)',
           }}
         >
           <Typography 
@@ -117,20 +192,62 @@ export default function MessageBubble({ message, currentUserId }) {
           )}
         </Box>
         
-        {/* Timestamp and read status */}
-        <Typography
-          variant="caption"
-          color="textSecondary"
+        {/* Failed message actions */}
+        {isFailed && isOwnMessage && (
+          <Box sx={{ display: 'flex', gap: 0.5, mt: 1, justifyContent: 'flex-end' }}>
+            {onRetry && (
+              <Tooltip title="Thử lại">
+                <IconButton 
+                  size="small" 
+                  onClick={() => onRetry(message.tempId)}
+                  sx={{ 
+                    color: isFailed ? 'error.dark' : 'white',
+                    p: 0.5,
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                  }}
+                >
+                  <RetryIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onRemove && (
+              <Tooltip title="Xóa">
+                <IconButton 
+                  size="small" 
+                  onClick={() => onRemove(message.tempId)}
+                  sx={{ 
+                    color: isFailed ? 'error.dark' : 'white',
+                    p: 0.5,
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        )}
+
+        {/* Timestamp and status */}
+        <Box
           sx={{
-            display: 'block',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
             mt: 0.5,
             px: 1,
-            textAlign: isOwnMessage ? 'right' : 'left',
+            gap: 0.5,
           }}
         >
-          {formatMessageTime(message.createdAt)}
-          {isOwnMessage && message.isRead && ' • Đã xem'}
-        </Typography>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            sx={{ fontSize: '0.7rem' }}
+          >
+            {isFailed ? 'Gửi thất bại' : formatMessageTime(message.createdAt)}
+          </Typography>
+          {renderStatusIcon()}
+        </Box>
       </Box>
       
       {isOwnMessage && (
@@ -139,11 +256,11 @@ export default function MessageBubble({ message, currentUserId }) {
             width: 36, 
             height: 36, 
             ml: 1.5, 
-            bgcolor: 'primary.main', 
+            bgcolor: isFailed ? 'error.main' : 'primary.main', 
             fontSize: '0.9rem' 
           }}
         >
-          {message.sender.fullName?.charAt(0) || 'U'}
+          {message.sender?.fullName?.charAt(0) || 'U'}
         </Avatar>
       )}
     </Box>

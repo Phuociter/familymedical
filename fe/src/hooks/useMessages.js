@@ -1,6 +1,6 @@
-import { useQuery } from '@apollo/client/react';
-import { useState, useCallback, useEffect } from 'react';
-import { GET_CONVERSATION_MESSAGES, SEARCH_MESSAGES, GET_UNREAD_MESSAGE_COUNT } from '../graphql/messagingQueries';
+import { useQuery, useApolloClient } from '@apollo/client/react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { GET_CONVERSATION_MESSAGES, SEARCH_MESSAGES, GET_UNREAD_MESSAGE_COUNT, GET_MY_CONVERSATIONS } from '../graphql/messagingQueries';
 import { useMessageSubscription } from './useMessageSubscription';
 
 /**
@@ -14,11 +14,25 @@ import { useMessageSubscription } from './useMessageSubscription';
 export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
   const [currentPage, setCurrentPage] = useState(page);
   const [allMessages, setAllMessages] = useState([]);
+  const client = useApolloClient();
+  const conversationIDRef = useRef(conversationID);
+
+  // Keep conversationID ref updated
+  useEffect(() => {
+    conversationIDRef.current = conversationID;
+  }, [conversationID]);
+
+  // Reset messages when conversation changes
+  useEffect(() => {
+    setCurrentPage(0);
+    setAllMessages([]);
+  }, [conversationID]);
 
   const { data, loading, error, refetch, fetchMore } = useQuery(GET_CONVERSATION_MESSAGES, {
     variables: { conversationID, page: currentPage, size },
     skip: !conversationID,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first', // Use cache-first to prevent refetch on cache update
+    nextFetchPolicy: 'cache-only', // After first fetch, only use cache (subscription will update it)
     notifyOnNetworkStatusChange: true,
   });
 
@@ -29,8 +43,13 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
         // Reset messages on first page
         setAllMessages(data.conversationMessages.messages);
       } else {
-        // Append messages for subsequent pages
-        setAllMessages(prev => [...prev, ...data.conversationMessages.messages]);
+        // Append messages for subsequent pages (avoid duplicates)
+        setAllMessages(prev => {
+          const newMessages = data.conversationMessages.messages.filter(
+            newMsg => !prev.some(existingMsg => existingMsg.messageID === newMsg.messageID)
+          );
+          return [...prev, ...newMessages];
+        });
       }
     }
   }, [data, currentPage]);
@@ -38,13 +57,10 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
   // Subscribe to new messages
   useMessageSubscription((newMessage) => {
     console.log('📨 New message received via subscription:', newMessage);
-    console.log('📍 Current conversationID:', conversationID, 'type:', typeof conversationID);
-    console.log('📍 Message conversationID:', newMessage.conversation.conversationID, 'type:', typeof newMessage.conversation.conversationID);
     
     // Only add message if it belongs to current conversation
-    // Convert both to numbers for comparison
     const messageConvId = parseInt(newMessage.conversation.conversationID);
-    const currentConvId = parseInt(conversationID);
+    const currentConvId = parseInt(conversationIDRef.current);
     
     console.log('🔍 Comparison:', messageConvId, '===', currentConvId, '?', messageConvId === currentConvId);
     
@@ -62,8 +78,73 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
         // Add new message at the beginning (most recent first)
         return [newMessage, ...prev];
       });
+
+      // Also update Apollo cache
+      try {
+        const messagesData = client.readQuery({
+          query: GET_CONVERSATION_MESSAGES,
+          variables: { conversationID: currentConvId, page: 0, size },
+        });
+
+        if (messagesData) {
+          const exists = messagesData.conversationMessages.messages.some(
+            msg => msg.messageID === newMessage.messageID
+          );
+
+          if (!exists) {
+            client.writeQuery({
+              query: GET_CONVERSATION_MESSAGES,
+              variables: { conversationID: currentConvId, page: 0, size },
+              data: {
+                conversationMessages: {
+                  ...messagesData.conversationMessages,
+                  messages: [newMessage, ...messagesData.conversationMessages.messages],
+                  totalCount: messagesData.conversationMessages.totalCount + 1,
+                },
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Cache update for new message failed:', e);
+      }
     } else {
-      console.log('❌ Message does not belong to current conversation, ignoring');
+      console.log('❌ Message does not belong to current conversation');
+      
+      // Still update conversation list cache for unread count
+      try {
+        const conversationsData = client.readQuery({
+          query: GET_MY_CONVERSATIONS,
+        });
+
+        if (conversationsData) {
+          const updatedConversations = conversationsData.myConversations.map(conv => {
+            if (parseInt(conv.conversationID) === messageConvId) {
+              return {
+                ...conv,
+                lastMessage: newMessage,
+                lastMessageAt: newMessage.createdAt,
+                unreadCount: (conv.unreadCount || 0) + 1,
+              };
+            }
+            return conv;
+          });
+
+          // Sort by lastMessageAt
+          updatedConversations.sort((a, b) => {
+            const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+            const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+            return timeB - timeA;
+          });
+
+          client.writeQuery({
+            query: GET_MY_CONVERSATIONS,
+            data: { myConversations: updatedConversations },
+          });
+        }
+      } catch (e) {
+        console.warn('Cache update for conversation list failed:', e);
+      }
     }
   });
 
@@ -88,6 +169,46 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
     return refetch({ conversationID, page: 0, size });
   }, [conversationID, size, refetch]);
 
+  // Add optimistic message immediately (for pending state)
+  const addOptimisticMessage = useCallback((newMessage) => {
+    setAllMessages(prev => {
+      // Check if already exists
+      const exists = prev.some(msg => 
+        msg.messageID === newMessage.messageID || 
+        msg.tempId === newMessage.tempId
+      );
+      if (exists) return prev;
+      return [newMessage, ...prev];
+    });
+  }, []);
+
+  // Update message status (pending -> sent -> read, or failed)
+  const updateMessageStatus = useCallback((tempId, status, errorMessage, realMessage) => {
+    setAllMessages(prev => prev.map(msg => {
+      if (msg.tempId === tempId) {
+        if (realMessage) {
+          // Replace with real message from server
+          return {
+            ...realMessage,
+            status,
+          };
+        }
+        return {
+          ...msg,
+          status,
+          errorMessage,
+        };
+      }
+      return msg;
+    }));
+  }, []);
+
+  // Remove a message (usually failed ones)
+  const removeMessage = useCallback((tempId) => {
+    setAllMessages(prev => prev.filter(msg => msg.tempId !== tempId));
+  }, []);
+
+  // Legacy addMessage (keep for backwards compatibility)
   const addMessage = useCallback((newMessage) => {
     setAllMessages(prev => [newMessage, ...prev]);
   }, []);
@@ -101,6 +222,9 @@ export const useMessages = (conversationID, { page = 0, size = 50 } = {}) => {
     refetch: refresh,
     loadMore,
     addMessage,
+    addOptimisticMessage,
+    updateMessageStatus,
+    removeMessage,
   };
 };
 

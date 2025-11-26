@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -10,6 +10,8 @@ import {
   ListItemText,
   CircularProgress,
   Button,
+  Fade,
+  Chip,
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
@@ -17,6 +19,7 @@ import {
   Event as EventIcon,
   Description as DescriptionIcon,
   ArrowBack as ArrowBackIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
 } from '@mui/icons-material';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -43,20 +46,71 @@ export default function ConversationView({
   onViewProfile,
   onCreateAppointment,
   onViewMedicalRecords,
+  onRetryMessage,
+  onRemoveMessage,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [newMessageCount, setNewMessageCount] = useState(0);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const prevMessagesLengthRef = useRef(messages.length);
+  const isNearBottomRef = useRef(true);
 
-  const scrollToBottom = () => {
+  // Check if user is near the bottom (top in reversed layout)
+  const checkIfNearBottom = useCallback(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = 0;
+      const { scrollTop } = messagesContainerRef.current;
+      // In reversed layout, scrollTop near 0 means at the bottom (newest messages)
+      return Math.abs(scrollTop) < 100;
     }
-  };
+    return true;
+  }, []);
 
+  const scrollToBottom = useCallback((smooth = false) => {
+    if (messagesContainerRef.current) {
+      if (smooth) {
+        messagesContainerRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      } else {
+        messagesContainerRef.current.scrollTop = 0;
+      }
+      setShowScrollButton(false);
+      setNewMessageCount(0);
+    }
+  }, []);
+
+  // Handle new messages
+  useEffect(() => {
+    const prevLength = prevMessagesLengthRef.current;
+    const currentLength = messages.length;
+    
+    if (currentLength > prevLength) {
+      // New message(s) arrived
+      const isAtBottom = checkIfNearBottom();
+      
+      if (isAtBottom) {
+        // Auto-scroll to show new message
+        scrollToBottom(true);
+      } else {
+        // Show indicator for new messages
+        setNewMessageCount(prev => prev + (currentLength - prevLength));
+        setShowScrollButton(true);
+      }
+    }
+    
+    prevMessagesLengthRef.current = currentLength;
+  }, [messages.length, checkIfNearBottom, scrollToBottom]);
+
+  // Scroll to bottom when conversation changes
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+    setNewMessageCount(0);
+    setShowScrollButton(false);
+    prevMessagesLengthRef.current = messages.length;
+  }, [conversation?.conversationID, scrollToBottom, messages.length]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -66,15 +120,24 @@ export default function ConversationView({
     setAnchorEl(null);
   };
 
-  const handleScroll = (e) => {
+  const handleScroll = useCallback((e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     
+    // Update isNearBottom state
+    isNearBottomRef.current = Math.abs(scrollTop) < 100;
+    
+    // Show/hide scroll button based on position
+    if (isNearBottomRef.current) {
+      setShowScrollButton(false);
+      setNewMessageCount(0);
+    }
+    
     // Load more when scrolled to bottom (which is top in reversed layout)
-    const scrolledToBottom = Math.abs(scrollTop) + clientHeight >= scrollHeight - 10;
-    if (scrolledToBottom && hasMore && !loading && onLoadMore) {
+    const scrolledToOldMessages = Math.abs(scrollTop) + clientHeight >= scrollHeight - 10;
+    if (scrolledToOldMessages && hasMore && !loading && onLoadMore) {
       onLoadMore();
     }
-  };
+  }, [hasMore, loading, onLoadMore]);
 
   if (!conversation) {
     return (
@@ -185,17 +248,24 @@ export default function ConversationView({
 
       {/* Messages Area */}
       <Box
-        ref={messagesContainerRef}
-        onScroll={handleScroll}
         sx={{
           flex: 1,
-          p: 2,
-          overflow: 'auto',
-          bgcolor: 'grey.50',
-          display: 'flex',
-          flexDirection: 'column-reverse',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        <Box
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          sx={{
+            height: '100%',
+            p: 2,
+            overflow: 'auto',
+            bgcolor: 'grey.50',
+            display: 'flex',
+            flexDirection: 'column-reverse',
+          }}
+        >
         {loading && messages.length === 0 ? (
           <Box
             sx={{
@@ -234,9 +304,11 @@ export default function ConversationView({
                 
                 {[...messages].reverse().map((message) => (
                   <MessageBubble
-                    key={message.messageID}
+                    key={message.messageID || message.tempId}
                     message={message}
                     currentUserId={currentUserId}
+                    onRetry={onRetryMessage}
+                    onRemove={onRemoveMessage}
                   />
                 ))}
               </Box>
@@ -256,6 +328,34 @@ export default function ConversationView({
             )}
           </>
         )}
+        </Box>
+
+        {/* Scroll to bottom button */}
+        <Fade in={showScrollButton}>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10,
+            }}
+          >
+            <Chip
+              icon={<KeyboardArrowDownIcon />}
+              label={newMessageCount > 0 ? `${newMessageCount} tin nhắn mới` : 'Tin nhắn mới nhất'}
+              color="primary"
+              onClick={() => scrollToBottom(true)}
+              sx={{
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                '&:hover': {
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                },
+              }}
+            />
+          </Box>
+        </Fade>
       </Box>
 
       {/* Message Input */}

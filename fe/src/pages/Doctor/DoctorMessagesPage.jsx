@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Paper,
   Box,
@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client/react';
 import { ConversationList, ConversationView } from '../../components/Messaging';
 import { GET_ASSIGNED_FAMILIES } from '../../graphql/doctorQueries';
-import { useSendMessage } from '../../hooks/useSendMessage';
+import { useSendMessage, useMarkConversationAsRead } from '../../hooks/useSendMessage';
 import { useConversations } from '../../hooks/useConversations';
 import { useMessages } from '../../hooks/useMessages';
 
@@ -41,18 +41,28 @@ export default function DoctorMessagesPage() {
     skip: !currentUser,
   });
 
-  // Fetch conversations
-  const { conversations, loading: conversationsLoading } = useConversations();
+  // Fetch conversations - pass selectedConversationID to avoid unread count increase for current conversation
+  const { 
+    conversations, 
+    loading: conversationsLoading,
+    markConversationAsReadLocal 
+  } = useConversations({ 
+    selectedConversationID: selectedConversation?.conversationID 
+  });
 
   // Fetch messages for selected conversation
   const { 
     messages, 
     loading: messagesLoading,
-    loadMore: handleLoadMore 
+    loadMore: handleLoadMore,
+    addOptimisticMessage,
+    updateMessageStatus,
+    removeMessage,
   } = useMessages(selectedConversation?.conversationID);
 
-  // Send message hook
+  // Send message hook with optimistic updates
   const { sendMessage, loading: sending } = useSendMessage({
+    currentUser,
     onCompleted: (message) => {
       console.log('Message sent successfully:', message);
     },
@@ -61,42 +71,116 @@ export default function DoctorMessagesPage() {
     },
   });
 
-  const handleSelectConversation = async (conversation) => {
-    setSelectedConversation(conversation);
-  };
+  // Mark conversation as read hook - must be declared before useEffect that uses it
+  const { markConversationAsRead } = useMarkConversationAsRead();
 
-  const handleSendMessage = async (text, attachments) => {
+  // Auto mark as read when viewing conversation
+  const markAsReadTimeoutRef = useRef(null);
+  
+  useEffect(() => {
+    // Clear previous timeout
+    if (markAsReadTimeoutRef.current) {
+      clearTimeout(markAsReadTimeoutRef.current);
+    }
+
+    // Auto mark as read after 1 second of viewing
+    if (selectedConversation?.conversationID && selectedConversation.unreadCount > 0) {
+      markAsReadTimeoutRef.current = setTimeout(async () => {
+        try {
+          markConversationAsReadLocal(selectedConversation.conversationID);
+          await markConversationAsRead(parseInt(selectedConversation.conversationID));
+        } catch (error) {
+          console.error('Auto mark as read failed:', error);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (markAsReadTimeoutRef.current) {
+        clearTimeout(markAsReadTimeoutRef.current);
+      }
+    };
+  }, [selectedConversation?.conversationID, selectedConversation?.unreadCount, markConversationAsRead, markConversationAsReadLocal]);
+
+  // Handle selecting a conversation and mark as read
+  const handleSelectConversation = useCallback(async (conversation) => {
+    setSelectedConversation(conversation);
+    
+    // Mark conversation as read when selecting
+    if (conversation?.conversationID && conversation.unreadCount > 0) {
+      try {
+        // Update local state immediately for better UX
+        markConversationAsReadLocal(conversation.conversationID);
+        // Then sync with server
+        await markConversationAsRead(parseInt(conversation.conversationID));
+        console.log('Marked conversation as read:', conversation.conversationID);
+      } catch (error) {
+        console.error('Failed to mark conversation as read:', error);
+      }
+    }
+  }, [markConversationAsRead, markConversationAsReadLocal]);
+
+  const handleSendMessage = useCallback(async (text, attachments) => {
     if (!selectedConversation || (!text.trim() && attachments.length === 0)) {
       return;
     }
 
+    // Determine recipient ID based on conversation
+    const recipientID = 
+      selectedConversation.family?.headOfFamilyID || 
+      selectedConversation.family?.headOfFamily?.userID;
+
+    if (!recipientID) {
+      console.error('Cannot determine recipient ID from conversation:', selectedConversation);
+      alert('Không thể xác định người nhận. Vui lòng thử lại.');
+      return;
+    }
+
     try {
-      // Determine recipient ID based on conversation
-      // Try multiple ways to get the recipient ID
-      const recipientID = 
-        selectedConversation.family?.headOfFamilyID || 
-        selectedConversation.family?.headOfFamily?.userID;
-
-      if (!recipientID) {
-        console.error('Cannot determine recipient ID from conversation:', selectedConversation);
-        alert('Không thể xác định người nhận. Vui lòng thử lại.');
-        return;
-      }
-
-      console.log('Sending message to recipient:', recipientID);
-
       await sendMessage({
         conversationID: selectedConversation.conversationID ? parseInt(selectedConversation.conversationID) : null,
         recipientID: parseInt(recipientID),
         content: text,
         attachments: attachments || [],
+        // Optimistic update callbacks
+        onOptimisticUpdate: addOptimisticMessage,
+        onStatusUpdate: updateMessageStatus,
       });
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Không thể gửi tin nhắn: ' + (error.message || 'Lỗi không xác định'));
-      throw error;
+      // Error is already handled in useSendMessage with status update
     }
-  };
+  }, [selectedConversation, sendMessage, addOptimisticMessage, updateMessageStatus]);
+
+  // Handle retry failed message
+  const handleRetryMessage = useCallback(async (tempId) => {
+    const failedMessage = messages.find(m => m.tempId === tempId);
+    if (!failedMessage) return;
+
+    const recipientID = 
+      selectedConversation.family?.headOfFamilyID || 
+      selectedConversation.family?.headOfFamily?.userID;
+
+    if (!recipientID) return;
+
+    try {
+      await sendMessage({
+        conversationID: selectedConversation.conversationID ? parseInt(selectedConversation.conversationID) : null,
+        recipientID: parseInt(recipientID),
+        content: failedMessage.content,
+        attachments: [],
+        onOptimisticUpdate: null, // Don't add duplicate
+        onStatusUpdate: updateMessageStatus,
+      });
+    } catch (error) {
+      console.error('Retry failed:', error);
+    }
+  }, [selectedConversation, messages, sendMessage, updateMessageStatus]);
+
+  // Handle remove failed message
+  const handleRemoveMessage = useCallback((tempId) => {
+    removeMessage(tempId);
+  }, [removeMessage]);
 
   const handleTypingStart = () => {
     if (!selectedConversation) return;
@@ -233,6 +317,8 @@ export default function DoctorMessagesPage() {
         onTypingStart={handleTypingStart}
         onTypingStop={handleTypingStop}
         onLoadMore={handleLoadMore}
+        onRetryMessage={handleRetryMessage}
+        onRemoveMessage={handleRemoveMessage}
       />
     </Paper>
   );
