@@ -51,9 +51,13 @@ export const createSubscriptionOptions = ({
   onError 
 }) => {
   return {
-    onData: ({ data }) => {
-      if (data) {
-        onData(data);
+    onData: ({ data: subscriptionResult }) => {
+      // Apollo subscription returns { data: { subscriptionField: value }, loading, error }
+      // We need to pass subscriptionResult.data to the callback (the actual subscription data)
+      const actualData = subscriptionResult?.data;
+      if (actualData) {
+        console.log(`[${subscriptionName}] Data received:`, actualData);
+        onData(actualData);
       }
     },
     onError: onError || getSubscriptionErrorHandler(subscriptionName),
