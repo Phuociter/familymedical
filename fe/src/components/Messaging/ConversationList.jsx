@@ -205,6 +205,7 @@ export default function ConversationList({
                     <ListItemText
                       primary={
                         <Box
+                          component="span"
                           sx={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -213,6 +214,7 @@ export default function ConversationList({
                         >
                           <Typography
                             variant="subtitle2"
+                            component="span"
                             noWrap
                             sx={{
                               flex: 1,
@@ -222,13 +224,14 @@ export default function ConversationList({
                           >
                             {otherPartyName}
                           </Typography>
-                          <Typography variant="caption" color="textSecondary">
+                          <Typography variant="caption" component="span" color="textSecondary">
                             {formatConversationTime(conversation.lastMessageAt)}
                           </Typography>
                         </Box>
                       }
                       secondary={
                         <Box
+                          component="span"
                           sx={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -237,6 +240,7 @@ export default function ConversationList({
                         >
                           <Typography
                             variant="body2"
+                            component="span"
                             color="textSecondary"
                             noWrap
                             sx={{

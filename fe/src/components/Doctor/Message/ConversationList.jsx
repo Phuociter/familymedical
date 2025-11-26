@@ -127,19 +127,20 @@ export default function ConversationList({
               </ListItemAvatar>
               <ListItemText
                 primary={
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="subtitle2" noWrap sx={{ flex: 1, pr: 1 }}>
+                  <Box component="span" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="subtitle2" component="span" noWrap sx={{ flex: 1, pr: 1 }}>
                       {conversation.familyName}
                     </Typography>
-                    <Typography variant="caption" color="textSecondary">
+                    <Typography variant="caption" component="span" color="textSecondary">
                       {formatTime(conversation.lastMessageTime)}
                     </Typography>
                   </Box>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box component="span" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography
                       variant="body2"
+                      component="span"
                       color="textSecondary"
                       noWrap
                       sx={{ flex: 1, pr: 1 }}

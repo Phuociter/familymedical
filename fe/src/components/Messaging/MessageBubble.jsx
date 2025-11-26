@@ -57,7 +57,7 @@ export default function MessageBubble({
     if (isSent || message.messageID) {
       return (
         <Tooltip title="Đã gửi">
-          <DoneIcon sx={{ fontSize: 14, ml: 0.5, color: 'grey.400' }} />
+          <SentIcon sx={{ fontSize: 14, ml: 0.5, color: 'grey.400' }} />
         </Tooltip>
       );
     }
