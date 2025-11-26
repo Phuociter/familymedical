@@ -191,7 +191,7 @@ export default function DoctorDashboard() {
 
   if (loading) {
     return (
-      <Box container maxWidth="lg">
+      <Box sx={{ maxWidth: 'lg', mx: 'auto', px: 2 }}>
         {/* Header */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" fontWeight={700} gutterBottom>
@@ -249,7 +249,7 @@ export default function DoctorDashboard() {
   }));
 
   return (
-    <Box container maxWidth="lg">
+    <Box sx={{ maxWidth: 'lg', mx: 'auto', px: 2 }}>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>

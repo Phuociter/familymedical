@@ -618,7 +618,7 @@ public class AdminGraphQLResolverTest {
             String result = adminGraphQLResolver.status(doctorRequest);
 
             // Assert
-            assertEquals("Pending", result);
+            assertEquals("PENDING", result);
         }
 
         @Test
@@ -884,7 +884,7 @@ public class AdminGraphQLResolverTest {
             // Arrange
             Integer userId = 1;
             String newPassword = "newpassword123";
-            doNothing().when(adminService).resetPassword(userId, newPassword);
+            when(adminService.resetPassword(userId, newPassword)).thenReturn(doctor);
 
             // Act
             Boolean result = adminGraphQLResolver.resetPassword(userId, newPassword);

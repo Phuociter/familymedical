@@ -54,6 +54,7 @@ public class MedicalRecord {
     
     @PrePersist
     protected void onCreate() {
+        this.recordDate = LocalDate.now();
         this.uploadDate = LocalDateTime.now();
     }
 

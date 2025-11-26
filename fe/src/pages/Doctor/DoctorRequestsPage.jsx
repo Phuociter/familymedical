@@ -18,12 +18,6 @@ export default function DoctorRequestsPage() {
     skip: useMockData,
   });
 
-  useEffect(() => {
-    if (error) {
-      setUseMockData(true);
-    }
-  }, [error]);
-
   const [respondToRequest, { loading: responding }] = useMutation(RESPOND_TO_DOCTOR_REQUEST, {
     onCompleted: () => {
       setDetailDialogOpen(false);
@@ -76,16 +70,13 @@ export default function DoctorRequestsPage() {
     }
   };
 
-  const requests = useMockData ? mockRequests : (data?.doctorRequests || []);
+  
+
+  const requests = data?.doctorRequests;
 
   return (
     <Box maxWidth="lg">
-      {useMockData && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          Đang sử dụng dữ liệu demo (Backend chưa kết nối)
-        </Alert>
-      )}
-
+ 
       <RequestList
         requests={requests}
         loading={loading && !useMockData}

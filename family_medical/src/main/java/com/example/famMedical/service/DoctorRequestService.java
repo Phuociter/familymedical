@@ -1,15 +1,8 @@
 package com.example.famMedical.service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.logging.Logger;
 
-import org.hibernate.validator.internal.util.logging.LoggerFactory;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +13,7 @@ import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.Entity.User;
+import com.example.famMedical.dto.events.DoctorRequestStatusChangedEvent;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
 import com.example.famMedical.repository.DoctorRequestRepository;
@@ -27,7 +21,6 @@ import com.example.famMedical.repository.DoctorAssignmentRepository;
 import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.UserRepository;
 
-import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 
 
@@ -39,6 +32,8 @@ public class DoctorRequestService {
     private final DoctorAssignmentRepository doctorAssignmentRepository;
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final MessageService messageService;
 
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
@@ -54,9 +49,8 @@ public class DoctorRequestService {
         DoctorRequest newRequest = new DoctorRequest();
         newRequest.setFamily(f2);
         newRequest.setDoctor(u1);
-        newRequest.setFamily(f2);
-
-        newRequest.setStatus(RequestStatus.PENDING);    
+        newRequest.setStatus(RequestStatus.PENDING);
+        newRequest.setRequestDate(LocalDateTime.now()); // Set explicitly
 
         System.out.println("thêm thành công doctor request");
         return doctorRequestRepository.save(newRequest);
@@ -134,11 +128,37 @@ public class DoctorRequestService {
             request.getDoctor().getUserID(), 
             request.getFamily().getFamilyID());
 
+        // Tự động tạo conversation giữa bác sĩ và gia đình (nếu chưa có)
+        try {
+            messageService.getOrCreateConversation(
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID()
+            );
+            log.info("Created/Retrieved Conversation - Doctor: {}, Family: {}", 
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID());
+        } catch (Exception e) {
+            log.error("Failed to create conversation for Doctor: {}, Family: {}. Error: {}", 
+                request.getDoctor().getUserID(), 
+                request.getFamily().getFamilyID(),
+                e.getMessage());
+            // Không throw exception để không ảnh hưởng đến việc accept request
+            // Conversation có thể được tạo sau khi gửi tin nhắn đầu tiên
+        }
+
+        // Publish event for notification
+        eventPublisher.publishEvent(new DoctorRequestStatusChangedEvent(this, savedRequest));
+
         return savedRequest;
     }
 
     private DoctorRequest rejectRequest(DoctorRequest request) {
         request.setStatus(RequestStatus.REJECTED);
-        return doctorRequestRepository.save(request);
+        DoctorRequest savedRequest = doctorRequestRepository.save(request);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new DoctorRequestStatusChangedEvent(this, savedRequest));
+        
+        return savedRequest;
     }
 }

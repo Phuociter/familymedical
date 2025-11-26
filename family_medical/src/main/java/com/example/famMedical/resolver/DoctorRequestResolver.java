@@ -25,7 +25,19 @@ public class DoctorRequestResolver {
     @MutationMapping
     public DoctorRequest createDRequest(@Argument @Valid String doctorID, @Argument @Valid String userID) {
         // DRequest.
-        return doctorRequestService.createDoctorRequest(doctorID,userID);
+        DoctorRequest savedRequest =  doctorRequestService.createDoctorRequest(doctorID,userID);
+
+    
+        // --- THÊM ĐOẠN NÀY ĐỂ DEBUG ---
+        System.out.println("Class của requestDate: " + savedRequest.getRequestDate().getClass().getName());
+        System.out.println("Giá trị requestDate: " + savedRequest.getRequestDate());
+        
+        if (savedRequest.getResponseDate() != null) {
+            System.out.println("Class của responseDate: " + savedRequest.getResponseDate().getClass().getName());
+        }
+        // -----------------------------
+
+        return savedRequest;
     }
 
     @MutationMapping
