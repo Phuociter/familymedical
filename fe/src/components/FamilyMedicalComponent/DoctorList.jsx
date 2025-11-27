@@ -78,7 +78,7 @@ const DoctorList = ({ familyDoctorId }) => {
                     {filteredDoctors.length > 0 ? (
                         filteredDoctors.map(doctor => (
                             <li
-                                key={doctor.id}
+                                key={doctor.userID}
                                 onClick={() => handleDoctorClick(doctor)}
                                 className="p-4 flex items-center space-x-4 cursor-pointer hover:bg-[#F9FAFB] transition-colors"
                             >

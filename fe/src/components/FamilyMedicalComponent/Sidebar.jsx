@@ -119,19 +119,21 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
                 </div>
            </div>
         )}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex items-center w-full text-left rounded-md p-2 hover:bg-[#374151] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1F2937] focus:ring-[#FFFFFF]"
-        >
-          <img
-            className="h-10 w-10 rounded-full object-cover"
-            src={user.avatarUrl}
-            alt="User avatar"
-          />
-          <div className="ml-3">
-            <p className="text-sm font-medium text-[#FFFFFF]">{user.fullName}</p>
-          </div>
-        </button>
+          {user && ( // Add this condition
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex items-center w-full text-left rounded-md p-2 hover:bg-[#374151] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1F2937] focus:ring-[#FFFFFF]"
+            >
+              <img
+                className="h-10 w-10 rounded-full object-cover"
+                src={user.avatarUrl}
+                alt="User avatar"
+              />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-[#FFFFFF]">{user.fullName}</p>
+              </div>
+            </button>
+          )} {/* Close the condition here */}
       </div>
     </div>
   );
