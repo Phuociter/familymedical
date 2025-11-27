@@ -37,6 +37,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { GET_FAMILY_DETAIL, GET_PATIENT_DETAIL } from '../../graphql/doctorQueries';
 import MedicalRecordTimeline from '../Doctor/Patient/MedicalRecordTimeline/MedicalRecordTimeline';
+import MedicalRecordViewerModal from '../Doctor/Patient/MedicalRecordTimeline/MedicalRecordViewerModal';
 
 const RELATIONSHIP_LABELS = {
   'Chủ hộ': 'Bản thân',
@@ -89,6 +90,9 @@ export default function QuickInfoModal({
   currentUserRole 
 }) {
   const [selectedMemberID, setSelectedMemberID] = useState(null);
+  const [downloadingRecordId, setDownloadingRecordId] = useState(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
   const familyID = conversation?.family?.familyID;
 
   // Query family detail with members
@@ -148,7 +152,53 @@ export default function QuickInfoModal({
 
   const handleClose = () => {
     setSelectedMemberID(null);
+    setViewerOpen(false);
+    setSelectedRecord(null);
     onClose();
+  };
+
+  // Handle view file in modal
+  const handleViewFile = (record) => {
+    if (record.fileLink) {
+      setSelectedRecord(record);
+      setViewerOpen(true);
+    }
+  };
+
+  // Handle download file with fetch blob
+  const handleDownloadFile = async (fileLink, fileName, recordID) => {
+    if (!fileLink || downloadingRecordId) return;
+
+    setDownloadingRecordId(recordID);
+    try {
+      // Fetch blob để buộc trình duyệt tải xuống thay vì mở tab mới
+      const response = await fetch(fileLink, {
+        method: 'GET',
+        headers: {
+          // Thêm headers nếu API yêu cầu authentication
+        }
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName || fileLink.split('/').pop() || 'downloaded-file';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed, falling back to open new tab", error);
+      // Fallback: Mở tab mới nếu fetch thất bại (ví dụ do CORS)
+      window.open(fileLink, '_blank');
+    } finally {
+      setDownloadingRecordId(null);
+    }
   };
 
   // Render left sidebar with member list
@@ -522,35 +572,23 @@ export default function QuickInfoModal({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
                       <Button
                         size="small"
+                        variant="contained"
                         startIcon={<VisibilityIcon />}
-                        sx={{ textTransform: 'none', color: 'text.primary' }}
-                        onClick={() => {
-                          if (record.fileLink) {
-                            window.open(record.fileLink, '_blank');
-                          }
-                        }}
+                        sx={{ textTransform: 'none' }}
+                        onClick={() => handleViewFile(record)}
                         disabled={!record.fileLink}
                       >
                         Xem
                       </Button>
                       <Button
                         size="small"
+                        variant="outlined"
                         startIcon={<DownloadIcon />}
-                        sx={{ textTransform: 'none', color: 'text.primary' }}
-                        onClick={() => {
-                          if (record.fileLink) {
-                            const link = document.createElement('a');
-                            link.href = record.fileLink;
-                            link.download = fileName;
-                            link.target = '_blank';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }
-                        }}
-                        disabled={!record.fileLink}
+                        sx={{ textTransform: 'none' }}
+                        onClick={() => handleDownloadFile(record.fileLink, fileName, record.recordID)}
+                        disabled={!record.fileLink || downloadingRecordId === record.recordID}
                       >
-                        Tải
+                        {downloadingRecordId === record.recordID ? 'Đang tải...' : 'Tải'}
                       </Button>
                     </Box>
                   </Paper>
@@ -580,43 +618,59 @@ export default function QuickInfoModal({
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          height: '90vh',
-          maxHeight: 800,
-        },
-      }}
-    >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" fontWeight={600}>
-            Thông tin Gia đình Bệnh nhân
-          </Typography>
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={(theme) => ({
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: theme.palette.grey[500],
-            })}
-            >
-          <CloseIcon />
-        </IconButton>
-        </Box>
-      </DialogTitle>
-      <DialogContent dividers sx={{ p: 0, display: 'flex', height: 'calc(100% - 64px)', bgcolor: 'grey.50' }}>
-        {renderSidebar()}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {renderMemberDetails()}
-        </Box>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            height: '90vh',
+            maxHeight: 800,
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" fontWeight={600}>
+              Thông tin Gia đình Bệnh nhân
+            </Typography>
+            <IconButton
+              aria-label="close"
+              onClick={handleClose}
+              sx={(theme) => ({
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  color: theme.palette.grey[500],
+              })}
+              >
+            <CloseIcon />
+          </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 0, display: 'flex', height: 'calc(100% - 64px)', bgcolor: 'grey.50' }}>
+          {renderSidebar()}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {renderMemberDetails()}
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Medical Record Viewer Modal */}
+      {selectedRecord && selectedRecord.fileLink && (
+        <MedicalRecordViewerModal
+          open={viewerOpen}
+          onClose={() => {
+            setViewerOpen(false);
+            setSelectedRecord(null);
+          }}
+          fileLink={selectedRecord.fileLink}
+          fileName={selectedRecord.fileLink.split('/').pop() || selectedRecord.fileType || 'Hồ sơ y tế'}
+          fileType={selectedRecord.fileType}
+        />
+      )}
+    </>
   );
 }
