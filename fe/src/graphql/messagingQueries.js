@@ -70,6 +70,10 @@ export const GET_CONVERSATION_DETAIL = gql`
       lastMessage {
         messageID
         content
+        sender {
+          userID
+          fullName
+        }
         createdAt
       }
       lastMessageAt
@@ -103,6 +107,10 @@ export const GET_CONVERSATION_WITH_USER = gql`
       lastMessage {
         messageID
         content
+        sender {
+          userID
+          fullName
+        }
         createdAt
       }
       lastMessageAt
@@ -130,7 +138,6 @@ export const GET_CONVERSATION_MESSAGES = gql`
         sender {
           userID
           fullName
-          avatarUrl
         }
         content
         attachments {

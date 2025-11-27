@@ -2,6 +2,7 @@ package com.example.famMedical.service;
 
 import com.example.famMedical.dto.events.AppointmentCreatedEvent;
 import com.example.famMedical.dto.events.AppointmentUpdatedEvent;
+import com.example.famMedical.dto.events.DoctorRequestCreatedEvent;
 import com.example.famMedical.dto.events.DoctorRequestStatusChangedEvent;
 import com.example.famMedical.dto.events.MedicalRecordCreatedEvent;
 import com.example.famMedical.dto.events.MedicalRecordUpdatedEvent;
@@ -64,6 +65,24 @@ public class NotificationEventListener {
     }
     
     /**
+     * Listen for doctor request creation events and create notifications
+     * @param event The doctor request created event
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    public void handleDoctorRequestCreated(DoctorRequestCreatedEvent event) {
+        log.info("Handling DoctorRequestCreatedEvent for request ID: {}", 
+                event.getDoctorRequest().getRequestID());
+        
+        try {
+            notificationService.notifyDoctorRequestCreated(event.getDoctorRequest());
+        } catch (Exception e) {
+            log.error("Error creating notification for doctor request creation: {}", 
+                    event.getDoctorRequest().getRequestID(), e);
+        }
+    }
+    
+    /**
      * Listen for doctor request status change events and create notifications
      * @param event The doctor request status changed event
      */
@@ -118,7 +137,12 @@ public class NotificationEventListener {
     }
     
     /**
-     * Listen for new message events and create notifications
+     * Listen for new message events and publish to WebSocket
+     * NOTE: We do NOT create notifications for new messages because:
+     * - Messages are already delivered via WebSocket subscription
+     * - Users can see new messages directly in the messaging UI
+     * - Notification would be redundant
+     * 
      * @param event The new message event
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -128,10 +152,7 @@ public class NotificationEventListener {
                 event.getMessage().getMessageID());
         
         try {
-            // Create notification
-            notificationService.notifyNewMessage(event.getMessage());
-            
-            // Publish message to WebSocket subscribers
+            // Publish message to WebSocket subscribers (NO notification created)
             log.info("Publishing message {} to WebSocket subscribers", 
                     event.getMessage().getMessageID());
             messagePublisher.publishMessage(event.getMessage());

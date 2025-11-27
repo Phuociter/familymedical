@@ -13,6 +13,7 @@ import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.Entity.User;
+import com.example.famMedical.dto.events.DoctorRequestCreatedEvent;
 import com.example.famMedical.dto.events.DoctorRequestStatusChangedEvent;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
@@ -35,6 +36,7 @@ public class DoctorRequestService {
     private final ApplicationEventPublisher eventPublisher;
     private final MessageService messageService;
 
+    @Transactional
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
         Integer uID = Integer.parseInt(userID);
@@ -53,7 +55,12 @@ public class DoctorRequestService {
         newRequest.setRequestDate(LocalDateTime.now()); // Set explicitly
 
         System.out.println("thêm thành công doctor request");
-        return doctorRequestRepository.save(newRequest);
+        DoctorRequest savedRequest = doctorRequestRepository.save(newRequest);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new DoctorRequestCreatedEvent(this, savedRequest));
+        
+        return savedRequest;
 
     }
 

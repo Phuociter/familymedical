@@ -1,40 +1,45 @@
 /**
- * Custom hook for message subscriptions
+ * Message Subscription Hooks
  * 
- * This hook provides real-time message and conversation updates via GraphQL subscriptions.
+ * This file provides hooks for subscribing to real-time message and conversation updates.
+ * 
+ * NOTE: For most use cases, use the subscriptions built into useMessages and useConversations
+ * which use the subscribeToMore pattern for better cache management.
+ * 
+ * These standalone hooks are useful when you need to listen to events globally
+ * (e.g., for notifications) without being tied to a specific query.
  */
 
 import { useSubscription } from '@apollo/client/react';
-import { useEffect } from 'react';
-import { createSubscriptionOptions } from '../utils/subscriptionUtils';
 import { 
   MESSAGE_RECEIVED_SUBSCRIPTION, 
-  CONVERSATION_UPDATED_SUBSCRIPTION 
+  CONVERSATION_UPDATED_SUBSCRIPTION
 } from '../graphql/messagingSubscriptions';
 
 /**
- * Hook for subscribing to new messages
+ * Hook for subscribing to new messages globally
+ * Use this for notifications or when you need to react to any new message
+ * 
  * @param {Function} onNewMessage - Callback when a new message is received
- * @returns {Object} Subscription state { message, loading, error }
+ * @param {Object} options - Additional subscription options
+ * @returns {Object} Subscription state { data, loading, error }
  */
-export const useMessageSubscription = (onNewMessage) => {
-  const { data, loading, error } = useSubscription(
-    MESSAGE_RECEIVED_SUBSCRIPTION,
-    createSubscriptionOptions({
-      subscriptionName: 'MessageReceived',
-      onData: (data) => {
-        if (data.messageReceived && onNewMessage) {
-          onNewMessage(data.messageReceived);
-        }
-      },
-    })
-  );
-
-  useEffect(() => {
-    if (error) {
-      console.error('Message subscription error:', error);
-    }
-  }, [error]);
+export const useMessageSubscription = (onNewMessage, options = {}) => {
+  const { data, loading, error } = useSubscription(MESSAGE_RECEIVED_SUBSCRIPTION, {
+    ...options,
+    onData: ({ data: subscriptionResult }) => {
+      const message = subscriptionResult?.data?.messageReceived;
+      if (message && onNewMessage) {
+        onNewMessage(message);
+      }
+    },
+    onError: (error) => {
+      console.error('❌ Message subscription error:', error);
+      if (options.onError) {
+        options.onError(error);
+      }
+    },
+  });
 
   return {
     message: data?.messageReceived,
@@ -44,28 +49,29 @@ export const useMessageSubscription = (onNewMessage) => {
 };
 
 /**
- * Hook for subscribing to conversation updates
+ * Hook for subscribing to conversation updates globally
+ * Use this for notifications or sidebar updates
+ * 
  * @param {Function} onConversationUpdate - Callback when a conversation is updated
- * @returns {Object} Subscription state { conversation, loading, error }
+ * @param {Object} options - Additional subscription options
+ * @returns {Object} Subscription state { data, loading, error }
  */
-export const useConversationSubscription = (onConversationUpdate) => {
-  const { data, loading, error } = useSubscription(
-    CONVERSATION_UPDATED_SUBSCRIPTION,
-    createSubscriptionOptions({
-      subscriptionName: 'ConversationUpdated',
-      onData: (data) => {
-        if (data.conversationUpdated && onConversationUpdate) {
-          onConversationUpdate(data.conversationUpdated);
-        }
-      },
-    })
-  );
-
-  useEffect(() => {
-    if (error) {
-      console.error('Conversation subscription error:', error);
-    }
-  }, [error]);
+export const useConversationSubscription = (onConversationUpdate, options = {}) => {
+  const { data, loading, error } = useSubscription(CONVERSATION_UPDATED_SUBSCRIPTION, {
+    ...options,
+    onData: ({ data: subscriptionResult }) => {
+      const conversation = subscriptionResult?.data?.conversationUpdated;
+      if (conversation && onConversationUpdate) {
+        onConversationUpdate(conversation);
+      }
+    },
+    onError: (error) => {
+      console.error('❌ Conversation subscription error:', error);
+      if (options.onError) {
+        options.onError(error);
+      }
+    },
+  });
 
   return {
     conversation: data?.conversationUpdated,

@@ -47,12 +47,13 @@ const wsLink = new GraphQLWsLink(
     // Connection acknowledgement timeout
     connectionAckWaitTimeout: 5000,
     // Lazy connection - only connect when subscription is active
+    // WebSocketProvider will maintain a keep-alive subscription when user is authenticated
     lazy: true,
     // Log connection events for debugging
     on: {
-      connected: () => console.log("WebSocket connected"),
-      closed: () => console.log("WebSocket closed"),
-      error: (error) => console.error("WebSocket error:", error),
+      connected: () => console.log("✅ WebSocket connected"),
+      closed: () => console.log("🔌 WebSocket closed"),
+      error: (error) => console.error("❌ WebSocket error:", error),
     },
   })
 );

@@ -125,6 +125,18 @@ class NotificationEventListenerTest {
     }
 
     @Test
+    void testHandleDoctorRequestCreated() {
+        // Given
+        DoctorRequestCreatedEvent event = new DoctorRequestCreatedEvent(this, doctorRequest);
+
+        // When
+        eventListener.handleDoctorRequestCreated(event);
+
+        // Then
+        verify(notificationService, times(1)).notifyDoctorRequestCreated(doctorRequest);
+    }
+
+    @Test
     void testHandleDoctorRequestStatusChanged() {
         // Given
         DoctorRequestStatusChangedEvent event = new DoctorRequestStatusChangedEvent(this, doctorRequest);

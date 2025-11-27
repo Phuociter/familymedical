@@ -12,6 +12,7 @@ import com.example.famMedical.exception.NotFoundException;
 import com.example.famMedical.exception.UnAuthorizedException;
 import com.example.famMedical.repository.NotificationRepository;
 import com.example.famMedical.repository.UserRepository;
+import com.example.famMedical.repository.DoctorRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationPublisher notificationPublisher;
+    private final DoctorRequestRepository doctorRequestRepository;
     
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -134,22 +136,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void notifyAppointmentCreated(Appointment appointment) {
         log.info("Creating notifications for appointment creation: {}", appointment.getAppointmentID());
         
-        // Notify the doctor
-        String doctorTitle = "Cuộc hẹn mới được tạo";
-        String doctorMessage = String.format(
-                "Cuộc hẹn mới với %s đã được tạo vào %s",
-                appointment.getFamily().getFamilyName(),
-                appointment.getAppointmentDateTime().format(DATE_TIME_FORMATTER)
-        );
-        createNotification(
-                appointment.getDoctor().getUserID(),
-                NotificationType.APPOINTMENT_CREATED,
-                doctorTitle,
-                doctorMessage,
-                "Appointment",
-                appointment.getAppointmentID()
-        );
-        
+        // CHỈ gửi notification cho Family (Doctor tự tạo appointment nên không cần notification)
         // Notify the family head
         if (appointment.getFamily().getHeadOfFamily() != null) {
             String familyTitle = "Cuộc hẹn mới được tạo";
@@ -166,9 +153,10 @@ public class NotificationServiceImpl implements NotificationService {
                     "Appointment",
                     appointment.getAppointmentID()
             );
+            log.info("Appointment creation notification sent to family");
+        } else {
+            log.warn("Cannot send notification - family has no head of family");
         }
-        
-        log.info("Appointment creation notifications sent");
     }
 
     @Override
@@ -211,6 +199,34 @@ public class NotificationServiceImpl implements NotificationService {
         }
         
         log.info("Appointment update notifications sent");
+    }
+
+    @Override
+    @Transactional
+    public void notifyDoctorRequestCreated(DoctorRequest request) {
+        log.info("Creating notification for doctor request creation: {}", request.getRequestID());
+        
+        // Reload entity to ensure all relationships are loaded (entity may be detached after transaction commit)
+        DoctorRequest reloadedRequest = doctorRequestRepository.findByIdWithRelations(request.getRequestID())
+                .orElseThrow(() -> new NotFoundException("Doctor request not found with ID: " + request.getRequestID()));
+        
+        String title = "Yêu cầu phân công mới";
+        String message = String.format(
+                "Gia đình %s đã gửi yêu cầu phân công bác sĩ",
+                reloadedRequest.getFamily().getFamilyName()
+        );
+        
+        // Notify the doctor
+        createNotification(
+                reloadedRequest.getDoctor().getUserID(),
+                NotificationType.DOCTOR_REQUEST_CREATED,
+                title,
+                message,
+                "DoctorRequest",
+                reloadedRequest.getRequestID()
+        );
+        
+        log.info("Doctor request creation notification sent to doctor");
     }
 
     @Override

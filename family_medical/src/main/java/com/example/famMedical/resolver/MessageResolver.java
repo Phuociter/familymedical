@@ -23,6 +23,9 @@ import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -373,6 +376,25 @@ public class MessageResolver {
         );
         
         return count;
+    }
+
+    /**
+     * Resolve lastMessage field for Conversation type
+     * Returns the most recent message in the conversation with sender information
+     */
+    @SchemaMapping(typeName = "Conversation", field = "lastMessage")
+    public Message lastMessage(Conversation conversation) {
+        log.debug("Resolving lastMessage for conversation {}", conversation.getConversationID());
+        
+        Pageable pageable = PageRequest.of(0, 1, Sort.by("createdAt").descending());
+        var messagePage = messageRepository.findLastMessageByConversationIDWithSender(
+                conversation.getConversationID(), pageable);
+        
+        if (messagePage.hasContent()) {
+            return messagePage.getContent().get(0);
+        }
+        
+        return null;
     }
 
     /**
