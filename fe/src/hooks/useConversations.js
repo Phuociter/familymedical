@@ -1,10 +1,16 @@
 import { useQuery, useApolloClient } from '@apollo/client/react';
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { GET_MY_CONVERSATIONS, GET_CONVERSATION_DETAIL, GET_CONVERSATION_WITH_USER } from '../graphql/messagingQueries';
-import { useConversationSubscription } from './useMessageSubscription';
+import { useCallback, useEffect, useRef } from 'react';
+import { 
+  GET_MY_CONVERSATIONS, 
+  GET_CONVERSATION_DETAIL, 
+  GET_CONVERSATION_WITH_USER 
+} from '../graphql/messagingQueries';
+import { CONVERSATION_UPDATED_SUBSCRIPTION } from '../graphql/messagingSubscriptions';
 
 /**
  * Hook for fetching and managing conversations
+ * Uses subscribeToMore pattern from Apollo Client for real-time updates
+ * 
  * @param {Object} options - Configuration options
  * @param {number} options.page - Page number for pagination (default: 0)
  * @param {number} options.size - Page size for pagination (default: 20)
@@ -12,148 +18,164 @@ import { useConversationSubscription } from './useMessageSubscription';
  * @returns {Object} Conversations data and methods
  */
 export const useConversations = ({ page = 0, size = 20, selectedConversationID = null } = {}) => {
-  const [currentPage, setCurrentPage] = useState(page);
-  const [localConversations, setLocalConversations] = useState([]);
   const client = useApolloClient();
   const selectedConversationIDRef = useRef(selectedConversationID);
+  const subscriptionRef = useRef(null);
 
   // Keep ref updated
   useEffect(() => {
     selectedConversationIDRef.current = selectedConversationID;
   }, [selectedConversationID]);
 
-  const { data, loading, error, refetch, fetchMore } = useQuery(GET_MY_CONVERSATIONS, {
-    variables: { page: currentPage, size },
-    fetchPolicy: 'cache-first', // Use cache-first to prevent refetch on cache update
-    nextFetchPolicy: 'cache-only', // After first fetch, only use cache (subscription will update it)
-    notifyOnNetworkStatusChange: true,
-  });
-
-  // Update local conversations when query data changes
-  useEffect(() => {
-    if (data?.myConversations) {
-      setLocalConversations(data.myConversations);
+  const { data, loading, error, refetch, fetchMore, subscribeToMore } = useQuery(
+    GET_MY_CONVERSATIONS,
+    {
+      variables: { page, size },
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
     }
-  }, [data]);
+  );
 
-  // Subscribe to conversation updates
-  useConversationSubscription((updatedConversation) => {
-    console.log('💬 Conversation updated via subscription:', updatedConversation);
-    
-    setLocalConversations((prev) => {
-      console.log('📋 Current conversations count:', prev.length);
-      
-      const existingIndex = prev.findIndex(
-        (conv) => parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)
-      );
+  // Setup subscription using subscribeToMore
+  useEffect(() => {
+    if (!subscribeToMore) return;
 
-      console.log('🔍 Existing conversation index:', existingIndex);
+    // Clean up previous subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current();
+      subscriptionRef.current = null;
+    }
 
-      // Check if this is the currently selected conversation
-      const isCurrentlySelected = selectedConversationIDRef.current && 
-        parseInt(selectedConversationIDRef.current) === parseInt(updatedConversation.conversationID);
+    console.log('📡 Setting up conversation subscription');
 
-      // If currently viewing this conversation, don't increase unread count
-      const conversationToUpdate = isCurrentlySelected 
-        ? { ...updatedConversation, unreadCount: 0 }
-        : updatedConversation;
+    const unsubscribe = subscribeToMore({
+      document: CONVERSATION_UPDATED_SUBSCRIPTION,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data?.conversationUpdated) {
+          return prev;
+        }
 
-      if (existingIndex >= 0) {
-        // Update existing conversation
-        console.log('✅ Updating existing conversation at index', existingIndex);
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...prev[existingIndex],
-          ...conversationToUpdate,
-        };
-        // Sort by lastMessageAt (most recent first)
-        const sorted = updated.sort((a, b) => {
-          const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-          const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-          return timeB - timeA;
-        });
-        console.log('✅ Conversation list updated and sorted');
-        return sorted;
-      } else {
-        // Add new conversation at the top
-        console.log('✅ Adding new conversation to list');
-        return [conversationToUpdate, ...prev];
-      }
-    });
+        const updatedConversation = subscriptionData.data.conversationUpdated;
+        const conversationID = parseInt(updatedConversation.conversationID);
 
-    // Update Apollo cache as well
-    try {
-      const cachedData = client.readQuery({
-        query: GET_MY_CONVERSATIONS,
-        variables: { page: 0, size },
-      });
-
-      if (cachedData) {
-        const updatedConversations = cachedData.myConversations.map(conv => {
-          if (parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)) {
-            return { ...conv, ...updatedConversation };
-          }
-          return conv;
+        console.log('💬 Conversation update received:', {
+          conversationID,
+          lastMessageContent: updatedConversation.lastMessage?.content?.substring(0, 30),
         });
 
-        // Check if conversation exists, if not add it
-        const exists = cachedData.myConversations.some(
-          conv => parseInt(conv.conversationID) === parseInt(updatedConversation.conversationID)
+        const existingConversations = prev?.myConversations || [];
+
+        // Check if this is the currently selected conversation
+        const isCurrentlySelected =
+          selectedConversationIDRef.current &&
+          parseInt(selectedConversationIDRef.current) === conversationID;
+
+        // If currently viewing this conversation, don't increase unread count
+        const conversationToUpdate = isCurrentlySelected
+          ? { ...updatedConversation, unreadCount: 0, __typename: 'Conversation' }
+          : { ...updatedConversation, __typename: 'Conversation' };
+
+        // Find existing conversation
+        const existingIndex = existingConversations.findIndex(
+          (conv) => parseInt(conv.conversationID) === conversationID
         );
 
-        const finalConversations = exists 
-          ? updatedConversations 
-          : [updatedConversation, ...updatedConversations];
+        let updatedConversations;
 
-        // Sort by lastMessageAt
-        finalConversations.sort((a, b) => {
+        if (existingIndex >= 0) {
+          // Update existing conversation
+          console.log('✅ Updating existing conversation at index', existingIndex);
+          updatedConversations = [...existingConversations];
+          updatedConversations[existingIndex] = {
+            ...existingConversations[existingIndex],
+            ...conversationToUpdate,
+          };
+        } else {
+          // Add new conversation
+          console.log('✅ Adding new conversation to list');
+          updatedConversations = [conversationToUpdate, ...existingConversations];
+        }
+
+        // Sort by lastMessageAt (most recent first)
+        updatedConversations.sort((a, b) => {
           const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
           const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
           return timeB - timeA;
         });
 
-        client.writeQuery({
-          query: GET_MY_CONVERSATIONS,
-          variables: { page: 0, size },
-          data: { myConversations: finalConversations },
-        });
+        return {
+          myConversations: updatedConversations,
+        };
+      },
+      onError: (error) => {
+        console.error('❌ Conversation subscription error:', error);
+      },
+    });
+
+    subscriptionRef.current = unsubscribe;
+
+    // Cleanup on unmount
+    return () => {
+      if (subscriptionRef.current) {
+        console.log('🔌 Cleaning up conversation subscription');
+        subscriptionRef.current();
+        subscriptionRef.current = null;
       }
-    } catch (e) {
-      console.warn('Cache update failed:', e);
-    }
-  });
+    };
+  }, [subscribeToMore]);
 
-  // Mark conversation as read in local state (used by useMarkConversationAsRead)
-  const markConversationAsReadLocal = useCallback((conversationID) => {
-    setLocalConversations((prev) => 
-      prev.map(conv => {
-        if (parseInt(conv.conversationID) === parseInt(conversationID)) {
-          return { ...conv, unreadCount: 0 };
+  // Mark conversation as read in local cache
+  const markConversationAsReadLocal = useCallback(
+    (conversationID) => {
+      try {
+        const cachedData = client.readQuery({
+          query: GET_MY_CONVERSATIONS,
+          variables: { page, size },
+        });
+
+        if (cachedData) {
+          const updatedConversations = cachedData.myConversations.map((conv) => {
+            if (parseInt(conv.conversationID) === parseInt(conversationID)) {
+              return { ...conv, unreadCount: 0 };
+            }
+            return conv;
+          });
+
+          client.writeQuery({
+            query: GET_MY_CONVERSATIONS,
+            variables: { page, size },
+            data: { myConversations: updatedConversations },
+          });
         }
-        return conv;
-      })
-    );
-  }, []);
+      } catch (e) {
+        console.warn('Failed to mark conversation as read in cache:', e);
+      }
+    },
+    [client, page, size]
+  );
 
-  const conversations = localConversations;
+  const conversations = data?.myConversations || [];
 
   const loadMore = useCallback(() => {
-    const nextPage = currentPage + 1;
-    setCurrentPage(nextPage);
-    
     return fetchMore({
-      variables: { page: nextPage, size },
+      variables: { page: Math.ceil(conversations.length / size), size },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        // Avoid duplicates
+        const existingIds = new Set(prev.myConversations.map((c) => c.conversationID));
+        const newConversations = fetchMoreResult.myConversations.filter(
+          (c) => !existingIds.has(c.conversationID)
+        );
+
         return {
-          myConversations: [...prev.myConversations, ...fetchMoreResult.myConversations],
+          myConversations: [...prev.myConversations, ...newConversations],
         };
       },
     });
-  }, [currentPage, size, fetchMore]);
+  }, [conversations.length, size, fetchMore]);
 
   const refresh = useCallback(() => {
-    setCurrentPage(0);
     return refetch({ page: 0, size });
   }, [refetch, size]);
 
@@ -163,7 +185,7 @@ export const useConversations = ({ page = 0, size = 20, selectedConversationID =
     error,
     refetch: refresh,
     loadMore,
-    hasMore: conversations.length >= (currentPage + 1) * size,
+    hasMore: conversations.length >= size && conversations.length % size === 0,
     markConversationAsReadLocal,
   };
 };

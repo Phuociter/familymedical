@@ -130,7 +130,6 @@ export const GET_CONVERSATION_MESSAGES = gql`
         sender {
           userID
           fullName
-          avatarUrl
         }
         content
         attachments {
