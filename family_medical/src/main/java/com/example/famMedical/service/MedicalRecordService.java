@@ -4,11 +4,13 @@ package com.example.famMedical.service;
 import com.example.famMedical.Entity.MedicalRecord;
 import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
+import com.example.famMedical.dto.events.MedicalRecordCreatedEvent;
+import com.example.famMedical.dto.events.MedicalRecordUpdatedEvent;
 import com.example.famMedical.repository.MedicalRecordRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;  
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-// @RequiredArgsConstructor
 @AllArgsConstructor
 @Slf4j
 public class MedicalRecordService {
@@ -25,6 +26,7 @@ public class MedicalRecordService {
     private final MedicalRecordRepository medicalRecordRepository;
     private final DoctorAssignmentRepository doctorAssignmentRepository;
     private final CloudinaryService cloudinaryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<MedicalRecord> getAllRecords() {
         return medicalRecordRepository.findAll();
@@ -44,11 +46,27 @@ public class MedicalRecordService {
     }
 
     public MedicalRecord createMedicalRecord(MedicalRecord record) {
-        return medicalRecordRepository.save(record);
+        MedicalRecord savedRecord = medicalRecordRepository.save(record);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new MedicalRecordCreatedEvent(this, savedRecord));
+        
+        return savedRecord;
     }
 
     public MedicalRecord updateRecord(MedicalRecord record) {
-        return medicalRecordRepository.save(record);
+        // Check if record exists (for update vs create distinction)
+        boolean isUpdate = record.getRecordID() != null && 
+                          medicalRecordRepository.existsById(record.getRecordID());
+        
+        MedicalRecord savedRecord = medicalRecordRepository.save(record);
+        
+        // Only publish update event if this is actually an update
+        if (isUpdate) {
+            eventPublisher.publishEvent(new MedicalRecordUpdatedEvent(this, savedRecord));
+        }
+        
+        return savedRecord;
     }
 
     public Boolean deleteMedicalRecord(Integer id) {

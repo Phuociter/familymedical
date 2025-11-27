@@ -33,10 +33,7 @@ const DoctorAPI = {
             mutation CreateDRequest($doctorID:ID!, $userID:ID!){
                 createDRequest(doctorID:$doctorID, userID:$userID){
                     requestID
-                    doctorID
-                    familyID
                     status
-                    requestDate
                 }
             }
             `

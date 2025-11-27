@@ -10,6 +10,8 @@ import com.example.famMedical.dto.AppointmentFilter;
 import com.example.famMedical.dto.CreateAppointmentInput;
 import com.example.famMedical.dto.PatientAppointment;
 import com.example.famMedical.dto.UpdateAppointmentInput;
+import com.example.famMedical.dto.events.AppointmentCreatedEvent;
+import com.example.famMedical.dto.events.AppointmentUpdatedEvent;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
 import com.example.famMedical.exception.ValidationException;
@@ -20,6 +22,7 @@ import com.example.famMedical.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,6 +40,7 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final FamilyRepository familyRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
     
     public List<Appointment> getAppointments(Integer doctorId, AppointmentFilter filter) {
         User doctor = validateDoctor(doctorId);
@@ -114,7 +118,13 @@ public class AppointmentService {
             .status(AppointmentStatus.SCHEDULED)
             .createdAt(LocalDateTime.now())
             .build();
-        return appointmentRepository.save(appointment);
+        
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new AppointmentCreatedEvent(this, savedAppointment));
+        
+        return savedAppointment;
     }
     
     public Appointment updateAppointment(UpdateAppointmentInput input, Integer doctorId) {
@@ -142,7 +152,12 @@ public class AppointmentService {
         if (input.getNotes() != null) appointment.setNotes(input.getNotes());
         if (input.getDoctorNotes() != null) appointment.setDoctorNotes(input.getDoctorNotes());
         
-        return appointmentRepository.save(appointment);
+        Appointment updatedAppointment = appointmentRepository.save(appointment);
+        
+        // Publish event for notification
+        eventPublisher.publishEvent(new AppointmentUpdatedEvent(this, updatedAppointment));
+        
+        return updatedAppointment;
     }
     
     public Appointment updateAppointmentStatus(Integer appointmentId, AppointmentStatus status, Integer doctorId) {

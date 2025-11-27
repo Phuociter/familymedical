@@ -50,6 +50,9 @@ class AppointmentServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private AppointmentService appointmentService;
 

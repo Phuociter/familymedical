@@ -267,10 +267,9 @@ public class AdminRestController {
     public List<DoctorRequest> listDoctorRequests(@RequestParam(required = false) String status) {
         if (status != null && !status.isEmpty()) {
             try {
-                // Convert từ string sang enum (database uses Pending, Accepted, Rejected)
+                // Convert từ string sang enum (database uses PENDING, ACCEPTED, REJECTED)
                 // Hỗ trợ cả uppercase, lowercase và capitalized
-                String normalizedStatus = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(normalizedStatus);
+                DoctorRequest.RequestStatus requestStatus = DoctorRequest.RequestStatus.valueOf(status.toUpperCase());
                 return adminService.listDoctorRequestsByStatus(requestStatus);
             } catch (IllegalArgumentException e) {
                 // Nếu không parse được, trả về tất cả
