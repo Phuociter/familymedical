@@ -156,7 +156,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    treatmentPlan: String
+    recordDate:Date
 }
 
 input UpdateMemberInput {
