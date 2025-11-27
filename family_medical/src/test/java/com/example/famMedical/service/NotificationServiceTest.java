@@ -215,8 +215,8 @@ class NotificationServiceTest {
         // Act
         notificationService.notifyAppointmentCreated(appointment);
 
-        // Assert
-        verify(notificationRepository, times(2)).save(any(Notification.class));
+        // Assert - CHỈ gửi notification cho Family (Doctor tự tạo nên không nhận notification)
+        verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
     @Test

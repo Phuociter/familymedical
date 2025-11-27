@@ -4,11 +4,38 @@ import { vi } from 'date-fns/locale';
 /**
  * Formats a timestamp to a human-readable time string
  * Used for message timestamps in chat bubbles
+ * Format: "HH:mm" for today, "Hôm qua HH:mm" for yesterday, "T3 25/11 HH:mm" for older dates
  */
 export function formatMessageTime(timestamp) {
   if (!timestamp) return '';
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const now = new Date();
+  
+  // Reset time to compare dates only
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const timeStr = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  
+  // Same day - show only time
+  if (messageDate.getTime() === today.getTime()) {
+    return timeStr;
+  }
+  
+  // Yesterday
+  if (messageDate.getTime() === yesterday.getTime()) {
+    return `Hôm qua ${timeStr}`;
+  }
+  
+  // Older dates - show day name and date
+  const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  const dayName = dayNames[date.getDay()];
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  
+  return `${dayName} ${day}/${month} ${timeStr}`;
 }
 
 /**

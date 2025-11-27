@@ -29,7 +29,7 @@ const APPOINTMENT_TYPES = [
   { value: 'OTHER', label: 'Khác' },
 ];
 
-export default function CreateAppointmentDialog({ open, onClose, onAppointmentCreated }) {
+export default function CreateAppointmentDialog({ open, onClose, onAppointmentCreated, conversation }) {
   // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
   const getDefaultDateTime = () => {
     const now = new Date();
@@ -71,10 +71,20 @@ export default function CreateAppointmentDialog({ open, onClose, onAppointmentCr
   );
 
   // Flatten all members from all families
+  // If conversation is provided, filter to only show members from that family
   const allPatients = useMemo(() => {
     if (!familiesData?.getDoctorAssignedFamilies) return [];
     
-    return familiesData.getDoctorAssignedFamilies.flatMap(family => 
+    let families = familiesData.getDoctorAssignedFamilies;
+    
+    // Filter by conversation family if provided
+    if (conversation?.family?.familyID) {
+      families = families.filter(
+        family => family.familyID === conversation.family.familyID
+      );
+    }
+    
+    return families.flatMap(family => 
       family.members.map(member => ({
         memberID: member.memberID,
         familyID: family.familyID,
@@ -86,7 +96,7 @@ export default function CreateAppointmentDialog({ open, onClose, onAppointmentCr
         gender: member.gender || 'Không rõ',
       }))
     );
-  }, [familiesData]);
+  }, [familiesData, conversation]);
 
   const handleSubmit = async () => {
     if (!formData.patient || !formData.title || !formData.type) {

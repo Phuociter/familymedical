@@ -69,6 +69,12 @@ public interface NotificationService {
     void notifyAppointmentUpdated(Appointment appointment);
     
     /**
+     * Create notification when a doctor request is created
+     * @param request The created doctor request
+     */
+    void notifyDoctorRequestCreated(DoctorRequest request);
+    
+    /**
      * Create notification when a doctor request status changes
      * @param request The doctor request with updated status
      */

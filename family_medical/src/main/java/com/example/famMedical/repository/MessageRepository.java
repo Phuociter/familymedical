@@ -23,6 +23,9 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT COUNT(m) FROM Message m JOIN m.conversation c WHERE (c.doctor.userID = :userId OR c.family.headOfFamily.userID = :userId) AND m.isRead = false AND m.sender.userID != :userId")
     int countUnreadByUser(@Param("userId") Integer userId);
 
+    @Query("SELECT m FROM Message m JOIN FETCH m.sender WHERE m.conversation.conversationID = :conversationId ORDER BY m.createdAt DESC")
+    Page<Message> findLastMessageByConversationIDWithSender(@Param("conversationId") Integer conversationId, Pageable pageable);
+
     @Modifying
     @Query("UPDATE Message m SET m.isRead = true, m.readAt = :readAt WHERE m.conversation.conversationID = :conversationId AND m.sender.userID != :userId AND m.isRead = false")
     int markConversationAsRead(@Param("conversationId") Integer conversationId, @Param("userId") Integer userId, @Param("readAt") LocalDateTime readAt);
