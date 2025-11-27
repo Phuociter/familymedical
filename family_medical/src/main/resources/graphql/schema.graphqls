@@ -155,7 +155,7 @@ input CreateMedicalRecordInput {
     fileType: String
     fileLink: String
     description: String
-    treatmentPlan: String
+    recordDate:Date
 }
 
 input UpdateMemberInput {
@@ -417,6 +417,7 @@ type Query {
     todayAppointments: [Appointment]
     upcomingAppointments: [Appointment]
     familyAppointments: [PatientAppointment]
+    getAllAppointmentByChuHo(userID:Int!): [Appointment]
 
     # Doctor Dashboard query
     doctorDashboard: DoctorDashboard!

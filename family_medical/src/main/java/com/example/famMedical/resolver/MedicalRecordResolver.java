@@ -38,6 +38,7 @@ public class MedicalRecordResolver {
     @MutationMapping
     public MedicalRecord createMedicalRecord(@Argument @Valid CreateMedicalRecordInput input) {
         MedicalRecord medicalRecord = new MedicalRecord();
+        System.out.println("Creating medical record for member ID: " + input.getMemberID());
 
         Member member = memberRepository.findById(input.getMemberID())
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + input.getMemberID()));

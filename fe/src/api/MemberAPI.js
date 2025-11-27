@@ -154,7 +154,7 @@ const MemberAPI = {
           files.map(file => authApi.uploadFileToCloudinary(file.file))
         );
       }
-
+      console.log("Kết quả tạo mới hồ sơ:", medicalRecords);
       // 2. Kiểm tra số lượng file và record phải khớp nhau
       if (medicalRecords.length !== uploadedFileLinks.length) {
         throw new Error("Số lượng file tải lên và số lượng record không khớp.");
@@ -172,7 +172,10 @@ const MemberAPI = {
       mutation CreateMedicalRecord($input: CreateMedicalRecordInput!){
         createMedicalRecord(input:$input){
           recordID
-          memberID
+          member{
+            memberID
+            fullName
+          }
           fileType
           fileLink
           description
@@ -242,6 +245,49 @@ const MemberAPI = {
       return data.deleteRecord;
     } catch (error) {
       console.error("Lỗi khi xóa record:", error);
+      throw error;
+    }
+  },
+
+  getAllAppointmentsByChuHo: async (userID) => {
+    try {
+      const GET_ALL_APPOINTMENTS_BY_CHUHO = `
+        query GetAllAppointmentByChuHo($userID: Int!) {
+          getAllAppointmentByChuHo(userID: $userID) {
+            appointmentID
+            title
+            type
+            status
+            notes
+            appointmentDateTime
+            duration
+            location
+            doctorNotes
+            doctor {
+              userID
+              fullName
+              phoneNumber
+            }
+            member {
+              memberID
+              fullName
+              relationship
+            }
+          }
+        }
+      `;
+
+      const variables = { userID: Number(userID) };
+      const token = localStorage.getItem('userToken');
+      const data = await authApi.sendGraphQLRequest(
+        GET_ALL_APPOINTMENTS_BY_CHUHO,
+        variables,
+        token
+      );
+
+      return data.getAllAppointmentByChuHo ?? [];
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách lịch hẹn ChuHo:", error);
       throw error;
     }
   }

@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import MemberAPI from '../../api/MemberAPI.js'
 
-const AppointmentMainView = ({ member }) => {
+const AppointmentMainView = ({  }) => {
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const dateInputRef = useRef(null);
+  const user = JSON.parse(localStorage.getItem('user'));
 
   // Filter States
   const [filterStatus, setFilterStatus] = useState('ALL');
@@ -16,9 +17,8 @@ const AppointmentMainView = ({ member }) => {
     const fetchAppointments = async () => {
       try {
         setIsLoading(true);
-        // In a real main view, we might fetch for ALL family members associated with the user, 
-        // but here we use the passed 'member' or a default context
-        const data = await MemberAPI.getAppointmentsByMember(member?.memberID || '123');
+
+        const data = await MemberAPI.getAllAppointmentsByChuHo(user?.userID);
         setAppointments(data);
       } catch (error) {
         console.error("Failed to fetch appointments", error);
@@ -27,30 +27,21 @@ const AppointmentMainView = ({ member }) => {
       }
     };
     fetchAppointments();
-  }, [member?.memberID]);
+  }, [user?.userID]);
 
   // Helper: Get Unique Patient Names for Dropdown
   const uniqueNames = useMemo(() => {
-      const names = appointments.map(app => app.patientName).filter(Boolean);
+      const names = appointments
+        .map(app => app.member?.fullName || app.patientName)
+        .filter(Boolean);
       return [...new Set(names)];
   }, [appointments]);
-
-  // Format helpers
-  const formatDate = (dateString) => {
-    const parts = dateString.split('-');
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    return dateString;
-  };
-
-  const formatTime = (timeString) => {
-    return timeString.split(':').slice(0, 2).join(':');
-  };
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'SCHEDULED': return 'bg-[#BBDEFB] text-[#1976D2] border-[#90CAF9]';
       case 'COMPLETED': return 'bg-[#C8E6C9] text-[#388E3C] border-[#A5D6A7]';
-      case 'CANCELED': return 'bg-[#FFCDD2] text-[#D32F2F] border-[#EF9A9A]';
+      case 'CANCELLED': return 'bg-[#FFCDD2] text-[#D32F2F] border-[#EF9A9A]';
       default: return 'bg-[#F5F5F5] text-[#B0BEC5] border-[#E0E0E0]';
     }
   };
@@ -59,9 +50,37 @@ const AppointmentMainView = ({ member }) => {
     switch (status) {
       case 'SCHEDULED': return 'Sắp tới';
       case 'COMPLETED': return 'Đã khám';
-      case 'CANCELED': return 'Đã hủy';
+      case 'CANCELLED': return 'Đã hủy';
       default: return status;
     }
+  };
+
+  const normalizeDateTime = (dt) => dt?.replace(' ', 'T') ?? '';
+
+  const getTimePart = (dateTimeString) => {
+    const normalized = normalizeDateTime(dateTimeString);
+    const timePart = normalized.split('T')[1];
+    return timePart ? timePart.slice(0, 5) : '';
+  };
+  
+  const getDatePart = (dateTimeString) => {
+    const normalized = normalizeDateTime(dateTimeString);
+    return normalized.split('T')[0] || '';
+  };
+
+  const formatDateForFilter = (dateTimeString) => {
+    const datePart = getDatePart(dateTimeString);
+    if (!datePart) return '';
+    const [year, month, day] = datePart.split('-');
+    if (!year || !month || !day) return '';
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatInputDate = (value) => {
+    if (!value) return '';
+    const [year, month, day] = value.split('-');
+    if (!year || !month || !day) return '';
+    return `${day}-${month}-${year}`;
   };
 
   const handleDateChange = (e) => {
@@ -76,10 +95,14 @@ const AppointmentMainView = ({ member }) => {
   };
 
   const filteredAppointments = useMemo(() => {
+    const formattedFilterDate = formatInputDate(filterDate);
     return appointments.filter(app => {
       const matchesStatus = filterStatus === 'ALL' ? true : app.status === filterStatus;
-      const matchesDate = filterDate ? app.appointmentDate === filterDate : true;
-      const matchesName = filterName ? app.patientName === filterName : true;
+      const matchesDate = formattedFilterDate
+        ? formatDateForFilter(app.appointmentDateTime) === formattedFilterDate
+        : true;
+      const patientName = app.member?.fullName || app.patientName;
+      const matchesName = filterName ? patientName === filterName : true;
       return matchesStatus && matchesDate && matchesName;
     });
   }, [appointments, filterStatus, filterDate, filterName]);
@@ -134,7 +157,7 @@ const AppointmentMainView = ({ member }) => {
 
          {/* Tabs */}
          <div className="flex gap-6 overflow-x-auto pt-2">
-            {['ALL', 'SCHEDULED', 'COMPLETED', 'CANCELED'].map((status) => (
+            {['ALL', 'SCHEDULED', 'COMPLETED', 'CANCELLED'].map((status) => (
             <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
@@ -161,7 +184,7 @@ const AppointmentMainView = ({ member }) => {
               <div className="p-4 bg-[#F5F5F5] rounded-full mb-4">
                 <CalendarIcon className="w-10 h-10 text-[#BDBDBD]" />
               </div>
-              <p className="text-g[#9E9E9E] font-medium text-lg">Không tìm thấy lịch hẹn.</p>
+              <p className="text-[#9E9E9E] font-medium text-lg">Không tìm thấy lịch hẹn.</p>
               {(filterDate || filterName || filterStatus !== 'ALL') && (
                   <button 
                     onClick={() => { setFilterDate(''); setFilterName(''); setFilterStatus('ALL'); }}
@@ -173,57 +196,70 @@ const AppointmentMainView = ({ member }) => {
             </div>
           ) : (
             <div className="space-y-4 pb-10">
-              {filteredAppointments.map((app) => (
-                <div key={app.appointmentId} className="bg-white rounded-xl border border-[#EEEEEE] shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col md:flex-row">
-                  <div className="md:w-36 bg-[#E3F2FD] p-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#F5F5F5] flex-shrink-0">
-                    <span className="text-3xl font-bold text-[#1E88E5]">
-                      {app.appointmentDate.split('-')[2]}
-                    </span>
-                    <span className="text-sm font-semibold text-[#757575] uppercase">
-                      Tháng {app.appointmentDate.split('-')[1]}
-                    </span>
-                    <span className="text-xs text-[#BDBDBD] mt-1">{app.appointmentDate.split('-')[0]}</span>
-                  </div>
+              {filteredAppointments.map((app) => {
+                const datePart = getDatePart(app.appointmentDateTime);
+                const timePart = getTimePart(app.appointmentDateTime);
+                const [year, month, day] = datePart ? datePart.split('-') : [];
+                const patientName = app.member?.fullName || app.patientName || 'Thành viên';
+                const doctorName = app.doctor?.fullName
+                  || app.doctorName
+                  || (app.doctor?.userID ? `Bác sĩ ID: ${app.doctor.userID}` : app.doctorID ? `Bác sĩ ID: ${app.doctorID}` : 'Bác sĩ');
 
-                  <div className="flex-grow p-5 flex flex-col justify-between gap-3">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex flex-col">
-                             <h3 className="font-bold text-lg text-[#424242]">
+                return (
+                  <div
+                    key={app.appointmentID || app.appointmentId}
+                    className="bg-white rounded-xl border border-[#EEEEEE] shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col md:flex-row"
+                  >
+                    <div className="md:w-32 bg-[#E3F2FD] p-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#F5F5F5]">
+                      <span className="text-2xl font-bold text-[#1E88E5]">
+                        {day || '--'}
+                      </span>
+                      <span className="text-sm font-semibold text-[#757575] uppercase">
+                        Tháng {month || '--'}
+                      </span>
+                      <span className="text-xs text-[#BDBDBD] mt-1">{year || '----'}</span>
+                    </div>
+
+                    <div className="flex-grow p-4 flex flex-col justify-between gap-3">
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex flex-col">
+                            <h3 className="font-bold text-lg text-[#212121]">
                               {app.reason || 'Khám bệnh'}
                             </h3>
-                            <span className="text-sm font-medium text-[#1E88E5] flex items-center gap-1 mt-1">
-                                <UserIcon className="w-4 h-4" />
-                                {app.patientName || 'Thành viên'}
+                            <span className="text-sm font-medium text-[#1E88E5] flex items-center gap-1 mt-0.5">
+                              <UserIcon className="w-3.5 h-3.5" />
+                              {patientName}
                             </span>
-                        </div>
-                       
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
-                          {getStatusLabel(app.status)}
-                        </span>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-[#757575] mt-3">
-                        <div className="flex items-center gap-2">
-                          <ClockIcon className="w-4 h-4 text-[#BDBDBD]" />
-                          <span>{formatTime(app.startTime)} - {formatTime(app.endTime)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <DoctorIcon className="w-4 h-4 text-[#BDBDBD]" />
-                          <span>{app.doctorName || `Bác sĩ ID: ${app.doctorID}`}</span>
-                        </div>
-                      </div>
+                          </div>
 
-                      {app.notes && (
-                         <div className="mt-4 p-3 bg-[#FAFAFA] rounded-lg text-sm text-[#616161] italic border border-[#F5F5F5]">
-                           <span className="font-medium not-italic text-[#9E9E9E] text-xs block mb-1">Ghi chú:</span>
-                           "{app.notes}"
-                         </div>
-                      )}
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
+                            {getStatusLabel(app.status)}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm text-[#757575] mt-2">
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-4 h-4 text-[#BDBDBD]" />
+                            <span>{timePart || '--:--'}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <DoctorIcon className="w-4 h-4 text-[#BDBDBD]" />
+                            <span>{doctorName}</span>
+                          </div>
+                        </div>
+
+                        {app.notes && (
+                          <div className="mt-3 p-3 bg-[#FAFAFA] rounded-lg text-sm text-[#616161] italic border border-[#F5F5F5]">
+                            <span className="font-medium not-italic text-[#9E9E9E] text-xs block mb-1">Ghi chú:</span>
+                            "{app.notes}"
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
       </div>

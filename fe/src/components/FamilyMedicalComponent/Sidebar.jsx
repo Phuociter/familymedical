@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View } from '../../type.js';
 import EventIcon from '@mui/icons-material/Event';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import { useAuth } from '../../hooks/auth/useAuth.js';
 import { useSelector } from 'react-redux';
 const NavItem = ({ view, activeView, setActiveView, icon, label }) => {
@@ -68,14 +70,14 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
           view={View.Family}
           activeView={activeView}
           setActiveView={setActiveView}
-          icon={<FamilyIcon />}
+          icon={<FamilyRestroomIcon fontSize="small" />}
           label="Thành viên gia đình"
         />
         <NavItem
           view={View.Doctors}
           activeView={activeView}
           setActiveView={setActiveView}
-          icon={<DoctorIcon />}
+          icon={<MedicalServicesIcon fontSize="small" />}
           label="Danh sách Bác sĩ"
         />
         <NavItem
@@ -135,13 +137,6 @@ const Sidebar = ({ activeView, setActiveView, onOpenUserProfile, onOpenFamilyDoc
   );
 };
 
-// SVG Icons (giữ nguyên)
-const FamilyIcon = () => (
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1a6 6 0 00-5.176-5.97M15 21h6m-6-1a6 6 0 00-6-6m6 6v1m0-1a6 6 0 016 6m-6-6v1"></path></svg>
-);
-const DoctorIcon = () => (
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m12 0a2 2 0 100-4m0 4a2 2 0 110-4m-6 0a2 2 0 100-4m0 4a2 2 0 110-4M6 18v-2a2 2 0 114 0v2m-4 0h4m8 0v-2a2 2 0 10-4 0v2m4 0h-4"></path></svg>
-);
 const MessageIcon = () => (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
 );
