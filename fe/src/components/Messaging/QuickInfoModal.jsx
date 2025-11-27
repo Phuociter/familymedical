@@ -419,7 +419,7 @@ export default function QuickInfoModal({
 
     const medicalRecords = selectedMember.medicalRecords || [];
     const relationshipLabel = RELATIONSHIP_LABELS[selectedMember.relationship] || selectedMember.relationship;
-    const recentRecords = medicalRecords
+    const recentRecords = [...medicalRecords]
       .sort((a, b) => new Date(b.recordDate) - new Date(a.recordDate))
       .slice(0, 5);
 
