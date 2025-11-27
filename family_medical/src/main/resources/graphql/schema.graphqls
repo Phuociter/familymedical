@@ -418,6 +418,7 @@ type Query {
     todayAppointments: [Appointment]
     upcomingAppointments: [Appointment]
     familyAppointments: [PatientAppointment]
+    getAllAppointmentByChuHo(userID:Int!): [Appointment]
 
     # Doctor Dashboard query
     doctorDashboard: DoctorDashboard!

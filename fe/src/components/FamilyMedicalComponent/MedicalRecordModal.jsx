@@ -93,7 +93,6 @@ const MedicalRecordModal = ({ member, onClose }) => {
         recordDate: new Date().toISOString().split('T')[0],
         description: stagedFile.file.name
       }));
-
       const recordResult = await MemberAPI.createMedicalRecord(stagedFiles, newRecords);
       setStagedFiles([]);
 

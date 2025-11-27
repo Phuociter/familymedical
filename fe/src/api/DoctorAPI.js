@@ -20,7 +20,7 @@ const DoctorAPI = {
                 }
             }`;
             const data = await authApi.sendGraphQLRequest(GET_DOCTORS_QUERY, {}, token);
-            console.log("doctorDATA:////////////",data);
+            // console.log("doctorDATA:////////////",data);
             return data.getDoctorList;;
         } catch (error) {
             console.error('Lỗi khi lấy danh sách bác sĩ:', error);

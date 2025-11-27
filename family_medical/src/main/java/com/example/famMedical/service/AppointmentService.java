@@ -20,6 +20,7 @@ import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.MemberRepository;
 import com.example.famMedical.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AppointmentService {
     
     private final AppointmentRepository appointmentRepository;
@@ -254,5 +256,28 @@ public class AppointmentService {
         }
         
         return doctor;
+    }
+
+    private User validateChuHo(Integer userId) {
+        User chuHo = userRepository.findById(userId)
+            .orElseThrow(() -> new NotFoundException("ChuHo not found"));
+        
+        if (chuHo.getRole() != UserRole.ChuHo) {
+            throw new AuthException("User is not a chu ho");
+        }
+        
+        return chuHo;
+    }
+
+    public List<Appointment> getAllAppointmentByChuHo(Integer userId) {
+        User chuHo = validateChuHo(userId);
+        Family family = familyRepository.findByHeadOfFamily_UserID(userId);
+        if (family == null) {
+            throw new NotFoundException("Family not found for user");
+        }
+        List<Appointment> appointments = appointmentRepository.findByFamilyOrderByAppointmentDateTimeDesc(family);
+        // appointments.forEach(a ->
+        //         System.out.println("AppointmentID=" + a.getAppointmentID() + ", title=" + a.getTitle()));
+        return appointments;
     }
 }

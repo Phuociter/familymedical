@@ -52,15 +52,8 @@ const DoctorList = ({ familyDoctorId }) => {
     }
 
     const handleRequestDoctor = (doctorID) => {
-        // if (familyDoctorId !== null) {
-        //     alert('Không thể yêu cầu trở thành bác sĩ gia đình do vẫn còn hợp đồng với bác sĩ trước đó.');
-        // } else {
-        //     onSetFamilyDoctor(doctorID);
-        //     // alert(`Đã gửi yêu cầu thành công tới bác sĩ ${doctors.fullName}.`);
-        //     handleCloseModal();
-        // } 
-            onSetFamilyDoctor(doctorID);
-            handleCloseModal();
+        onSetFamilyDoctor(doctorID);
+        handleCloseModal();
     };
 
   return (
@@ -85,13 +78,13 @@ const DoctorList = ({ familyDoctorId }) => {
                     {filteredDoctors.length > 0 ? (
                         filteredDoctors.map(doctor => (
                             <li
-                                key={doctor.id}
+                                key={doctor.userID}
                                 onClick={() => handleDoctorClick(doctor)}
                                 className="p-4 flex items-center space-x-4 cursor-pointer hover:bg-[#F9FAFB] transition-colors"
                             >
                                 <img
                                     className="h-12 w-12 rounded-full object-cover"
-                                    src={`https://picsum.photos/seed/${doctor.ID}/100`}
+                                    src={`${doctor.avatarUrl}`}
                                     alt={`Bác sĩ ${doctor.fullName}`}
                                 />
                                 <div>

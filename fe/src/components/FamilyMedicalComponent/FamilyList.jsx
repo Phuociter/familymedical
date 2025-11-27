@@ -63,7 +63,6 @@ const FamilyList = () => {
         const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
         const memberData = await MemberAPI.getMemberByFamilyID(response.familyID);
         setMembers(memberData);
-        console.log("FamilyID data:",memberData);
       }catch(err){
         setError(err);
         console.log("Failed to fetch family members:", err);

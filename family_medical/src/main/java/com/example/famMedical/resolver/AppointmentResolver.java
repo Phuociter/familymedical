@@ -59,10 +59,10 @@ public class AppointmentResolver {
     }
     
     @QueryMapping
-    @PreAuthorize("hasAuthority('ChuHo')")
+    @PreAuthorize(" ('ChuHo')")
     public List<PatientAppointment> familyAppointments(
             @AuthenticationPrincipal User user) {
-        log.info("Getting family appointments for user: {}", user.getUserID());
+        // log.info("Getting family appointments for user: {}", user.getUserID());
         return appointmentService.getFamilyAppointments(user.getUserID());
     }
     
@@ -116,5 +116,13 @@ public class AppointmentResolver {
             return appointment.getDoctorNotes();
         }
         return null; // Hide from patients
+    }
+
+    @QueryMapping
+    @PreAuthorize("hasAuthority('ChuHo')")
+    public List<Appointment> getAllAppointmentByChuHo(
+            @AuthenticationPrincipal User user) {
+        log.info("Getting all appointments for user: {}", user.getUserID());
+        return appointmentService.getAllAppointmentByChuHo(user.getUserID());
     }
 }
