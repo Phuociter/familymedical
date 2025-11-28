@@ -1,15 +1,21 @@
+import { useState } from 'react';
 import {
   Box,
   Card,
   Typography,
   Chip,
   Button,
+  Stack,
+  Tooltip,
 } from '@mui/material';
 import {
   Description as DescriptionIcon,
   CalendarMonth as CalendarIcon,
   Image as ImageIcon,
+  Visibility as VisibilityIcon,
+  Download as DownloadIcon,
 } from '@mui/icons-material';
+import MedicalRecordViewerModal from './MedicalRecordViewerModal';
 
 /**
  * Format date to Vietnamese format
@@ -94,8 +100,55 @@ const getFileTypeLabel = (fileType) => {
  * @param {boolean} props.isLast - Whether this is the last entry
  */
 export default function TimelineEntry({ record, isLast = false }) {
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const fileName = getFileName(record.fileLink);
   const fileTypeLabel = getFileTypeLabel(record.fileType);
+
+  const handleView = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (record.fileLink) {
+      setViewerOpen(true);
+    }
+  };
+
+  const handleDownload = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!record.fileLink || downloading) return;
+
+    setDownloading(true);
+    try {
+      // Fetch blob để buộc trình duyệt tải xuống thay vì mở tab mới
+      const response = await fetch(record.fileLink, {
+        method: 'GET',
+        headers: {
+          // Thêm headers nếu API yêu cầu authentication
+        }
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName || record.fileLink.split('/').pop() || 'downloaded-file';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed, falling back to open new tab", error);
+      // Fallback: Mở tab mới nếu fetch thất bại (ví dụ do CORS)
+      window.open(record.fileLink, '_blank');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Box sx={{ display: 'flex', position: 'relative', pb: isLast ? 0 : { xs: 2, sm: 2.5, md: 3 } }}>
@@ -175,18 +228,20 @@ export default function TimelineEntry({ record, isLast = false }) {
             </Typography>
             
             {/* File Type Chip - Responsive */}
-            <Chip
-              icon={<ImageIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
-              label={fileTypeLabel}
-              size="small"
-              color="primary"
-              variant="outlined"
-              sx={{ 
-                mb: 0.5,
-                fontSize: { xs: '0.688rem', sm: '0.75rem' },
-                height: { xs: 20, sm: 24 },
-              }}
-            />
+            <Box sx={{ mb: 0.5 }}>
+              <Chip
+                icon={<ImageIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                label={fileTypeLabel}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{ 
+                  fontSize: { xs: '0.688rem', sm: '0.75rem' },
+                  height: { xs: 20, sm: 24 },
+                  fontWeight: 500,
+                }}
+              />
+            </Box>
 
             {/* Description - Responsive */}
             <Typography
@@ -215,28 +270,66 @@ export default function TimelineEntry({ record, isLast = false }) {
             )}
           </Box>
 
-          {/* Right: View Button - Touch-Friendly */}
+          {/* Right: Action Buttons - Touch-Friendly */}
           {record.fileLink && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-              href={record.fileLink}
-              target="_blank"
-              sx={{ 
-                textTransform: 'none', 
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1}
+              sx={{
                 flexShrink: 0,
-                fontSize: { xs: '0.813rem', sm: '0.875rem' },
-                minHeight: { xs: 36, sm: 32 },
-                px: { xs: 2, sm: 1.5 },
                 width: { xs: '100%', sm: 'auto' },
               }}
             >
-              Xem
-            </Button>
+              <Tooltip title="Xem file trong modal">
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<VisibilityIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
+                  onClick={handleView}
+                  sx={{ 
+                    textTransform: 'none', 
+                    fontSize: { xs: '0.813rem', sm: '0.875rem' },
+                    minHeight: { xs: 36, sm: 32 },
+                    px: { xs: 2, sm: 1.5 },
+                    width: { xs: '100%', sm: 'auto' },
+                  }}
+                >
+                  Xem
+                </Button>
+              </Tooltip>
+              <Tooltip title="Tải file xuống">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<DownloadIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  sx={{ 
+                    textTransform: 'none', 
+                    fontSize: { xs: '0.813rem', sm: '0.875rem' },
+                    minHeight: { xs: 36, sm: 32 },
+                    px: { xs: 2, sm: 1.5 },
+                    width: { xs: '100%', sm: 'auto' },
+                  }}
+                >
+                  {downloading ? 'Đang tải...' : 'Tải xuống'}
+                </Button>
+              </Tooltip>
+            </Stack>
           )}
         </Box>
       </Card>
+
+      {/* Medical Record Viewer Modal */}
+      {record.fileLink && (
+        <MedicalRecordViewerModal
+          open={viewerOpen}
+          onClose={() => setViewerOpen(false)}
+          fileLink={record.fileLink}
+          fileName={fileName}
+          fileType={record.fileType}
+        />
+      )}
     </Box>
   );
 }

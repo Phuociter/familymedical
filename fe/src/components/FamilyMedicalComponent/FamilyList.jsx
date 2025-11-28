@@ -111,7 +111,13 @@ const FamilyList = () => {
     if (members.length > 0) {
       return (
         <div className="space-y-4">
-          {members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)}
+          {members.map(member => (
+            <FamilyMemberCard 
+              key={member.memberID || member.membersID} 
+              member={member} 
+              onViewDetails={handleViewDetails} 
+            />
+          ))}
         </div>
       );
     }
@@ -148,6 +154,7 @@ const FamilyList = () => {
         </div>
 
         <div className="space-y-4">
+
           {members.length > 0 ? (
             members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)
           ) : (
@@ -155,6 +162,7 @@ const FamilyList = () => {
               <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
             </div>
           )}
+
         </div>
       </div>
       {selectedMember && (

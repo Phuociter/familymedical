@@ -18,6 +18,7 @@ import AdminPayments from "./pages/admin/AdminPayments";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import MomoCallbackPage from "./pages/MomoCallbackPage";
 import FamilyMedicalPage from "./pages/FamilyMedicalPage.jsx";
+import WebSocketProvider from "./components/WebSocketProvider";
 
 
 // Doctor Portal Components with MUI
@@ -34,7 +35,8 @@ import DoctorFamiliesDetailPage from "./pages/Doctor/DoctorFamiliesDetailPage.js
 
 export default function App() {
   return (
-    <Routes>
+    <WebSocketProvider>
+      <Routes>
       {/* Auth Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -94,6 +96,7 @@ export default function App() {
       />
 
       <Route path="*" element={<Navigate to="/login" />} />
-    </Routes>
+      </Routes>
+    </WebSocketProvider>
   );
 }

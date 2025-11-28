@@ -30,6 +30,7 @@ import {
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/userSlice';
+import NotificationCenter from '../Notification/NotificationCenter';
 
 const drawerWidth = 260;
 
@@ -132,7 +133,8 @@ export default function DoctorLayout() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: '#1976d2' }}>
             {menuItems.find(item => item.path === location.pathname)?.text || 'Doctor Portal'}
           </Typography>
-          <IconButton onClick={handleProfileMenuOpen} sx={{ ml: 2 }}>
+          <NotificationCenter />
+          <IconButton onClick={handleProfileMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ bgcolor: '#1976d2' }} src={user.avatarUrl}>
               {user?.fullName?.charAt(0) || 'D'}
             </Avatar>

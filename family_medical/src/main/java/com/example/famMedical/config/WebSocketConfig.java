@@ -4,17 +4,16 @@ import com.example.famMedical.service.JwtService;
 import com.example.famMedical.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
 import org.springframework.graphql.server.WebSocketGraphQlInterceptor;
 import org.springframework.graphql.server.WebSocketSessionInfo;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.Map;
 
 @Configuration
@@ -46,11 +45,14 @@ class CustomWebSocketInterceptor implements WebSocketGraphQlInterceptor {
     }
 
     @Override
-    public Mono<Object> handleConnectionInitialization(WebSocketSessionInfo sessionInfo, Map<String, Object> connectionInitPayload) {
-        System.out.println("=== WebSocket Init ===");
+    @NonNull
+    public Mono<Object> handleConnectionInitialization(@NonNull WebSocketSessionInfo sessionInfo, @NonNull Map<String, Object> connectionInitPayload) {
+        System.out.println("=== WebSocket Connection Init ===");
+        System.out.println("Session ID: " + sessionInfo.getId());
         
         String token = extractToken(connectionInitPayload);
         if (token == null) {
+            System.err.println("❌ WebSocket: Token not found in connection payload");
             return Mono.error(new RuntimeException("Token not found in payload"));
         }
 
@@ -67,18 +69,25 @@ class CustomWebSocketInterceptor implements WebSocketGraphQlInterceptor {
                     sessionInfo.getAttributes().put("currentUser", userDetails);
                     sessionInfo.getAttributes().put("isAuthenticated", true);
 
-                    System.out.println("✓ Authenticated WebSocket for: " + email);
+                    System.out.println("✅ WebSocket authenticated for: " + email);
+                    System.out.println("✅ WebSocket session established: " + sessionInfo.getId());
                     return Mono.just(Map.of("status", "connected", "user", email));
+                } else {
+                    System.err.println("❌ WebSocket: User not found: " + email);
                 }
+            } else {
+                System.err.println("❌ WebSocket: Invalid JWT token");
             }
         } catch (Exception e) {
-            System.err.println("Auth failed: " + e.getMessage());
+            System.err.println("❌ WebSocket auth failed: " + e.getMessage());
+            e.printStackTrace();
         }
         return Mono.error(new RuntimeException("Unauthorized"));
     }
 
     @Override
-    public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
+    @NonNull
+    public Mono<WebGraphQlResponse> intercept(@NonNull WebGraphQlRequest request, @NonNull Chain chain) {
         // Lấy user từ attributes (đã được copy từ SessionInfo sang Request)
         Object userObj = request.getAttributes().get("currentUser");
 
@@ -97,6 +106,12 @@ class CustomWebSocketInterceptor implements WebSocketGraphQlInterceptor {
                     context.put("authentication", authentication);
                 }).build()
             );
+        } else {
+            // Log warning if user not found (might be keep-alive subscription)
+            String operationName = request.getOperationName();
+            if (operationName != null && !operationName.equals("KeepAlive")) {
+                System.out.println("⚠️ WebSocket: No user found in request attributes for operation: " + operationName);
+            }
         }
 
         return chain.next(request);

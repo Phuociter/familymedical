@@ -249,20 +249,6 @@ export default function MessageBubble({
           {renderStatusIcon()}
         </Box>
       </Box>
-      
-      {isOwnMessage && (
-        <Avatar 
-          sx={{ 
-            width: 36, 
-            height: 36, 
-            ml: 1.5, 
-            bgcolor: isFailed ? 'error.main' : 'primary.main', 
-            fontSize: '0.9rem' 
-          }}
-        >
-          {message.sender?.fullName?.charAt(0) || 'U'}
-        </Avatar>
-      )}
     </Box>
   );
 }
