@@ -1,15 +1,14 @@
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
-    
+
   application:
     name: demo-application
   
   datasource:
     url: jdbc:mysql://localhost:3306/family_medical?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
-    username: root
-    password: 
-
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -107,3 +106,10 @@ momo:
   endpoint: ${MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
   returnUrl: ${MOMO_RETURN_URL:http://localhost:3000/payment/callback}
   ipnUrl: ${MOMO_IPN_URL:http://localhost:8080/api/payment/momo/ipn}
+
+# Test Data Loader Configuration
+test:
+  data:
+    loader:
+      enabled: ${TEST_DATA_LOADER_ENABLED:false}
+      password: ${TEST_DATA_LOADER_PASSWORD:123456}  #  for all test users
