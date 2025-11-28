@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorRequest;
 import com.example.famMedical.Entity.User;
 
@@ -12,6 +13,8 @@ import jakarta.persistence.LockModeType;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.print.Doc;
 
 @Repository
 public interface DoctorRequestRepository extends JpaRepository<DoctorRequest, Integer> {
@@ -26,7 +29,9 @@ public interface DoctorRequestRepository extends JpaRepository<DoctorRequest, In
     Optional<DoctorRequest> findByIdWithRelations(@Param("id") Integer id);
     
     List<DoctorRequest> findByDoctor_UserID(Integer doctorID);
-    
+
+    DoctorRequest findTopByFamily_FamilyIDOrderByRequestDateDesc(Integer familyID);
+
     // New methods for GraphQL API
     @Query("SELECT DISTINCT dr FROM DoctorRequest dr LEFT JOIN FETCH dr.family f LEFT JOIN FETCH f.headOfFamily LEFT JOIN FETCH dr.doctor WHERE dr.doctor = :doctor")
     List<DoctorRequest> findByDoctor(@Param("doctor") User doctor);

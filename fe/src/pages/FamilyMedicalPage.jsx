@@ -103,7 +103,6 @@ const FamilyMedicalPage = () => {
         isOpen={isFamilyDoctorInfoOpen}
         onClose={() => setIsFamilyDoctorInfoOpen(false)}
         doctor={familyDoctor}
-        onTerminateContract={handleTerminateContract}
       />
 
       <SubscriptionModal

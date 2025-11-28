@@ -1,6 +1,7 @@
 package com.example.famMedical.resolver;
 
 import com.example.famMedical.service.DoctorRequestService;
+import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorRequest;
 import com.example.famMedical.Entity.User;
 
@@ -8,19 +9,31 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.foreign.Linker.Option;
+
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import java.util.Optional;
 @Controller
 @AllArgsConstructor
 @Slf4j
 public class DoctorRequestResolver {
     private final DoctorRequestService doctorRequestService;
 
+    @QueryMapping
+    public DoctorRequest getDoctorRequestByFamilyID(@Argument Integer familyID) {
+        return doctorRequestService.getDoctorRequestByFamilyId(familyID);
+    }
+
+    @MutationMapping
+    public Boolean deleteDoctorRequest(@Argument Integer requestID) {
+        return doctorRequestService.deleteDoctorRequest(requestID);
+    }
 
     @MutationMapping
     public DoctorRequest createDRequest(@Argument @Valid String doctorID, @Argument @Valid String userID) {

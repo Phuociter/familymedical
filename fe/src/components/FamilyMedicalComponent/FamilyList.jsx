@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import { FAMILY_MEMBERS } from '../../constants.js';
 import MedicalRecordModal from './MedicalRecordModal.jsx';
 import AddMemberModal from './AddMemberModal.jsx';
 import MemberAPI from '../../api/MemberAPI.js'
@@ -150,7 +149,7 @@ const FamilyList = () => {
 
         <div className="space-y-4">
           {members.length > 0 ? (
-            members.map(member => <FamilyMemberCard key={member.membersID} member={member} onViewDetails={handleViewDetails} />)
+            members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)
           ) : (
             <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
               <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
@@ -164,12 +163,12 @@ const FamilyList = () => {
           onClose={handleCloseModal} 
         />
       )}
-      <AddMemberModal 
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddMember}
-      />
-    </>
+            <AddMemberModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              onSave={handleAddMember}
+              existingMembers={members}
+            />    </>
   );
 };
 

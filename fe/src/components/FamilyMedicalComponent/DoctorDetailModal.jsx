@@ -48,7 +48,7 @@ const DoctorDetailModal = ({ doctor, onClose, onRequest }) => {
 
         <img
           className="w-24 h-24 rounded-full mx-auto -mt-4 mb-4 border-4 border-[#FFFFFF] shadow-md"
-          src={`https://picsum.photos/seed/${doctor.userID}/200`}
+          src={`${doctor.avatarUrl}`}
           alt={doctor.fullName}
         />
 

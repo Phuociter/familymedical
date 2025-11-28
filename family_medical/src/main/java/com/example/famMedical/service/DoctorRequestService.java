@@ -20,7 +20,7 @@ import com.example.famMedical.repository.DoctorRequestRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
 import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.UserRepository;
-
+import java.util.Optional;
 import jakarta.transaction.Transactional;
 
 
@@ -34,6 +34,33 @@ public class DoctorRequestService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final MessageService messageService;
+
+
+    public DoctorRequest getDoctorRequestByFamilyId(Integer familyId){
+        DoctorRequest request = doctorRequestRepository.findTopByFamily_FamilyIDOrderByRequestDateDesc(familyId);
+        if (request == null) {
+            System.out.println("No accepted doctor request found for family ID: " + familyId);
+            return null;
+        }   
+        return request;
+    }
+
+    public Boolean deleteDoctorRequest(Integer requestID) {
+        Optional<DoctorRequest> optionalRequest = doctorRequestRepository.findById(requestID);
+        
+        if(optionalRequest.isPresent()) {
+            doctorRequestRepository.delete(optionalRequest.get());
+            return true; // xóa thành công
+        } else {
+            // không tìm thấy request, trả false thay vì ném exception
+            return false;
+        }
+    }
+
+
+    public DoctorAssignment getDoctorAssignmentByFamilyId(Integer familyId){
+        return doctorAssignmentRepository.findTopByFamily_FamilyIDOrderByStartDateDesc(familyId);
+    }
 
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
@@ -52,7 +79,7 @@ public class DoctorRequestService {
         newRequest.setStatus(RequestStatus.PENDING);
         newRequest.setRequestDate(LocalDateTime.now()); // Set explicitly
 
-        System.out.println("thêm thành công doctor request");
+        // System.out.println("thêm thành công doctor request");
         return doctorRequestRepository.save(newRequest);
 
     }

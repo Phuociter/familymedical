@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MemberAPI from '../../api/MemberAPI.js'
 import ActionAlert from '../ActionAlert.jsx';
 
-const AddMemberModal = ({ isOpen, onClose, onSave }) => {
+const AddMemberModal = ({ isOpen, onClose, onSave, existingMembers = [] }) => {
   const token = localStorage.getItem('userToken');
   const user = JSON.parse(localStorage.getItem('user'));
   if (!isOpen) return null;
@@ -13,7 +13,7 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
     relationship: '',
     dateOfBirth: '',
     gender: '',
-    cccd: '',
+    // cccd: '',
     phoneNumber: '',
   });
   const [error, setError] = useState('');
@@ -29,7 +29,7 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
           relationship: '',
           dateOfBirth: '',
           gender: '',
-          cccd: '',
+          // cccd: '',
           phoneNumber: '',
         });
         setError('');
@@ -43,6 +43,22 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleSave = async () => {
+
+    if (formData.relationship === 'Vợ') {
+      const hasWife = existingMembers.some(member => member.relationship === 'Vợ');
+      if (hasWife) {
+        setError('Gia đình đã có một người Vợ. Không thể thêm nữa.');
+        return;
+      }
+    }
+    if (formData.relationship === 'Chồng') {
+      const hasHusband = existingMembers.some(member => member.relationship === 'Chồng');
+      if (hasHusband) {
+        setError('Gia đình đã có một người Chồng. Không thể thêm nữa.');
+        return;
+      }
+    }
+    
     const response = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
 
     const familyId = response.familyID; 
@@ -67,7 +83,7 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
           ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
           ...(formData.gender && { gender: formData.gender }),
           ...(formData.phoneNumber.trim() && { phoneNumber: formData.phoneNumber.trim() }),
-          ...(formData.cccd.trim() && { cccd: formData.cccd.trim() }),
+          // ...(formData.cccd.trim() && { cccd: formData.cccd.trim() }),
         };
         await onSave(memberDataToSend);
         onClose(); 
@@ -149,7 +165,7 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
               </select>
             </div>
           </div>
-          <div>
+          {/* <div>
             <label htmlFor="cccd" className="block text-sm font-medium text-gray-700">CCCD</label>
             <input
               type="text"
@@ -159,7 +175,7 @@ const AddMemberModal = ({ isOpen, onClose, onSave }) => {
               className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition"
               placeholder="026436548619"
             />
-          </div>
+          </div> */}
           <div>
             <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Số điện thoại</label>
             <input

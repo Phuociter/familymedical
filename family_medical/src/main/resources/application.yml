@@ -58,13 +58,13 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: 1074471028840-iod6ivlk98j1p0htpnqs8283re84enas.apps.googleusercontent.com
+            client-secret: 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
             scope: openid,profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           facebook:
-            client-id: ${FB_CLIENT_ID}
-            client-secret: ${FB_CLIENT_SECRET}
+            client-id: 2220741931733563
+            client-secret: dc1f0e8267656c037ea510e31b7867e6
             scope: public_profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
