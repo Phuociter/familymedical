@@ -6,10 +6,9 @@ spring:
     name: demo-application
   
   datasource:
-    url: jdbc:mysql://localhost:3306/demo?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+    url: jdbc:mysql://localhost:3306/family_medical?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
     username: root
-    password: 123456
-    password: root
+    password: 
 
     driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -73,8 +72,8 @@ spring:
             scope: openid,profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           facebook:
-            client-id: ${FB_CLIENT_ID}
-            client-secret: ${FB_CLIENT_SECRET}
+            client-id: 2220741931733563
+            client-secret: dc1f0e8267656c037ea510e31b7867e6
             scope: public_profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
