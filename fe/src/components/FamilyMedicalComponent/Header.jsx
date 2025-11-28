@@ -29,7 +29,7 @@ const Header = ({ title }) => {
       <div className="px-6 md:px-8 py-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-[#111827]">{title}</h2>
         <div className="relative" ref={notificationRef}>
-          <button 
+          {/* <button 
             onClick={() => setShowNotifications(!showNotifications)} 
             className="relative p-2 rounded-full text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#374151] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6]"
             aria-label="Thông báo"
@@ -40,8 +40,8 @@ const Header = ({ title }) => {
                 {unreadCount}
               </span>
             )}
-          </button>
-          {showNotifications && (
+          </button> */}
+          {/* {showNotifications && (
             <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFFFF] rounded-lg shadow-xl overflow-hidden border border-[#EEEEEE]">
               <div className="p-3 border-b border-[#EEEEEE]">
                 <h3 className="font-semibold text-[#111827]">Thông báo</h3>
@@ -60,7 +60,7 @@ const Header = ({ title }) => {
                  <a href="#" className="text-sm font-medium text-[#3B82F6] hover:underline">Xem tất cả</a>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </header>

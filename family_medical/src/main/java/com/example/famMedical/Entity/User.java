@@ -90,7 +90,13 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        if (role == null) {
+            // In ra nếu vai trò bị null
+            System.out.println("USER " + this.email + " HAS A NULL ROLE!");
+            return java.util.Collections.emptyList();
+        }
+        // In ra quyền được tạo ra
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
 
