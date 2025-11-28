@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "messages", indexes = {
+@Table(name = "Messages", indexes = {
     @Index(name = "idx_conversation", columnList = "conversation_id"),
     @Index(name = "idx_sender", columnList = "sender_id"),
     @Index(name = "idx_created_at", columnList = "created_at")
