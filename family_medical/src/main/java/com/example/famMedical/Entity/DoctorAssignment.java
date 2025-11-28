@@ -3,7 +3,7 @@ package com.example.famMedical.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import java.time.LocalDateTime;
 @Entity
 @Table(name = "DoctorAssignment")
 @Data
@@ -23,6 +23,9 @@ public class DoctorAssignment {
     @ManyToOne
     @JoinColumn(name = "familyID")
     private Family family;
+    
+    @Column(name = "StartDate")
+    private LocalDateTime startDate;
 
     @Enumerated(EnumType.STRING)
     private AssignmentStatus status; // ACTIVE, INACTIVE

@@ -59,7 +59,7 @@ public class AppointmentResolver {
     }
     
     @QueryMapping
-    @PreAuthorize(" ('ChuHo')")
+    @PreAuthorize("hasRole('ChuHo')")
     public List<PatientAppointment> familyAppointments(
             @AuthenticationPrincipal User user) {
         // log.info("Getting family appointments for user: {}", user.getUserID());
@@ -119,9 +119,12 @@ public class AppointmentResolver {
     }
 
     @QueryMapping
-    @PreAuthorize("hasAuthority('ChuHo')")
+    @PreAuthorize("hasRole('ChuHo')")
     public List<Appointment> getAllAppointmentByChuHo(
             @AuthenticationPrincipal User user) {
+        // In ra các quyền mà Spring Security đang thấy
+        System.out.println("CHECKING AUTHORITIES IN RESOLVER: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        
         log.info("Getting all appointments for user: {}", user.getUserID());
         return appointmentService.getAllAppointmentByChuHo(user.getUserID());
     }

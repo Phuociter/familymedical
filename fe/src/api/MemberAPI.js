@@ -35,7 +35,7 @@ const MemberAPI = {
   updateMember: async (memberID, memberData, token) => {
     try {
       const UPDATE_MEMBER_MUTATION = `
-      mutation UpdateMember($memberID: ID!, $input: MemberUpdateInput!) {
+      mutation UpdateMember($memberID: ID!, $input: UpdateMemberInput!) {
         updateMember(memberID: $memberID, input: $input) {
           memberID
           fullName
@@ -43,12 +43,11 @@ const MemberAPI = {
           gender
           relationship
           phoneNumber
-          cccd
         }
       }`; 
       const variables = {                                                                                                     
       memberID,                                                                                                            
-      input: updateData,                                                                                                   
+      input: memberData,                                                                                                   
       };
       return await authApi.sendGraphQLRequest(UPDATE_MEMBER_MUTATION, variables, token);
     } catch (error) {
@@ -66,7 +65,6 @@ const MemberAPI = {
           dateOfBirth 
           gender
           phoneNumber
-          cccd
         }
       }`;
       const variables = {

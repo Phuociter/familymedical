@@ -165,7 +165,6 @@ input UpdateMemberInput {
     gender: String 
     relationship: String 
     phoneNumber: String 
-    cccd: String 
 }
 
 input CreateMemberInput {
@@ -292,6 +291,7 @@ type DoctorAssignment {
     assignmentId: ID
     doctor: User
     family: Family
+    status: String
 }
 
 type Payment {
@@ -411,6 +411,11 @@ type Query {
     # Doctor Requests queries
     doctorRequests(status: RequestStatus): [DoctorRequest]
     doctorRequestDetail(requestID: Int!): DoctorRequest
+    getDoctorRequestByFamilyID(familyID:Int): DoctorRequest
+
+
+    #doctor Assignment
+    getDoctorAssignmentByFamilyID(familyID:Int!):DoctorAssignment
 
     # Appointment queries
     appointments(filter: AppointmentFilter): [Appointment]
@@ -464,7 +469,6 @@ type Mutation {
     # New mutation for resetting the password
     resetMyPassword(token: String!, newPassword: String!): String!
     
-    
     #MedicalRecord
     createMedicalRecord(input: CreateMedicalRecordInput!): MedicalRecord
     deleteRecord(recordID: ID!): Boolean
@@ -483,7 +487,8 @@ type Mutation {
 
     # doctor request
     createDRequest(doctorID:ID!, userID:ID!) : DoctorRequest
-    
+    deleteDoctorRequest(requestID:ID!): Boolean
+
     # MoMo Payment Mutations
     createMomoPayment(userId: Int!, packageType: PackageType!, amount: Float!): MomoPaymentResponse!
     updateMomoPaymentStatus(orderId: String!, resultCode: Int!): Payment!

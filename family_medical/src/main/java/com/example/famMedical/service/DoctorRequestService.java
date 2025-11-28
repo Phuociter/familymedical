@@ -1,3 +1,4 @@
+
 package com.example.famMedical.service;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,6 @@ import com.example.famMedical.Entity.DoctorAssignment;
 import com.example.famMedical.Entity.DoctorAssignment.AssignmentStatus;
 import com.example.famMedical.Entity.Family;
 import com.example.famMedical.Entity.User;
-import com.example.famMedical.dto.events.DoctorRequestCreatedEvent;
 import com.example.famMedical.dto.events.DoctorRequestStatusChangedEvent;
 import com.example.famMedical.exception.AuthException;
 import com.example.famMedical.exception.NotFoundException;
@@ -21,7 +21,7 @@ import com.example.famMedical.repository.DoctorRequestRepository;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
 import com.example.famMedical.repository.FamilyRepository;
 import com.example.famMedical.repository.UserRepository;
-
+import java.util.Optional;
 import jakarta.transaction.Transactional;
 
 
@@ -36,7 +36,33 @@ public class DoctorRequestService {
     private final ApplicationEventPublisher eventPublisher;
     private final MessageService messageService;
 
-    @Transactional
+
+    public DoctorRequest getDoctorRequestByFamilyId(Integer familyId){
+        DoctorRequest request = doctorRequestRepository.findTopByFamily_FamilyIDOrderByRequestDateDesc(familyId);
+        if (request == null) {
+            System.out.println("No accepted doctor request found for family ID: " + familyId);
+            return null;
+        }   
+        return request;
+    }
+
+    public Boolean deleteDoctorRequest(Integer requestID) {
+        Optional<DoctorRequest> optionalRequest = doctorRequestRepository.findById(requestID);
+        
+        if(optionalRequest.isPresent()) {
+            doctorRequestRepository.delete(optionalRequest.get());
+            return true; // xóa thành công
+        } else {
+            // không tìm thấy request, trả false thay vì ném exception
+            return false;
+        }
+    }
+
+
+    public DoctorAssignment getDoctorAssignmentByFamilyId(Integer familyId){
+        return doctorAssignmentRepository.findTopByFamily_FamilyIDOrderByStartDateDesc(familyId);
+    }
+
     public DoctorRequest createDoctorRequest(String doctorID, String userID){
         int docID = Integer.parseInt(doctorID);
         Integer uID = Integer.parseInt(userID);
@@ -54,13 +80,8 @@ public class DoctorRequestService {
         newRequest.setStatus(RequestStatus.PENDING);
         newRequest.setRequestDate(LocalDateTime.now()); // Set explicitly
 
-        System.out.println("thêm thành công doctor request");
-        DoctorRequest savedRequest = doctorRequestRepository.save(newRequest);
-        
-        // Publish event for notification
-        eventPublisher.publishEvent(new DoctorRequestCreatedEvent(this, savedRequest));
-        
-        return savedRequest;
+        // System.out.println("thêm thành công doctor request");
+        return doctorRequestRepository.save(newRequest);
 
     }
 

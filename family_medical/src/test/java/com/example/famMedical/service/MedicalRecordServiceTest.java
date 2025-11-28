@@ -23,7 +23,12 @@ import com.example.famMedical.Entity.User;
 import com.example.famMedical.Entity.UserRole;
 import com.example.famMedical.repository.DoctorAssignmentRepository;
 import com.example.famMedical.repository.MedicalRecordRepository;
+import com.example.famMedical.dto.events.MedicalRecordCreatedEvent;
+import com.example.famMedical.dto.events.MedicalRecordUpdatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +42,9 @@ public class MedicalRecordServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private MedicalRecordService medicalRecordService;
@@ -338,5 +346,267 @@ public class MedicalRecordServiceTest {
         // Assert
         assertEquals("http://example.com/file.pdf", url);
         verify(cloudinaryService, never()).getSignedDownloadUrl(anyString());
+    }
+
+    // ============= getAllRecords tests =============
+
+    @Test
+    public void testGetAllRecords_Success() {
+        // Arrange
+        MedicalRecord record2 = new MedicalRecord();
+        record2.setRecordID(2);
+        record2.setMember(member);
+        record2.setFileLink("https://example.com/file2.pdf");
+
+        List<MedicalRecord> expectedRecords = Arrays.asList(record, record2);
+        when(medicalRecordRepository.findAll()).thenReturn(expectedRecords);
+
+        // Act
+        List<MedicalRecord> result = medicalRecordService.getAllRecords();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(expectedRecords, result);
+        verify(medicalRecordRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testGetAllRecords_EmptyList() {
+        // Arrange
+        when(medicalRecordRepository.findAll()).thenReturn(Arrays.asList());
+
+        // Act
+        List<MedicalRecord> result = medicalRecordService.getAllRecords();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(medicalRecordRepository, times(1)).findAll();
+    }
+
+    // ============= getRecordById tests =============
+
+    @Test
+    public void testGetRecordById_Success() {
+        // Arrange
+        when(medicalRecordRepository.findById(1)).thenReturn(Optional.of(record));
+
+        // Act
+        Optional<MedicalRecord> result = medicalRecordService.getRecordById(1);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(record.getRecordID(), result.get().getRecordID());
+        verify(medicalRecordRepository, times(1)).findById(1);
+    }
+
+    @Test
+    public void testGetRecordById_NotFound() {
+        // Arrange
+        when(medicalRecordRepository.findById(999)).thenReturn(Optional.empty());
+
+        // Act
+        Optional<MedicalRecord> result = medicalRecordService.getRecordById(999);
+
+        // Assert
+        assertFalse(result.isPresent());
+        verify(medicalRecordRepository, times(1)).findById(999);
+    }
+
+    // ============= getRecordsByMemberId tests =============
+
+    @Test
+    public void testGetRecordsByMemberId_Success() {
+        // Arrange
+        MedicalRecord record2 = new MedicalRecord();
+        record2.setRecordID(2);
+        record2.setMember(member);
+        record2.setFileLink("https://example.com/file2.pdf");
+
+        List<MedicalRecord> expectedRecords = Arrays.asList(record, record2);
+        when(medicalRecordRepository.findByMember_MemberID(1)).thenReturn(expectedRecords);
+
+        // Act
+        List<MedicalRecord> result = medicalRecordService.getRecordsByMemberId(1);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(expectedRecords, result);
+        verify(medicalRecordRepository, times(1)).findByMember_MemberID(1);
+    }
+
+    @Test
+    public void testGetRecordsByMemberId_EmptyList() {
+        // Arrange
+        when(medicalRecordRepository.findByMember_MemberID(999)).thenReturn(Arrays.asList());
+
+        // Act
+        List<MedicalRecord> result = medicalRecordService.getRecordsByMemberId(999);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(medicalRecordRepository, times(1)).findByMember_MemberID(999);
+    }
+
+    // ============= getFileLinksByMemberId tests =============
+
+    @Test
+    public void testGetFileLinksByMemberId_Success() {
+        // Arrange
+        List<String> expectedLinks = Arrays.asList(
+            "https://example.com/file1.pdf",
+            "https://example.com/file2.pdf"
+        );
+        when(medicalRecordRepository.findFileLinksByMember_MemberID(1)).thenReturn(expectedLinks);
+
+        // Act
+        List<String> result = medicalRecordService.getFileLinksByMemberId(1);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(expectedLinks, result);
+        verify(medicalRecordRepository, times(1)).findFileLinksByMember_MemberID(1);
+    }
+
+    @Test
+    public void testGetFileLinksByMemberId_EmptyList() {
+        // Arrange
+        when(medicalRecordRepository.findFileLinksByMember_MemberID(999)).thenReturn(Arrays.asList());
+
+        // Act
+        List<String> result = medicalRecordService.getFileLinksByMemberId(999);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(medicalRecordRepository, times(1)).findFileLinksByMember_MemberID(999);
+    }
+
+    // ============= createMedicalRecord tests =============
+
+    @Test
+    public void testCreateMedicalRecord_Success() {
+        // Arrange
+        MedicalRecord newRecord = new MedicalRecord();
+        newRecord.setMember(member);
+        newRecord.setFileLink("https://example.com/newfile.pdf");
+        newRecord.setDescription("New record");
+
+        MedicalRecord savedRecord = new MedicalRecord();
+        savedRecord.setRecordID(10);
+        savedRecord.setMember(member);
+        savedRecord.setFileLink("https://example.com/newfile.pdf");
+        savedRecord.setDescription("New record");
+
+        when(medicalRecordRepository.save(any(MedicalRecord.class))).thenReturn(savedRecord);
+        doNothing().when(eventPublisher).publishEvent(any(MedicalRecordCreatedEvent.class));
+
+        // Act
+        MedicalRecord result = medicalRecordService.createMedicalRecord(newRecord);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(savedRecord.getRecordID(), result.getRecordID());
+        assertEquals(savedRecord.getFileLink(), result.getFileLink());
+        verify(medicalRecordRepository, times(1)).save(newRecord);
+        verify(eventPublisher, times(1)).publishEvent(any(MedicalRecordCreatedEvent.class));
+    }
+
+    // ============= updateRecord tests =============
+
+    @Test
+    public void testUpdateRecord_IsUpdate_PublishesUpdateEvent() {
+        // Arrange
+        record.setDescription("Updated description");
+        when(medicalRecordRepository.existsById(1)).thenReturn(true);
+        when(medicalRecordRepository.save(any(MedicalRecord.class))).thenReturn(record);
+        doNothing().when(eventPublisher).publishEvent(any(MedicalRecordUpdatedEvent.class));
+
+        // Act
+        MedicalRecord result = medicalRecordService.updateRecord(record);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Updated description", result.getDescription());
+        verify(medicalRecordRepository, times(1)).existsById(1);
+        verify(medicalRecordRepository, times(1)).save(record);
+        verify(eventPublisher, times(1)).publishEvent(any(MedicalRecordUpdatedEvent.class));
+    }
+
+    @Test
+    public void testUpdateRecord_IsCreate_DoesNotPublishUpdateEvent() {
+        // Arrange
+        MedicalRecord newRecord = new MedicalRecord();
+        newRecord.setRecordID(null); // New record
+        newRecord.setMember(member);
+        newRecord.setFileLink("https://example.com/newfile.pdf");
+
+        MedicalRecord savedRecord = new MedicalRecord();
+        savedRecord.setRecordID(10);
+        savedRecord.setMember(member);
+        savedRecord.setFileLink("https://example.com/newfile.pdf");
+
+        when(medicalRecordRepository.existsById(anyInt())).thenReturn(false);
+        when(medicalRecordRepository.save(any(MedicalRecord.class))).thenReturn(savedRecord);
+        doNothing().when(eventPublisher).publishEvent(any(MedicalRecordCreatedEvent.class));
+
+        // Act
+        MedicalRecord result = medicalRecordService.updateRecord(newRecord);
+
+        // Assert
+        assertNotNull(result);
+        verify(medicalRecordRepository, times(1)).save(newRecord);
+        verify(eventPublisher, never()).publishEvent(any(MedicalRecordUpdatedEvent.class));
+    }
+
+    @Test
+    public void testUpdateRecord_RecordIdNull_DoesNotPublishUpdateEvent() {
+        // Arrange
+        MedicalRecord recordWithoutId = new MedicalRecord();
+        recordWithoutId.setRecordID(null);
+        recordWithoutId.setMember(member);
+        recordWithoutId.setFileLink("https://example.com/file.pdf");
+
+        MedicalRecord savedRecord = new MedicalRecord();
+        savedRecord.setRecordID(10);
+        savedRecord.setMember(member);
+        savedRecord.setFileLink("https://example.com/file.pdf");
+
+        when(medicalRecordRepository.save(any(MedicalRecord.class))).thenReturn(savedRecord);
+
+        // Act
+        MedicalRecord result = medicalRecordService.updateRecord(recordWithoutId);
+
+        // Assert
+        assertNotNull(result);
+        verify(medicalRecordRepository, times(1)).save(recordWithoutId);
+        verify(medicalRecordRepository, never()).existsById(anyInt());
+        verify(eventPublisher, never()).publishEvent(any(MedicalRecordUpdatedEvent.class));
+    }
+
+    // ============= deleteMedicalRecord tests =============
+
+    @Test
+    public void testDeleteMedicalRecord_Success() {
+        // Arrange
+        doNothing().when(medicalRecordRepository).deleteById(1);
+
+        // Act
+        Boolean result = medicalRecordService.deleteMedicalRecord(1);
+
+        // Assert
+        assertTrue(result);
+        verify(medicalRecordRepository, times(1)).deleteById(1);
+    }
+
+    @Test
+    public void testDeleteMedicalRecord_AlwaysReturnsTrue() {
+        // Arrange
+        doNothing().when(medicalRecordRepository).deleteById(999);
+
+        // Act
+        Boolean result = medicalRecordService.deleteMedicalRecord(999);
+
+        // Assert
+        assertTrue(result);
+        verify(medicalRecordRepository, times(1)).deleteById(999);
     }
 }

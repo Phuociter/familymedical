@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import { FAMILY_MEMBERS } from '../../constants.js';
 import MedicalRecordModal from './MedicalRecordModal.jsx';
 import AddMemberModal from './AddMemberModal.jsx';
 import MemberAPI from '../../api/MemberAPI.js'
@@ -155,28 +154,15 @@ const FamilyList = () => {
         </div>
 
         <div className="space-y-4">
-          {(() => {
-            const filteredMembers = members.filter(member => {
-              if (!searchTerm) return true;
-              const searchLower = searchTerm.toLowerCase();
-              const fullName = (member.fullName || '').toLowerCase();
-              return fullName.includes(searchLower);
-            });
-            
-            return filteredMembers.length > 0 ? (
-              filteredMembers.map(member => (
-                <FamilyMemberCard 
-                  key={member.memberID || member.membersID} 
-                  member={member} 
-                  onViewDetails={handleViewDetails} 
-                />
-              ))
-            ) : (
-              <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
-                <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
-              </div>
-            );
-          })()}
+
+          {members.length > 0 ? (
+            members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)
+          ) : (
+            <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
+              <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
+            </div>
+          )}
+
         </div>
       </div>
       {selectedMember && (
@@ -185,12 +171,12 @@ const FamilyList = () => {
           onClose={handleCloseModal} 
         />
       )}
-      <AddMemberModal 
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddMember}
-      />
-    </>
+            <AddMemberModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              onSave={handleAddMember}
+              existingMembers={members}
+            />    </>
   );
 };
 

@@ -12,6 +12,7 @@ import com.example.famMedical.Entity.User;
 public interface DoctorAssignmentRepository extends JpaRepository<DoctorAssignment, Integer> {
 
     boolean existsByDoctorUserIDAndFamilyFamilyIDAndStatus(int doctorId, int familyId, AssignmentStatus status);
+    DoctorAssignment findTopByFamily_FamilyIDOrderByStartDateDesc(Integer familyID);
 
     // Count methods for dashboard statistics
     @Query("SELECT COUNT(da) FROM DoctorAssignment da WHERE da.doctor = :doctor AND da.status = 'ACTIVE'")

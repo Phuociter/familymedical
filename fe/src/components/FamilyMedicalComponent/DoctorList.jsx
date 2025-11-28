@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 // import { DOCTORS } from '../../constants.js';
 // import DoctorDetailModal from './DoctorDetailModal.jsx';
 import * as DoctorDetailModalModule from './DoctorDetailModal.jsx'
 const DoctorDetailModal = DoctorDetailModalModule.default;
 import DoctorAPI from '../../api/DoctorAPI.js';
-
+import MemberAPI from '../../api/MemberAPI.js';
+import ActionAlert from '../ActionAlert.jsx';
 const DoctorList = ({ familyDoctorId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -12,6 +13,10 @@ const DoctorList = ({ familyDoctorId }) => {
     const [doctorRequest,setDoctorRequest] = useState();
     const token = localStorage.getItem('userToken');
     const user = JSON.parse(localStorage.getItem('user'));
+    const [isOpenAlert, setIsOpenAlert] = useState(false);
+    const [message, setMessage] = useState("");
+
+    
     // console.log("familyID",familyDoctorId);
     useEffect(() =>{
         const fetchDoctors = async() => {
@@ -38,8 +43,20 @@ const DoctorList = ({ familyDoctorId }) => {
         setSelectedDoctor(null);
     };
 
+    const showAlert = (content) => {
+        setMessage(content);
+        setIsOpenAlert(true);
+    };
+
     const onSetFamilyDoctor = async(doctorID) => {
         try{
+                const token = localStorage.getItem('userToken');
+                const family = await MemberAPI.getFamilyByHeadOfFamilyID(user.userID, token);
+                const requestExists = await DoctorAPI.getDoctorRequestByFamilyID(family.familyID, token);
+                if(requestExists){
+                    showAlert("Yêu cầu tới bác sĩ đã tồn tại:");
+                    return;
+                }
                 const doctorDataR = await DoctorAPI.createDoctorRequest(doctorID, user.userID, token);
                 setDoctorRequest(doctorDataR);  
                 console.log("create doctor request:", doctorDataR);
@@ -52,6 +69,7 @@ const DoctorList = ({ familyDoctorId }) => {
     }
 
     const handleRequestDoctor = (doctorID) => {
+        // const 
         onSetFamilyDoctor(doctorID);
         handleCloseModal();
     };
@@ -100,6 +118,12 @@ const DoctorList = ({ familyDoctorId }) => {
                     )}
                 </ul>
             </div>
+      <ActionAlert 
+        isOpen={isOpenAlert} 
+        onClose={() => setIsOpenAlert(false)}
+      >
+        {message}
+      </ActionAlert>
         </div>
         {selectedDoctor && (
             <DoctorDetailModal
