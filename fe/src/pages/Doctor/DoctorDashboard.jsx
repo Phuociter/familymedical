@@ -304,10 +304,10 @@ export default function DoctorDashboard() {
               Hoạt động trong tuần
             </Typography>
             <Box sx={{ width: '100%', height: 350, minHeight: 350 }}>
-              <ResponsiveContainer width="100%" height="100%" minHeight={350}>
+              <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={formattedWeeklyStats}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(128,128,128,0.2)" />
-                  <XAxis dataKey="date" tick={{ fill: '#9ca3af' }} />
+                  <XAxis dataKey="week" tick={{ fill: '#9ca3af' }} />
                   <YAxis tick={{ fill: '#9ca3af' }} />
                   <Tooltip
                     contentStyle={{

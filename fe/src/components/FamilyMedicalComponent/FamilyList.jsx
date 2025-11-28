@@ -112,7 +112,13 @@ const FamilyList = () => {
     if (members.length > 0) {
       return (
         <div className="space-y-4">
-          {members.map(member => <FamilyMemberCard key={member.memberID} member={member} onViewDetails={handleViewDetails} />)}
+          {members.map(member => (
+            <FamilyMemberCard 
+              key={member.memberID || member.membersID} 
+              member={member} 
+              onViewDetails={handleViewDetails} 
+            />
+          ))}
         </div>
       );
     }
@@ -149,13 +155,28 @@ const FamilyList = () => {
         </div>
 
         <div className="space-y-4">
-          {members.length > 0 ? (
-            members.map(member => <FamilyMemberCard key={member.membersID} member={member} onViewDetails={handleViewDetails} />)
-          ) : (
-            <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
-              <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
-            </div>
-          )}
+          {(() => {
+            const filteredMembers = members.filter(member => {
+              if (!searchTerm) return true;
+              const searchLower = searchTerm.toLowerCase();
+              const fullName = (member.fullName || '').toLowerCase();
+              return fullName.includes(searchLower);
+            });
+            
+            return filteredMembers.length > 0 ? (
+              filteredMembers.map(member => (
+                <FamilyMemberCard 
+                  key={member.memberID || member.membersID} 
+                  member={member} 
+                  onViewDetails={handleViewDetails} 
+                />
+              ))
+            ) : (
+              <div className="text-center py-10 bg-[#FFFFFF] rounded-lg shadow-sm border border-[#EEEEEE]">
+                <p className="text-[#6B7280]">Không tìm thấy thành viên nào.</p>
+              </div>
+            );
+          })()}
         </div>
       </div>
       {selectedMember && (
